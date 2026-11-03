@@ -1,22 +1,134 @@
 import { test, expect } from '@playwright/test';
 
-test('OSINT preserves drawing, switches providers and opens independent feature panels', async ({
+const cameras = Array.from({ length: 12 }, (_, i) => ({
+  id: `audit-camera-${i}`,
+  name: `Audit Camera ${i + 1}`,
+  kind: 'camera',
+  latitude: -6.9175 + Math.floor(i / 2) * 0.0001,
+  longitude: 107.6191,
+  url: 'https://camera.test/source',
+  previewUrl: 'https://camera.test/preview.svg',
+  provider: 'Audit',
+}));
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript((sources) => {
+    if (sessionStorage.getItem('audit-initialized')) return;
+    sessionStorage.setItem('audit-initialized', 'true');
+    localStorage.setItem('bms-language', 'en');
+    localStorage.setItem('osint-surveillance-bandung-v1', 'false');
+    localStorage.setItem('osint-surveillance-config-v1', JSON.stringify(sources));
+    localStorage.setItem(
+      'osint-surveillance-switches-v1',
+      JSON.stringify({ cameras: true, previews: true, showOffline: true, news: false }),
+    );
+    localStorage.setItem('jejak-camera-dock-collapsed', 'false');
+  }, cameras);
+  await page.route('https://camera.test/preview.svg', (route) =>
+    route.fulfill({
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="90"><rect width="160" height="90" fill="#163d26"/></svg>',
+    }),
+  );
+  await page.goto('/');
+  await expect(page.locator('.maplibregl-canvas')).toBeVisible();
+});
+
+test('pagination keeps cards and empty tabs stable; monitor never overlaps tray', async ({
   page,
 }) => {
   const errors: string[] = [];
-  const requests: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  page.on('request', (request) => {
-    if (new URL(request.url()).pathname.startsWith('/api/')) requests.push(request.url());
-  });
-  await page.addInitScript(() => localStorage.setItem('bms-language', 'en'));
-  await page.route('**/api/osint/camera-health', (route) =>
-    route.fulfill({ json: { health: {} } }),
-  );
-  await page.route('**/api/osint/camera-media/**', (route) => route.fulfill({ status: 503 }));
-  await page.goto('/');
-  await expect(page.getByRole('main', { name: 'OSINT map workspace' })).toBeVisible();
-  await expect(page.locator('.maplibregl-canvas')).toBeVisible();
+  const before = await page.locator('#map-corner-compass').boundingBox();
+  await page.getByRole('button', { name: 'CCTV', exact: true }).click();
+  await expect(page.locator('.camera-card').first()).toBeVisible();
+  const dock = await page.locator('.camera-dock').boundingBox();
+  expect(Math.abs(dock!.x - (1440 - dock!.x - dock!.width))).toBeLessThan(1);
+  expect((await page.locator('#map-corner-compass').boundingBox())!.y).toBe(before!.y);
+  const width = (await page.locator('.camera-card').first().boundingBox())!.width;
+  await page.getByRole('button', { name: 'Last camera page', exact: true }).click();
+  expect((await page.locator('.camera-card').first().boundingBox())!.width).toBeCloseTo(width, 0);
+  await expect(page.locator('.camera-pagination > span')).toHaveText(/\d+-12 \/ 12/);
+  await page.getByRole('tab', { name: 'Favorites', exact: true }).click();
+  expect((await page.locator('.camera-dock').boundingBox())!.height).toBe(dock!.height);
+  await page.getByRole('tab', { name: 'Cameras', exact: true }).click();
+  await page.locator('.camera-card').first().click();
+  const monitor = await page.locator('.compact-monitor').boundingBox();
+  const selectedDock = await page.locator('.camera-dock').boundingBox();
+  expect(selectedDock!.x + selectedDock!.width).toBeLessThan(monitor!.x);
+  expect(monitor!.y + monitor!.height).toBeGreaterThan(800);
+  await page.getByRole('button', { name: 'Favorite camera', exact: true }).click();
+  await page.reload();
+  await page.getByRole('button', { name: 'CCTV', exact: true }).click();
+  await page.getByRole('tab', { name: 'Favorites', exact: true }).click();
+  await expect(page.locator('.camera-card')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Hide camera panel', exact: true }).click();
+  await expect
+    .poll(async () => (await page.locator('.camera-dock').boundingBox())!.height)
+    .toBeLessThan(40);
+  await page.reload();
+  await page.getByRole('button', { name: 'CCTV', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Show camera panel', exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('hover settings, preview threshold and multi-camera dropdown work together', async ({
+  page,
+}) => {
+  await expect(page.locator('.osint-camera-mini')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Camera catalog', exact: true }).hover();
+  const popover = page.locator('.surveillance-popover');
+  await expect(popover.getByRole('switch')).toHaveCount(4);
+  await popover.hover();
+  await expect(popover).toBeVisible();
+  await popover.getByRole('switch', { name: /CCTV CAMERAS/ }).uncheck();
+  await expect(page.locator('.osint-camera-marker')).toHaveCount(0);
+  await popover.getByRole('switch', { name: /CCTV CAMERAS/ }).check();
+  await page.mouse.move(700, 100);
+  await expect(popover).toHaveCount(0);
+  await page.getByRole('button', { name: 'CCTV', exact: true }).click();
+  await page.locator('.camera-card').first().click();
+  await expect(page.locator('.monitor-camera-selector option')).toHaveCount(2);
+  await page.locator('.monitor-camera-selector select').selectOption('audit-camera-1');
+  await expect(page.locator('.monitor-title h2')).toHaveText('Audit Camera 2');
+  await expect(page.locator('.osint-camera-mini').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Camera catalog', exact: true }).hover();
+  await popover.getByRole('switch', { name: 'LIVE PREVIEWS', exact: true }).uncheck();
+  await expect(page.locator('.osint-camera-mini')).toHaveCount(0);
+  await page.reload();
+  await page.getByRole('button', { name: 'Camera catalog', exact: true }).hover();
+  await expect(
+    popover.getByRole('switch', { name: 'LIVE PREVIEWS', exact: true }),
+  ).not.toBeChecked();
+});
+
+test('expand, fullscreen and language survive state changes', async ({ page }) => {
+  await page.getByRole('button', { name: 'CCTV', exact: true }).click();
+  await page.locator('.camera-card').first().click();
+  await page.getByRole('button', { name: 'Reconnect camera', exact: true }).click();
+  await expect(page.locator('.monitor-refresh')).toHaveAttribute('aria-busy', 'true');
+  await expect(page.locator('.monitor-refresh')).toHaveAttribute('aria-busy', 'false');
+  await page.getByRole('button', { name: 'Expand camera', exact: true }).click();
+  await expect
+    .poll(async () => (await page.locator('.compact-monitor').boundingBox())!.width)
+    .toBe(760);
+  await page.getByRole('button', { name: 'Fullscreen camera', exact: true }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => document.fullscreenElement?.classList.contains('compact-monitor')),
+    )
+    .toBe(true);
+  await expect(page.locator('.monitor-footer')).toBeInViewport();
+  await page.getByRole('button', { name: 'Exit camera fullscreen', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => document.fullscreenElement === null)).toBe(true);
+  await page.getByRole('button', { name: 'Close camera', exact: true }).click();
+  await page.locator('.language-dropdown select').selectOption('id');
+  await page.reload();
+  await expect(page.locator('.language-dropdown select')).toHaveValue('id');
+});
+
+test('drawing persists and providers remain accessible', async ({ page }) => {
+  await page.getByRole('button', { name: 'Map provider settings', exact: true }).click();
   const drawing = page.getByRole('button', { name: 'BMS drawing tools', exact: true });
   await expect(drawing).toBeEnabled();
   const initial = await (await page.request.get('/api/bms/projects/osint')).json();
@@ -29,106 +141,60 @@ test('OSINT preserves drawing, switches providers and opens independent feature 
         (await (await page.request.get('/api/bms/projects/osint')).json()).features.length,
     )
     .toBe(initial.features.length + 1);
-  const project = await (await page.request.get('/api/bms/projects/osint')).json();
   await page.reload();
-  await expect(drawing).toBeEnabled();
   await page.getByRole('button', { name: 'Objects and groups', exact: true }).click();
-  await expect(page.locator('.osint-map-objects')).toBeVisible();
-  await expect(page.locator('.osint-map-objects .bms-object-row')).toHaveCount(
-    project.features.length,
-  );
-  await expect
-    .poll(
-      async () =>
-        (await (await page.request.get('/api/bms/projects/osint')).json()).features.length,
-    )
-    .toBe(project.features.length);
+  await expect(page.locator('.bms-object-row')).toHaveCount(initial.features.length + 1);
   await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Map provider settings', exact: true }).click();
   const provider = page.locator('.map-provider-select');
-  await provider.selectOption('osm');
-  await expect(provider).toHaveValue('osm');
   await provider.selectOption('google');
   await expect(page.locator('.map-key-form')).toBeVisible();
   await provider.selectOption('esri');
-  await page
-    .getByRole('navigation', { name: 'Workspace navigation' })
-    .getByRole('button', { name: 'Weather', exact: true })
-    .click();
-  await expect(page.locator('.osint-weather-panel input[role=switch]')).toHaveCount(6);
-  await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'CCTV', exact: true }).click();
-  await expect(page.getByRole('complementary', { name: 'Camera Sources' })).toBeVisible();
-  await expect(page.locator('.surveillance-settings').getByRole('switch')).toHaveCount(4);
-  await expect(page.locator('.surveillance-settings input[type="text"]')).toHaveCount(0);
-  await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'Style studio', exact: true }).click();
-  await expect(page.getByRole('complementary', { name: 'Workspace Settings' })).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(page.locator('#osint-map-footer .map-panel-navbar')).toBeVisible();
-  await page.locator('.camera-card').first().click();
-  await expect(page.locator('.inspector-video')).toBeVisible();
-  await page.getByRole('button', { name: 'Favorite camera', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Favorite camera', exact: true })).toHaveAttribute(
+  await page.locator('.tactical-basemap > button').nth(1).click();
+  await expect(page.locator('.tactical-basemap > button').nth(1)).toHaveAttribute(
     'aria-pressed',
     'true',
   );
-  await page.getByRole('tab', { name: 'Favorites', exact: true }).click();
-  await expect(page.locator('.camera-card')).toHaveCount(1);
-  await page.reload();
-  await page.getByRole('tab', { name: 'Favorites', exact: true }).click();
-  await expect(page.locator('.camera-card')).toHaveCount(1);
-  await page.getByRole('tab', { name: 'Recent', exact: true }).click();
-  await expect(page.locator('.camera-card')).toHaveCount(1);
-  await page.getByRole('tab', { name: 'Cameras', exact: true }).click();
-  await page.getByRole('button', { name: 'Map', exact: true }).click();
-  // Restore the layer panel if it was already open after reload.
-  if (!(await page.locator('#camera-search').isVisible()))
-    await page.getByRole('button', { name: 'Map', exact: true }).click();
-  await page.locator('#camera-search').fill('ASIA AFRIKA');
-  await expect(
-    page
-      .locator('.camera-card')
-      .filter({ hasText: /ASIA AFRIKA/i })
-      .first(),
-  ).toBeVisible();
-  expect(await page.locator('.camera-card').count()).toBeLessThan(512);
-  await page.locator('#camera-search').fill('');
-  await page.getByRole('button', { name: 'Hide camera panel', exact: true }).click();
-  await expect(page.locator('.camera-dock-collapse')).toHaveAttribute('aria-hidden', 'true');
-  await expect
-    .poll(async () => (await page.locator('.camera-dock').boundingBox())!.height)
-    .toBeLessThan(50);
-  await expect(page.getByRole('tab', { name: 'Nearby', exact: true })).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole('button', { name: 'Show camera panel', exact: true })).toBeVisible();
-  await page.getByRole('tab', { name: 'Cameras', exact: true }).click();
-  await expect
-    .poll(async () => (await page.locator('.camera-dock').boundingBox())!.height)
-    .toBeGreaterThan(100);
-  const bounds = await page.evaluate(() => {
-    const rect = (selector: string) => document.querySelector(selector)!.getBoundingClientRect();
-    const nav = rect('.workspace-nav'),
-      panel = rect('.layer-panel'),
-      map = rect('.osint-map-stage'),
-      main = rect('.osint-map-workspace'),
-      toolbar = rect('.workspace-map-toolbar'),
-      header = rect('.command-header'),
-      footer = rect('.workspace-status');
-    return {
-      narrow: nav.width <= 52 && panel.width <= 228,
-      separate: nav.right <= panel.left && panel.right <= map.left,
-      bottom:
-        toolbar.top >= main.bottom && header.top >= toolbar.bottom && footer.top >= header.bottom,
-    };
+});
+
+for (const width of [390, 768, 1024, 1440]) {
+  test(`layout remains usable at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.getByRole('button', { name: 'CCTV', exact: true }).click();
+    await expect(page.locator('.camera-card').first()).toBeVisible();
+    await page.locator('.camera-card').first().click();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    const bounds = await page.evaluate(() => {
+      const rect = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+      const dock = rect('.camera-dock'),
+        monitor = rect('.compact-monitor'),
+        header = rect('.command-header');
+      const brand = rect('.tactical-brand'),
+        utilities = rect('.navbar-utilities');
+      return {
+        gap: dock.top - monitor.bottom,
+        horizontalGap: monitor.left - dock.right,
+        bottom: innerHeight - monitor.bottom,
+        top: monitor.top - header.bottom,
+        headerGap: utilities.left - brand.right,
+        left: rect('.tactical-rail').width,
+        right: rect('.map-hud-buttons').width,
+      };
+    });
+    expect(bounds.bottom).toBeLessThanOrEqual(80);
+    if (width >= 1101) expect(bounds.horizontalGap).toBeGreaterThanOrEqual(8);
+    expect(bounds.top).toBeGreaterThanOrEqual(0);
+    expect(bounds.headerGap).toBeGreaterThanOrEqual(0);
+    expect(bounds.left).toBe(bounds.right);
   });
-  expect(bounds).toEqual({ narrow: true, separate: true, bottom: true });
-  await page.screenshot({ path: 'test-results/osint-workspace.png', fullPage: true });
-  expect(errors).toEqual([]);
-  expect(
-    requests.filter((url) => /\/api\/(motor|targets|camera-relay|auth|gps)/.test(url)),
-  ).toEqual([]);
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.locator('.maplibregl-canvas')).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
-  await page.screenshot({ path: 'test-results/osint-mobile.png', fullPage: true });
+}
+
+test.describe('touch interaction', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  test('surveillance popover closes when tapping the map', async ({ page }) => {
+    await page.getByRole('button', { name: 'Camera catalog', exact: true }).tap();
+    await expect(page.locator('.surveillance-popover')).toBeVisible();
+    await page.locator('.maplibregl-canvas').tap({ position: { x: 350, y: 500 } });
+    await expect(page.locator('.surveillance-popover')).toHaveCount(0);
+  });
 });

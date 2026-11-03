@@ -1,7 +1,9 @@
 import {
   Camera,
-  ChevronLeft,
-  ChevronRight,
+  ArrowLeft,
+  ChevronsLeft,
+  ChevronsRight,
+  ArrowRight,
   ChevronDown,
   ChevronUp,
   Clock3,
@@ -10,7 +12,7 @@ import {
   Radio,
   Star,
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useCameraCatalog } from '../hooks/useCameraCatalog';
 import { useWorkspace } from '../workspaceStore';
 import {
@@ -84,6 +86,17 @@ export default function CameraDock() {
   useSurveillance((state) => state.health);
   const previews = useSurveillance((state) => state.previews);
   const track = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
+  useEffect(() => {
+    if (!track.current) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setPageSize(Math.min(5, Math.max(1, Math.floor((entry.contentRect.width + 10) / 150))));
+    });
+    observer.observe(track.current);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => setPage(0), [cameraTab, query, pageSize]);
   const list = useMemo(() => {
     let result = cameras.filter((camera) =>
       `${camera.name} ${camera.locationName || ''} ${camera.provider || ''}`
@@ -112,7 +125,40 @@ export default function CameraDock() {
     { id: 'favorites', label: 'Favorites', icon: Star },
     { id: 'recent', label: 'Recent', icon: Clock3 },
   ] as const;
-  const livePreviews = list
+  const pageCount = Math.max(1, Math.ceil(list.length / pageSize));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pageItems = list.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  const previousPage = useRef({ page: currentPage, tab: cameraTab, query, pageSize });
+  useLayoutEffect(() => {
+    const previous = previousPage.current;
+    previousPage.current = { page: currentPage, tab: cameraTab, query, pageSize };
+    if (
+      !track.current ||
+      previous.page === currentPage ||
+      previous.tab !== cameraTab ||
+      previous.query !== query ||
+      previous.pageSize !== pageSize ||
+      matchMedia('(prefers-reduced-motion: reduce)').matches
+    )
+      return;
+    const distance = track.current.clientWidth * (currentPage > previous.page ? 1 : -1);
+    const animations = Array.from(track.current.children).map((element) =>
+      element.animate(
+        [
+          { transform: `translateX(${distance}px)`, opacity: 0.3 },
+          { transform: 'translateX(0)', opacity: 1 },
+        ],
+        { duration: 300, easing: 'cubic-bezier(.22,.7,.25,1)' },
+      ),
+    );
+    return () => animations.forEach((animation) => animation.cancel());
+  }, [currentPage, cameraTab, query, pageSize]);
+
+  const pageNumbers = Array.from(
+    { length: Math.min(5, pageCount) },
+    (_, index) => Math.max(0, Math.min(currentPage - 2, pageCount - 5)) + index,
+  );
+  const livePreviews = pageItems
     .filter((camera) => cameraAvailability(camera).status === 'online')
     .slice(0, 3)
     .map((camera) => camera.id);
@@ -163,12 +209,17 @@ export default function CameraDock() {
           <button
             className="dock-scroll"
             aria-label="Previous cameras"
-            onClick={() => track.current?.scrollBy({ left: -600, behavior: 'smooth' })}
+            disabled={currentPage === 0}
+            onClick={() => setPage(currentPage - 1)}
           >
-            <ChevronLeft size={20} />
+            <ArrowLeft size={14} />
           </button>
-          <div className="camera-track" ref={track}>
-            {list.map((camera) => (
+          <div
+            className="camera-track"
+            ref={track}
+            style={{ gridTemplateColumns: `repeat(${pageSize}, minmax(0, 1fr))` }}
+          >
+            {pageItems.map((camera) => (
               <button
                 className="camera-card"
                 key={camera.id}
@@ -208,10 +259,43 @@ export default function CameraDock() {
           <button
             className="dock-scroll"
             aria-label="Next cameras"
-            onClick={() => track.current?.scrollBy({ left: 600, behavior: 'smooth' })}
+            disabled={currentPage >= pageCount - 1}
+            onClick={() => setPage(currentPage + 1)}
           >
-            <ChevronRight size={20} />
+            <ArrowRight size={14} />
           </button>
+          <nav className="camera-pagination" aria-label="Camera pages">
+            <span>
+              {list.length
+                ? `${currentPage * pageSize + 1}-${Math.min((currentPage + 1) * pageSize, list.length)}`
+                : '0'}{' '}
+              / {list.length}
+            </span>
+            <button
+              aria-label="First camera page"
+              disabled={currentPage === 0}
+              onClick={() => setPage(0)}
+            >
+              <ChevronsLeft size={12} />
+            </button>
+            {pageNumbers.map((index) => (
+              <button
+                key={index}
+                aria-label={`Camera page ${index + 1}`}
+                aria-current={currentPage === index ? 'page' : undefined}
+                onClick={() => setPage(index)}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              aria-label="Last camera page"
+              disabled={currentPage === pageCount - 1}
+              onClick={() => setPage(pageCount - 1)}
+            >
+              <ChevronsRight size={12} />
+            </button>
+          </nav>
         </div>
       </div>
     </section>

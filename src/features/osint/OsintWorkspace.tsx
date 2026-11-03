@@ -4,7 +4,6 @@ import MapCorner from './components/MapCorner';
 import OsintMap from './components/OsintMap';
 import OsintMapTools from './components/OsintMapTools';
 import CommandHeader from './components/CommandHeader';
-import NearbyCameras from './components/NearbyCameras';
 import LayerPanel from './components/LayerPanel';
 import CameraDock from './components/CameraDock';
 import CameraInspector from './components/CameraInspector';
@@ -26,6 +25,7 @@ import './TacticalWorkspace.css';
 import './components/WorkspaceTicker.css';
 import './CompactNavbar.css';
 import './components/CameraInspector.css';
+import './components/CameraDock.css';
 
 export default function OsintWorkspace() {
   const appearance = useAppearance();
@@ -55,7 +55,6 @@ export default function OsintWorkspace() {
       <CommandHeader />
       <main className="osint-map-workspace" aria-label="OSINT map workspace">
         <TacticalRail />
-        {camerasOpen && !panel && <NearbyCameras />}
         <LayerPanel />
         <section className="osint-map-stage corner-frame" aria-label="OSINT map">
           <OsintMap />

@@ -8,7 +8,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       host: '127.0.0.1',
-      port: 5173,
+      port: Number(env.JEJAK_WEB_PORT || 5173),
+      strictPort: true,
       proxy: {
         '/api': { target, changeOrigin: false },
         '/offline-maps': { target, changeOrigin: false },

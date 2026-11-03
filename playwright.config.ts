@@ -4,18 +4,19 @@ export default defineConfig({
   testDir: './test/browser',
   workers: 1,
   use: {
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL: 'http://127.0.0.1:5175',
     channel: 'chrome',
     viewport: { width: 1440, height: 900 },
     screenshot: 'only-on-failure',
   },
   webServer: {
     command: 'npm run dev',
-    url: 'http://127.0.0.1:5173',
+    url: 'http://127.0.0.1:5175',
     reuseExistingServer: false,
     env: {
       JEJAK_DATA_DIR: '.runtime/browser-tests',
       PORT: '4176',
+      JEJAK_WEB_PORT: '5175',
       JEJAK_API_URL: 'http://127.0.0.1:4176',
     },
   },

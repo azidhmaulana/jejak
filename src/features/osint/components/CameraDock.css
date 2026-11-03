@@ -1,0 +1,192 @@
+/* Fixed-height, paginated camera tray. */
+.command-workspace .camera-dock {
+  left: 260px;
+  right: 260px;
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 6px);
+  width: auto;
+  max-width: none;
+  transform: none;
+}
+.command-workspace .camera-dock-body {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 24px;
+  grid-template-rows: 100px 24px;
+  column-gap: 8px;
+  padding: 0 8px;
+}
+.command-workspace .camera-track {
+  display: grid;
+  align-items: center;
+  height: 100px;
+  min-height: 100px;
+  padding: 6px 0;
+  gap: 10px;
+  overflow: hidden;
+}
+.command-workspace .camera-card {
+  flex: none;
+  min-width: 0;
+  width: auto;
+  height: 88px;
+}
+.command-workspace .camera-card .camera-thumbnail {
+  height: 62px;
+}
+.command-workspace .camera-dock-empty {
+  grid-column: 1 / -1;
+  height: 88px;
+  min-height: 88px;
+  width: 100%;
+  justify-content: center;
+  color: #91b99b;
+}
+.command-workspace .camera-dock .dock-scroll {
+  align-self: center;
+  width: 24px;
+  height: 26px;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #36532a;
+  border-radius: 5px;
+  background: #0e2317;
+  color: #a4e67c;
+}
+.command-workspace .camera-dock .dock-scroll:hover:not(:disabled) {
+  border-color: #81c64c;
+  background: #233c1d;
+}
+.command-workspace .camera-dock .dock-scroll:disabled {
+  opacity: 0.3;
+}
+.camera-pagination {
+  grid-column: 1/-1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding-bottom: 5px;
+  font-size: 9px;
+}
+.camera-pagination > span {
+  margin-right: 8px;
+  color: #91ae96;
+  font-variant-numeric: tabular-nums;
+}
+.camera-pagination > button {
+  min-width: 21px;
+  height: 20px;
+  border: 1px solid #294330;
+  border-radius: 3px;
+  color: #abc8b1;
+  background: #091a11;
+}
+.camera-pagination > button[aria-current='page'] {
+  color: #b7fa8b;
+  border-color: #649744;
+  background: #25401a;
+}
+.command-workspace .camera-dock .camera-thumbnail {
+  background: #06180e;
+}
+.command-workspace .camera-dock .thumbnail-grid {
+  background-image:
+    linear-gradient(#67cb6c12 1px, transparent 1px),
+    linear-gradient(90deg, #67cb6c12 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+.command-workspace .camera-dock .camera-thumbnail > svg,
+.command-workspace .camera-dock .thumbnail-coordinates,
+.command-workspace .camera-dock .camera-thumbnail > small {
+  color: #538a5e;
+}
+.command-workspace .camera-dock .osint-stream-placeholder {
+  background: #06180ef5;
+}
+.command-workspace .camera-dock .osint-stream-placeholder:before {
+  background-image:
+    linear-gradient(#67cb6c12 1px, transparent 1px),
+    linear-gradient(90deg, #67cb6c12 1px, transparent 1px);
+  border-color: #376a42;
+}
+/* CCTV mode must not move the persistent lower-left map controls. */
+.command-workspace[data-cameras-open='true'] #map-corner-type {
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 48px);
+}
+.command-workspace[data-cameras-open='true'] #map-corner-compass {
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 14px);
+}
+.command-workspace[data-cameras-open='true'] #map-corner-scale {
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 10px);
+}
+@media (max-width: 700px) {
+  .command-workspace .camera-dock {
+    left: 8px;
+    right: 8px;
+    bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 85px);
+    width: auto;
+    transform: none;
+  }
+  .command-workspace .camera-dock-heading [role='tab'] {
+    padding: 0 7px;
+    font-size: 8px;
+  }
+  .command-workspace .camera-dock-empty {
+    font-size: 10px;
+  }
+}
+
+.camera-pagination > button {
+  display: grid;
+  place-items: center;
+}
+/* Monitor sits above the tray, with space reserved for both surfaces. */
+.command-workspace {
+  --dock-bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 6px);
+  --dock-height: 167px;
+}
+.command-workspace:has(.camera-dock[data-collapsed='true']) {
+  --dock-height: 36px;
+}
+.command-workspace[data-cameras-open='true'] .camera-inspector.compact-monitor:not(:fullscreen),
+.command-workspace[data-cameras-open='true'][data-camera-selected='true']
+  .camera-inspector.compact-monitor.inspector-expanded:not(:fullscreen) {
+  top: auto;
+  bottom: calc(var(--dock-bottom) + var(--dock-height) + 12px);
+  max-height: calc(100dvh - var(--dock-bottom) - var(--dock-height) - 76px);
+}
+@media (min-width: 701px) and (max-width: 1050px) {
+  .command-workspace .camera-dock {
+    left: 220px;
+    right: 220px;
+  }
+}
+@media (max-width: 700px) {
+  .command-workspace {
+    --dock-bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 85px);
+  }
+}
+
+/* Keep the tray compact on wide screens: at most five camera slots. */
+@media (min-width: 701px) {
+  .command-workspace .camera-dock {
+    left: 50%;
+    right: auto;
+    width: min(840px, calc(100% - 440px));
+    transform: translateX(-50%);
+  }
+}
+/* Keep the camera monitor anchored at the bottom when the catalog opens. */
+.command-workspace[data-cameras-open='true'] .camera-inspector.compact-monitor:not(:fullscreen),
+.command-workspace[data-cameras-open='true'][data-camera-selected='true']
+  .camera-inspector.compact-monitor.inspector-expanded:not(:fullscreen) {
+  top: auto;
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 12px);
+  max-height: calc(100dvh - var(--tactical-footer-height) - var(--ticker-height) - 80px);
+}
+@media (min-width: 1101px) {
+  .command-workspace[data-camera-selected='true'] .camera-dock {
+    width: min(840px, calc(100% - 908px));
+  }
+}
