@@ -1,0 +1,1174 @@
+/* Floating capsule navigation. */
+.command-workspace .command-header.tactical-header {
+  height: 52px;
+  min-height: 52px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 0 16px;
+  border: 0;
+  background: linear-gradient(90deg, #021014, #020b09 65%, #020a09);
+  box-shadow: none;
+}
+.navbar-capsule {
+  display: flex;
+  align-items: center;
+  width: min(820px, calc(100% - 210px));
+  height: 34px;
+  border: 1px solid #36532a;
+  border-radius: 24px;
+  background: linear-gradient(#102016, #020b08 48%, #07140c);
+  box-shadow: inset 0 0 8px #70b63116;
+}
+.command-workspace .tactical-nav {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 32px;
+  padding: 0 12px;
+  gap: 5px;
+  position: relative;
+  overflow: visible;
+}
+.command-workspace .tactical-nav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  white-space: nowrap;
+  padding: 4px 11px;
+  font-size: 10px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #d4dfd7;
+}
+.command-workspace .tactical-nav button[aria-pressed='true'] {
+  border-color: #83d338;
+  box-shadow:
+    0 0 10px #7cdd253b,
+    inset 0 0 8px #73bb232b;
+  background: #1e38173b;
+}
+.command-workspace .tactical-nav svg {
+  width: 15px;
+  height: 15px;
+}
+.command-workspace .tactical-brand {
+  position: relative;
+  flex: 0 0 205px;
+  height: 44px;
+  width: 205px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  clip-path: none;
+  border: 1px solid #52773a;
+  border-bottom-color: #8ed639;
+  border-radius: 28px;
+  background: linear-gradient(#0b1d11, #010a07 60%, #0a190b);
+  box-shadow:
+    0 0 9px #65c42f2b,
+    inset 0 0 8px #6dbe2630;
+  text-decoration: none;
+}
+.command-workspace .tactical-brand > svg {
+  width: 32px;
+  height: 32px;
+  color: #80eb24;
+  transform: rotate(-12deg);
+}
+.command-workspace .tactical-brand strong {
+  display: block;
+  font-size: 23px;
+  letter-spacing: 2px;
+  line-height: 1.05;
+  font-style: normal;
+  color: #f1f5f1;
+}
+.command-workspace .tactical-brand small {
+  display: block;
+  font-size: 5px;
+  letter-spacing: 1.2px;
+  color: #afbfab;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+.command-workspace .tactical-brand:before,
+.command-workspace .tactical-brand:after {
+  display: none;
+}
+.command-workspace .tactical-nav:before {
+  display: none;
+}
+.command-workspace .tactical-nav:after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  height: 25px;
+  width: 2px;
+  background: linear-gradient(transparent 0 24%, #92ef3d 24% 73%, #41651f 73% 100%);
+}
+.command-workspace .tactical-nav-left:after {
+  right: 9px;
+  transform: skewX(24deg);
+}
+.command-workspace .tactical-nav-right:after {
+  left: 9px;
+  right: auto;
+  transform: skewX(-24deg);
+}
+.command-workspace .tactical-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 9px;
+  padding-left: 18px;
+  border-left: 1px solid #7c9471;
+}
+.command-workspace .tactical-actions button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #38522e;
+  border-radius: 50%;
+}
+.command-workspace .tactical-actions svg {
+  width: 15px;
+  height: 15px;
+}
+.command-workspace .language-toggle {
+  position: static;
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid #38522e;
+  border-radius: 20px;
+}
+.command-workspace .language-toggle button {
+  padding: 3px;
+  border-radius: 50%;
+}
+.command-workspace .language-toggle button span {
+  display: none;
+}
+.command-workspace .language-toggle svg {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+}
+.command-workspace .osint-map-workspace {
+  top: 52px;
+}
+.command-workspace #map-corner-compass {
+  top: 126px;
+}
+.command-workspace .tactical-search {
+  top: 62px;
+}
+@media (max-width: 1100px) {
+  .command-workspace .command-header.tactical-header {
+    gap: 12px;
+    padding: 0 10px;
+  }
+  .navbar-capsule {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+  .command-workspace .tactical-brand {
+    flex-basis: 165px;
+    width: 165px;
+  }
+  .command-workspace .tactical-brand strong {
+    font-size: 21px;
+  }
+  .command-workspace .tactical-nav {
+    padding: 0 9px;
+    gap: 2px;
+  }
+  .command-workspace .tactical-nav button {
+    padding: 4px 6px;
+    font-size: 9px;
+    gap: 5px;
+  }
+  .command-workspace .tactical-nav:after {
+    display: none;
+  }
+  .command-workspace .tactical-actions {
+    gap: 5px;
+    padding-left: 10px;
+  }
+}
+@media (max-width: 800px) {
+  .command-workspace .command-header.tactical-header {
+    height: 94px;
+    min-height: 94px;
+    position: relative;
+    align-items: flex-start;
+    padding-top: 7px;
+  }
+  .navbar-capsule {
+    height: 35px;
+    margin-top: 40px;
+  }
+  .command-workspace .tactical-brand {
+    position: absolute;
+    top: 3px;
+    left: 10px;
+    height: 39px;
+    width: 170px;
+  }
+  .command-workspace .tactical-nav {
+    height: 33px;
+    flex: 1;
+  }
+  .command-workspace .tactical-actions {
+    position: absolute;
+    right: 88px;
+    top: 10px;
+    display: flex;
+  }
+  .command-workspace .language-toggle {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+  }
+  .command-workspace .tactical-nav button {
+    padding: 4px;
+    font-size: 9px;
+    gap: 4px;
+  }
+  .command-workspace .tactical-nav svg {
+    width: 13px;
+    height: 13px;
+  }
+  .command-workspace .osint-map-workspace {
+    top: 94px;
+  }
+  .command-workspace #map-corner-compass {
+    top: 124px;
+  }
+  .command-workspace .tactical-search {
+    top: 104px;
+  }
+}
+/* Let the map continue behind translucent navigation and status surfaces. */
+.command-workspace .osint-map-workspace {
+  top: 0;
+  bottom: 0;
+}
+.command-workspace .command-header.tactical-header {
+  background: rgb(2 12 10 / 40%);
+  backdrop-filter: blur(5px);
+}
+.command-workspace .navbar-capsule {
+  background: rgb(5 20 12 / 40%);
+}
+.command-workspace .tactical-brand {
+  background: rgb(3 16 9 / 40%);
+}
+.command-workspace .language-toggle {
+  background: rgb(3 17 13 / 40%);
+}
+.command-workspace .workspace-status.tactical-status {
+  background: rgb(2 13 9 / 40%);
+  backdrop-filter: blur(5px);
+}
+.command-workspace .tactical-status-accent {
+  background: transparent;
+}
+.command-workspace .workspace-ticker {
+  background: rgb(2 10 7 / 40%);
+  backdrop-filter: blur(5px);
+}
+.command-workspace .ticker-label {
+  background: rgb(16 36 24 / 40%);
+}
+/* Keep interactive overlays below the floating header and above the footer. */
+.command-workspace .tactical-rail {
+  top: 122px;
+}
+.command-workspace .map-hud {
+  top: 188px;
+}
+.command-workspace .nearby-column,
+.command-workspace .layer-panel {
+  top: 72px;
+}
+.command-workspace .camera-inspector {
+  top: 72px;
+}
+.command-workspace .maplibregl-ctrl-bottom-right {
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 8px);
+}
+.command-workspace .map-online-status {
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 10px);
+}
+@media (max-width: 800px) {
+  .command-workspace .tactical-rail {
+    top: 124px;
+  }
+  .command-workspace .map-hud {
+    top: 186px;
+  }
+  .command-workspace .nearby-column,
+  .command-workspace .layer-panel {
+    top: 106px;
+  }
+  .command-workspace[data-camera-selected='true'] .camera-inspector {
+    top: 106px;
+  }
+}
+/* Reduced transparency and a clean footer edge. */
+.command-workspace .command-header.tactical-header {
+  background: rgb(2 12 10 / 70%);
+}
+.command-workspace .navbar-capsule {
+  background: rgb(5 20 12 / 70%);
+}
+.command-workspace .tactical-brand {
+  background: rgb(3 16 9 / 70%);
+}
+.command-workspace .language-toggle {
+  background: rgb(3 17 13 / 70%);
+}
+.command-workspace .workspace-status.tactical-status {
+  background: rgb(2 13 9 / 70%);
+  border-top: 0;
+}
+.command-workspace .tactical-status-accent svg {
+  display: none;
+}
+.command-workspace .workspace-ticker {
+  background: rgb(2 10 7 / 70%);
+}
+.command-workspace .ticker-label {
+  background: rgb(16 36 24 / 70%);
+}
+/* Fine graduated scale: 0, one fifth, half and the total metric distance. */
+.command-workspace #map-corner-scale {
+  width: 185px;
+  padding: 0 0 3px;
+}
+.graduated-map-scale {
+  position: relative;
+  height: 25px;
+  color: #e0e8e3;
+  font:
+    10px/12px 'Segoe UI',
+    sans-serif;
+  text-shadow: 0 1px 3px #000;
+}
+.graduated-scale-bar {
+  position: absolute;
+  left: 0;
+  bottom: 1px;
+  height: 7px;
+  border-bottom: 1px solid #d1dbd5;
+}
+.graduated-scale-tick {
+  position: absolute;
+  bottom: 0;
+  height: 6px;
+  width: 1px;
+  background: #d1dbd5;
+}
+.graduated-scale-tick > span {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-weight: 600;
+}
+.graduated-scale-tick:first-child > span {
+  transform: none;
+  left: -2px;
+}
+.graduated-scale-tick:last-child > span {
+  transform: translateX(-25%);
+}
+/* Compact luminous camera points; status remains visible without an inner glyph. */
+.command-workspace .osint-camera-dot {
+  width: 13px;
+  height: 13px;
+  min-width: 13px;
+  border: 2px solid #062316;
+  border-radius: 50%;
+  background: #50fa61;
+  outline: none;
+  box-shadow: 0 0 7px #44ff5866;
+}
+.command-workspace .osint-camera-dot:before,
+.command-workspace .osint-camera-dot:after {
+  content: none;
+}
+.command-workspace .osint-camera-dot[data-status='online'] {
+  background: #50fa61;
+  border-color: #062316;
+  box-shadow: 0 0 7px #44ff5866;
+}
+.command-workspace .osint-camera-dot[data-status='offline'] {
+  background: #ff6961;
+  border-color: #391614;
+  box-shadow: 0 0 7px #ff696155;
+}
+.command-workspace .osint-camera-dot[data-status='unknown'] {
+  background: #71b7bb;
+  border-color: #12292b;
+  box-shadow: 0 0 5px #71b7bb44;
+}
+.command-workspace .osint-camera-dot[data-selected='true'],
+.command-workspace .osint-camera-dot:focus-visible {
+  outline: 2px solid #e1ffad;
+  outline-offset: 3px;
+}
+/* Dark green rims keep camera status fills distinct. */
+.command-workspace .osint-camera-dot,
+.command-workspace .osint-camera-dot[data-status='online'],
+.command-workspace .osint-camera-dot[data-status='offline'],
+.command-workspace .osint-camera-dot[data-status='unknown'] {
+  border-color: #062316;
+}
+.command-workspace .osint-camera-dot[data-status='online'] {
+  background: #50fa61;
+}
+/* Center the brand against the viewport, independently of the right actions. */
+@media (min-width: 1101px) {
+  .command-workspace .navbar-capsule {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(820px, calc(100% - 420px));
+  }
+  .command-workspace .command-header.tactical-header {
+    justify-content: flex-end;
+  }
+  .command-workspace .tactical-nav {
+    flex: 1 1 0;
+  }
+}
+.command-workspace .tactical-brand {
+  align-items: center;
+  justify-content: center;
+}
+.command-workspace .tactical-brand > span {
+  text-align: center;
+}
+#map-provider-credits {
+  flex-basis: 100%;
+  font-size: 9px;
+  color: #99b69f;
+}
+#map-provider-credits .maplibregl-ctrl-attrib {
+  margin: 0;
+  background: transparent;
+  color: inherit;
+}
+/* Narrow tool rail; only surveillance settings opens on hover. */
+.command-workspace .tactical-rail {
+  width: 34px;
+  padding: 3px 0;
+  border-radius: 0 10px 10px 0;
+  overflow: visible;
+}
+.command-workspace .tactical-rail button {
+  width: 33px;
+  height: 35px;
+}
+.command-workspace .tactical-rail button svg {
+  width: 15px;
+  height: 15px;
+}
+.surveillance-popover-anchor {
+  position: relative;
+}
+.surveillance-popover {
+  position: absolute;
+  left: 100%;
+  bottom: -3px;
+  width: 285px;
+  padding-left: 8px;
+  z-index: 30;
+}
+.surveillance-popover > .surveillance-settings {
+  background: #071b14f5;
+  border: 1px solid #416b45;
+  border-radius: 3px;
+  box-shadow: 0 5px 24px #0008;
+  backdrop-filter: blur(10px);
+}
+.surveillance-popover .surveillance-settings > header {
+  border-bottom-color: #294832;
+  padding: 12px;
+}
+.surveillance-popover .surveillance-settings h2 {
+  color: #91ed67;
+}
+.surveillance-popover .surveillance-settings-body {
+  padding: 7px 12px 10px;
+}
+.surveillance-popover .surveillance-setting {
+  min-height: 31px;
+}
+.surveillance-popover .surveillance-setting input:checked + .surveillance-switch {
+  border-color: #6fe97d;
+}
+.surveillance-popover .surveillance-setting input:checked + .surveillance-switch:after {
+  background: #65f181;
+  box-shadow: 0 0 7px #65f18140;
+}
+.surveillance-popover .surveillance-children {
+  border-left-color: #2d5137;
+}
+@media (max-width: 700px) {
+  .surveillance-popover {
+    width: min(285px, calc(100vw - 42px));
+  }
+}
+.command-workspace .tactical-rail:has(.surveillance-popover) {
+  z-index: 21;
+}
+/* Match the right-side navigation icons to the compact left rail. */
+.command-workspace .map-hud-buttons {
+  width: 34px;
+}
+.command-workspace .map-hud-buttons button {
+  height: 35px;
+}
+.command-workspace .map-hud-buttons button svg {
+  width: 15px;
+  height: 15px;
+}
+.command-workspace #map-corner-compass .map-compass {
+  width: 34px;
+  height: 34px;
+}
+.command-workspace #map-corner-compass .map-compass svg {
+  width: 17px;
+  height: 17px;
+}
+.surveillance-popover {
+  top: 0;
+  bottom: auto;
+}
+.surveillance-popover .surveillance-settings h2 {
+  margin-bottom: 0;
+}
+/* Compact MAP / SAT segmented capsule. */
+.command-workspace #map-corner-type {
+  height: 30px;
+  padding: 2px;
+  border: 1px solid #426347;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #233a2be6, #06150de8 65%);
+  box-shadow:
+    inset 0 1px 2px #c4e0c32b,
+    0 2px 6px #0005;
+}
+.command-workspace .tactical-basemap {
+  gap: 2px;
+}
+.command-workspace .tactical-basemap > button {
+  width: 62px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 14px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #b7c8bc;
+}
+.command-workspace .tactical-basemap > button[aria-pressed='true'] {
+  border-color: #80b84d;
+  color: #f0ffe7;
+  background: linear-gradient(180deg, #5f8b37, #31581b 60%, #416c22);
+  box-shadow:
+    inset 0 1px 3px #d9ff9b52,
+    0 0 7px #8ed43b40;
+}
+/* Compact angular basemap switch inspired by the instrument frame. */
+.command-workspace #map-corner-type {
+  height: 40px;
+  padding: 4px;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(135deg, #4bdeb0, #123d29 35%, #58d585 72%, #a5f652);
+  clip-path: polygon(
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px),
+    0 10px
+  );
+  box-shadow: none;
+}
+.command-workspace .tactical-basemap {
+  position: relative;
+  gap: 1px;
+  padding: 2px;
+  background: #04150e;
+  clip-path: polygon(
+    7px 0,
+    calc(100% - 7px) 0,
+    100% 7px,
+    100% calc(100% - 7px),
+    calc(100% - 7px) 100%,
+    7px 100%,
+    0 calc(100% - 7px),
+    0 7px
+  );
+}
+.command-workspace .tactical-basemap > button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  width: auto;
+  min-width: 95px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 0;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: #a3bdb4;
+  background: linear-gradient(135deg, #12392b, #04140e);
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 12px) 100%, 0 100%, 0 8px);
+  box-shadow: inset 0 0 0 1px #42795c;
+}
+.command-workspace .tactical-basemap > button:nth-child(2) {
+  min-width: 120px;
+  margin-left: -7px;
+  clip-path: polygon(
+    12px 0,
+    calc(100% - 8px) 0,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    0 100%
+  );
+}
+.command-workspace .tactical-basemap > button svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+.command-workspace .tactical-basemap > button[aria-pressed='true'] {
+  color: #ecffcb;
+  background: linear-gradient(135deg, #85df36, #164c0d 30%, #125008 72%, #71cc27);
+  box-shadow:
+    inset 0 0 8px #b0ff5270,
+    inset 0 0 0 1px #b6ff66;
+  text-shadow: 0 0 6px #8bff5355;
+}
+.command-workspace .tactical-basemap > button:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #fff;
+}
+/* Straight segmented faces with chamfered outer corners. */
+.command-workspace #map-corner-type {
+  padding: 2px;
+  height: 40px;
+  background: linear-gradient(100deg, #54e5dc, #52e9a7 55%, #cbf783);
+}
+.command-workspace .tactical-basemap {
+  gap: 4px;
+  padding: 3px;
+  background: #03150f;
+}
+.command-workspace .tactical-basemap > button {
+  position: relative;
+  height: 30px;
+  min-width: 100px;
+  border: 1px solid #296f57;
+  background: linear-gradient(135deg, #0b2c23, #031711);
+  clip-path: polygon(7px 0, 100% 0, 100% 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+  box-shadow: none;
+}
+.command-workspace .tactical-basemap > button:nth-child(2) {
+  min-width: 120px;
+  margin-left: 0;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 7px) 0,
+    100% 7px,
+    100% calc(100% - 7px),
+    calc(100% - 7px) 100%,
+    0 100%
+  );
+}
+.command-workspace .tactical-basemap > button::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 13px;
+  height: 5px;
+  border-top: 2px solid #36eac0;
+  border-left: 2px solid #36eac0;
+  transform: skewX(-30deg);
+  pointer-events: none;
+}
+.command-workspace .tactical-basemap > button:nth-child(2)::after {
+  left: auto;
+  top: auto;
+  right: 3px;
+  bottom: 3px;
+  transform: skewX(-30deg) rotate(180deg);
+}
+.command-workspace .tactical-basemap > button[aria-pressed='true'] {
+  border-color: #c1fa79;
+  background: linear-gradient(180deg, #397e19, #10430e 30%, #07370b 70%, #2e7911);
+  box-shadow: inset 0 0 7px #9fff4b88;
+  color: #efffdf;
+}
+.command-workspace .tactical-basemap > button[aria-pressed='true']::after {
+  border-color: #b0ff59;
+}
+
+/* Minimal green MAP / SAT switch. */
+.command-workspace #map-corner-type {
+  height: 34px;
+  padding: 4px;
+  border: 1px solid #294435;
+  border-radius: 10px;
+  background: #08110fec;
+  clip-path: none;
+  box-shadow: 0 2px 8px #0005;
+}
+.command-workspace .tactical-basemap {
+  gap: 4px;
+  padding: 0;
+  background: transparent;
+  clip-path: none;
+}
+.command-workspace .tactical-basemap > button,
+.command-workspace .tactical-basemap > button:nth-child(2) {
+  min-width: 60px;
+  width: 60px;
+  height: 24px;
+  margin: 0;
+  padding: 0 8px;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  clip-path: none;
+  background: transparent;
+  color: #8b9e94;
+  font: 600 9px/1 monospace;
+  letter-spacing: 1px;
+  box-shadow: none;
+  text-shadow: none;
+}
+.command-workspace .tactical-basemap > button svg {
+  width: 13px;
+  height: 13px;
+}
+.command-workspace .tactical-basemap > button::after {
+  content: none;
+}
+.command-workspace .tactical-basemap > button[aria-pressed='true'] {
+  border-color: #638d42;
+  background: #24351b80;
+  color: #a8eb69;
+  box-shadow: inset 0 0 7px #8dd33d12;
+  text-shadow: none;
+}
+/* Extra-compact basemap toggle. */
+.command-workspace #map-corner-type {
+  height: 28px;
+  padding: 3px;
+  border-radius: 7px;
+}
+.command-workspace .tactical-basemap {
+  gap: 2px;
+}
+.command-workspace .tactical-basemap > button,
+.command-workspace .tactical-basemap > button:nth-child(2) {
+  min-width: 48px;
+  width: 48px;
+  height: 20px;
+  padding: 0 5px;
+  gap: 4px;
+  font-size: 8px;
+  letter-spacing: 0.6px;
+}
+.command-workspace .tactical-basemap > button svg {
+  width: 11px;
+  height: 11px;
+}
+/* Language and utility controls share the same compact green frame. */
+.navbar-utilities {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.language-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid #68b283;
+  border-radius: 8px;
+  background: linear-gradient(150deg, #122c2370, #031410aa);
+  box-shadow: inset 0 1px 2px #c5ffd51c;
+  color: #e5f3eb;
+}
+.language-globe {
+  padding-right: 8px;
+  box-sizing: content-box;
+  border-right: 1px solid #456b56;
+}
+.language-current {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+}
+.language-current svg {
+  width: 20px;
+  height: 14px;
+  border-radius: 3px;
+}
+.language-dropdown select {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.language-dropdown:focus-within {
+  outline: 2px solid #9fed81;
+  outline-offset: 2px;
+}
+.command-workspace .tactical-actions {
+  position: static;
+  display: flex;
+  gap: 7px;
+  padding-left: 12px;
+  border-left: 1px solid #456b56;
+}
+.command-workspace .tactical-actions button {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border-color: #68b283;
+  background: linear-gradient(150deg, #122c2370, #031410aa);
+  box-shadow: inset 0 1px 2px #c5ffd51c;
+  color: #e5f3eb;
+}
+.command-workspace .tactical-actions button:hover {
+  background: #264b33a0;
+  border-color: #9deba5;
+}
+.command-workspace .tactical-actions svg {
+  width: 17px;
+  height: 17px;
+}
+.command-workspace .tactical-rail,
+.command-workspace .map-hud-buttons {
+  width: 34px;
+  box-sizing: border-box;
+}
+@media (min-width: 1101px) {
+  .command-workspace .navbar-capsule {
+    width: min(820px, calc(100% - 540px));
+  }
+}
+@media (min-width: 801px) and (max-width: 1300px) {
+  .command-workspace .navbar-capsule {
+    position: relative;
+    left: auto;
+    transform: none;
+    width: auto;
+    flex: 1;
+  }
+  .command-workspace .tactical-brand {
+    flex-basis: 155px;
+    width: 155px;
+  }
+  .command-workspace .tactical-nav button {
+    font-size: 9px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .command-workspace .tactical-nav {
+    padding: 0 6px;
+  }
+  .command-workspace .tactical-nav:after {
+    display: none;
+  }
+  .navbar-utilities {
+    gap: 8px;
+  }
+}
+@media (max-width: 800px) {
+  .navbar-utilities {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    gap: 7px;
+  }
+  .command-workspace .tactical-actions {
+    gap: 5px;
+    padding-left: 7px;
+  }
+  .command-workspace .tactical-actions button {
+    width: 25px;
+    height: 27px;
+    border-radius: 6px;
+  }
+  .command-workspace .tactical-actions svg {
+    width: 14px;
+    height: 14px;
+  }
+  .language-dropdown {
+    height: 27px;
+    padding: 0 6px;
+    gap: 5px;
+  }
+  .language-globe {
+    display: none;
+  }
+  .language-current {
+    gap: 4px;
+    font-size: 10px;
+  }
+  .language-current svg {
+    width: 17px;
+    height: 12px;
+  }
+  .command-workspace .tactical-brand {
+    width: 145px;
+    gap: 6px;
+  }
+  .command-workspace .tactical-brand strong {
+    font-size: 19px;
+  }
+  .command-workspace .tactical-brand > svg {
+    width: 26px;
+  }
+}
+/* Utility controls follow the navbar's muted green outline. */
+.command-workspace .navbar-utilities {
+  gap: 10px;
+}
+.command-workspace .language-dropdown {
+  height: 27px;
+  padding: 0 8px;
+  gap: 7px;
+  border-color: #36532a;
+  border-radius: 7px;
+  box-shadow: inset 0 1px 2px #70b63116;
+}
+.command-workspace .language-globe {
+  width: 15px;
+  height: 15px;
+  padding-right: 7px;
+  border-color: #36532a;
+}
+.command-workspace .language-current {
+  font-size: 10px;
+  gap: 6px;
+}
+.command-workspace .language-current svg {
+  width: 18px;
+  height: 12px;
+}
+.command-workspace .language-chevron {
+  width: 10px;
+  height: 10px;
+}
+.command-workspace .tactical-actions {
+  gap: 6px;
+  padding-left: 10px;
+  border-left-color: #36532a;
+}
+.command-workspace .tactical-actions button {
+  width: 27px;
+  height: 27px;
+  border-radius: 7px;
+  border-color: #36532a;
+  box-shadow: inset 0 1px 2px #70b63116;
+}
+.command-workspace .tactical-actions svg {
+  width: 15px;
+  height: 15px;
+}
+.command-workspace .tactical-actions button:hover {
+  border-color: #83d338;
+  background: #1e38173b;
+}
+@media (max-width: 800px) {
+  .command-workspace .navbar-utilities {
+    gap: 6px;
+  }
+  .command-workspace .tactical-actions {
+    gap: 4px;
+    padding-left: 6px;
+  }
+  .command-workspace .tactical-actions button {
+    width: 24px;
+    height: 24px;
+  }
+  .command-workspace .tactical-actions svg {
+    width: 13px;
+    height: 13px;
+  }
+  .command-workspace .language-dropdown {
+    height: 24px;
+    padding: 0 5px;
+    gap: 4px;
+  }
+}
+/* Both rails use identical inner button geometry. */
+.command-workspace .tactical-rail,
+.command-workspace .map-hud-buttons {
+  width: 34px;
+  box-sizing: border-box;
+  padding: 3px 0;
+}
+.command-workspace .tactical-rail button,
+.command-workspace .map-hud-buttons button {
+  width: 33px;
+  min-width: 0;
+  max-width: 100%;
+  height: 35px;
+  min-height: 35px;
+  box-sizing: border-box;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.command-workspace .tactical-rail button svg,
+.command-workspace .map-hud-buttons button svg {
+  width: 15px;
+  height: 15px;
+}
+/* Subtle grid behind surveillance settings, matching the monitor theme. */
+.command-workspace .surveillance-settings {
+  background-color: #071b14;
+  background-image:
+    linear-gradient(rgb(85 175 105 / 7%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(85 175 105 / 7%) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.command-workspace .surveillance-popover > .surveillance-settings {
+  background-color: #071b14f5;
+  background-image:
+    linear-gradient(rgb(85 175 105 / 7%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(85 175 105 / 7%) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+/* Compact framed compass beside the lower-left distance ruler. */
+.command-workspace #map-corner-compass {
+  top: auto;
+  right: auto;
+  left: 9px;
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 6px);
+}
+.command-workspace #map-corner-compass .map-compass {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #79b34b;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #0a2116dc, #03100bdc);
+  box-shadow: inset 0 0 5px #80df3420;
+}
+.command-workspace #map-corner-compass .map-compass::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid #69b637;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.command-workspace #map-corner-compass .map-compass span {
+  top: 6px;
+  font-size: 8px;
+  line-height: 9px;
+  color: #e6f8df;
+  background: transparent;
+  z-index: 1;
+}
+.command-workspace #map-corner-compass .map-compass svg {
+  position: absolute;
+  top: 17px;
+  width: 14px;
+  height: 14px;
+  fill: #94f542;
+  stroke: #94f542;
+}
+.command-workspace #map-corner-scale {
+  left: 59px;
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 10px);
+}
+.command-workspace[data-cameras-open='true'] #map-corner-compass {
+  bottom: 218px;
+}
+.command-workspace[data-cameras-open='true'] #map-corner-scale {
+  bottom: 222px;
+}
+/* Tiny compass aligned with the scale baseline. */
+.command-workspace #map-corner-compass .map-compass {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+.command-workspace #map-corner-compass .map-compass::before {
+  inset: 2px;
+}
+.command-workspace #map-corner-compass .map-compass span {
+  top: 3px;
+  font-size: 6px;
+  line-height: 7px;
+}
+.command-workspace #map-corner-compass .map-compass svg {
+  top: 10px;
+  width: 10px;
+  height: 10px;
+}
+.command-workspace #map-corner-scale {
+  left: 42px;
+}
+/* Minimal white compass, bottom-aligned with the ruler line. */
+.command-workspace #map-corner-compass {
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 14px);
+}
+.command-workspace #map-corner-compass .map-compass {
+  border: 1px solid #eef4f1;
+  border-radius: 5px;
+  background: #041012df;
+  box-shadow: none;
+}
+.command-workspace #map-corner-compass .map-compass::before {
+  content: none;
+}
+.command-workspace #map-corner-compass .map-compass span {
+  color: #fff;
+}
+.command-workspace #map-corner-compass .map-compass svg {
+  fill: #fff;
+  stroke: #fff;
+}
+.command-workspace[data-cameras-open='true'] #map-corner-compass {
+  bottom: 226px;
+}
+.command-workspace #map-corner-compass .map-compass {
+  background: transparent;
+}

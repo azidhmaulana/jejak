@@ -1,0 +1,192 @@
+/* Shared cut-corner frame. Only the decorative ring is clipped: menus and focus
+   outlines remain free to extend outside their parent toolbar. */
+.command-workspace {
+  --frame-cut: 10px;
+  --frame-fill: #061923;
+  --frame-stroke: color-mix(in srgb, var(--command-cyan) 72%, #123340);
+}
+
+.command-workspace
+  :is(
+    .command-panel,
+    .command-header,
+    .workspace-map-toolbar,
+    .workspace-status,
+    .command-metric,
+    .command-weather,
+    .command-icon,
+    .camera-card,
+    .workspace-nav button,
+    .inspector-tabs button,
+    .inspector-location button,
+    .inspector-location a,
+    .panel-action,
+    .appearance-presets button,
+    .dock-scroll,
+    .layer-search,
+    .map-search-box,
+    .map-tools > button,
+    .map-hud-buttons,
+    .inspector-video
+  ) {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background:
+    linear-gradient(135deg, transparent calc(var(--frame-cut) * 0.7071), var(--frame-fill) 0) top
+      left / 51% 51% no-repeat,
+    linear-gradient(225deg, transparent calc(var(--frame-cut) * 0.7071), var(--frame-fill) 0) top
+      right / 51% 51% no-repeat,
+    linear-gradient(315deg, transparent calc(var(--frame-cut) * 0.7071), var(--frame-fill) 0) bottom
+      right / 51% 51% no-repeat,
+    linear-gradient(45deg, transparent calc(var(--frame-cut) * 0.7071), var(--frame-fill) 0) bottom
+      left / 51% 51% no-repeat;
+}
+
+.command-workspace
+  :is(
+    .command-panel,
+    .command-header,
+    .workspace-map-toolbar,
+    .workspace-status,
+    .command-metric,
+    .command-weather,
+    .command-icon,
+    .camera-card,
+    .workspace-nav button,
+    .inspector-tabs button,
+    .inspector-location button,
+    .inspector-location a,
+    .panel-action,
+    .appearance-presets button,
+    .dock-scroll,
+    .layer-search,
+    .map-search-box,
+    .map-tools > button,
+    .map-hud-buttons,
+    .inspector-video
+  )::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: var(--frame-stroke);
+  clip-path: polygon(
+    evenodd,
+    var(--frame-cut) 0,
+    calc(100% - var(--frame-cut)) 0,
+    100% var(--frame-cut),
+    100% calc(100% - var(--frame-cut)),
+    calc(100% - var(--frame-cut)) 100%,
+    var(--frame-cut) 100%,
+    0 calc(100% - var(--frame-cut)),
+    0 var(--frame-cut),
+    var(--frame-cut) 0,
+    var(--frame-cut) 1px,
+    1px var(--frame-cut),
+    1px calc(100% - var(--frame-cut)),
+    var(--frame-cut) calc(100% - 1px),
+    calc(100% - var(--frame-cut)) calc(100% - 1px),
+    calc(100% - 1px) calc(100% - var(--frame-cut)),
+    calc(100% - 1px) var(--frame-cut),
+    calc(100% - var(--frame-cut)) 1px,
+    var(--frame-cut) 1px
+  );
+}
+
+.command-workspace
+  :is(
+    .command-metric,
+    .command-weather,
+    .command-icon,
+    .camera-card,
+    .workspace-nav button,
+    .inspector-tabs button,
+    .inspector-location button,
+    .inspector-location a,
+    .panel-action,
+    .appearance-presets button,
+    .dock-scroll,
+    .layer-search,
+    .map-search-box,
+    .map-tools > button,
+    .inspector-video
+  ) {
+  --frame-cut: 5px;
+}
+
+.command-workspace :is(.command-panel, .command-header, .workspace-map-toolbar, .workspace-status) {
+  --frame-cut: 10px;
+}
+.command-workspace .command-panel {
+  --frame-fill: #081e28;
+}
+.command-workspace .command-header {
+  --frame-fill: #051622;
+}
+.command-workspace .camera-card {
+  --frame-fill: #031420;
+}
+.command-workspace .workspace-nav button {
+  --frame-stroke: #154258;
+  --frame-fill: #041622;
+}
+.command-workspace .workspace-nav button[aria-pressed='true'],
+.command-workspace .camera-card[aria-pressed='true'],
+.command-workspace .inspector-tabs button[aria-pressed='true'],
+.command-workspace .appearance-presets button[aria-pressed='true'] {
+  --frame-stroke: var(--command-cyan);
+  --frame-fill: #073146;
+  border-color: transparent;
+}
+.command-workspace .command-metric::before,
+.command-workspace .workspace-nav button::before {
+  display: none;
+}
+.command-workspace .command-metric.metric-system {
+  --frame-stroke: #008d75;
+}
+.command-workspace .command-metric.metric-alert {
+  --frame-stroke: #974b48;
+}
+.command-workspace .camera-dock-heading,
+.command-workspace .panel-heading,
+.command-workspace .surveillance-settings > header {
+  border-radius: 0;
+}
+.command-workspace
+  :is(
+    select,
+    input:not([type='checkbox']):not([type='range']),
+    .feed-status,
+    .inspector-live,
+    .osint-camera-label
+  ) {
+  border-radius: 0;
+}
+.command-workspace .camera-card {
+  overflow: hidden;
+}
+.command-workspace .camera-card .camera-thumbnail {
+  clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 0 100%, 0 5px);
+}
+.command-workspace .inspector-video {
+  overflow: hidden;
+}
+.command-workspace .inspector-video > .osint-camera-video {
+  clip-path: polygon(
+    5px 0,
+    calc(100% - 5px) 0,
+    100% 5px,
+    100% calc(100% - 5px),
+    calc(100% - 5px) 100%,
+    5px 100%,
+    0 calc(100% - 5px),
+    0 5px
+  );
+}
+.command-workspace .layer-panel[data-panel='sources'] {
+  --frame-fill: #091e27;
+  border-color: transparent;
+}

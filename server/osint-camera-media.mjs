@@ -1,0 +1,185 @@
+import { Readable, Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import { readFileSync } from 'node:fs';
+const catalogue = JSON.parse(
+  readFileSync(
+    new URL('../src/features/surveillance/data/bandungCameras.json', import.meta.url),
+    'utf8',
+  ),
+);
+const publicCatalogue = JSON.parse(
+  readFileSync(
+    new URL('../src/features/surveillance/data/bandungPublicCameras.json', import.meta.url),
+    'utf8',
+  ),
+);
+export const cameras = new Map(
+  [...catalogue.cameras, ...publicCatalogue.cameras]
+    .filter((c) => c.streamUrl)
+    .map((c) => [c.id, new URL(c.streamUrl)]),
+);
+const origins = new Set([
+  'https://atcs-dishub.bandung.go.id:1990',
+  'https://pelindung.bandung.go.id:3443',
+  'https://atcs-dishubkbb.urbanaccess.net',
+  'https://cctv.bandungkab.go.id',
+]);
+const prefix = '/api/osint/camera-media/';
+export function mediaResourcePath(id, name) {
+  return prefix + id + '/~' + Buffer.from(name).toString('base64url');
+}
+export function cameraMediaUrl(id, resource) {
+  const base = cameras.get(id);
+  if (
+    !base ||
+    !origins.has(base.origin) ||
+    !resource ||
+    resource.includes('..') ||
+    /[\\\s#]/.test(resource) ||
+    resource.startsWith('/') ||
+    resource.includes('://') ||
+    /%(?:2e|2f|5c)/i.test(resource)
+  )
+    return null;
+  let url;
+  try {
+    url = new URL(resource, new URL('.', base));
+  } catch {
+    return null;
+  }
+  if (url.origin !== base.origin || !url.pathname.startsWith(new URL('.', base).pathname))
+    return null;
+  // Only the public provider query keys already present in the catalogue are accepted.
+  for (const [key, value] of url.searchParams) {
+    const providerSession =
+      base.origin === 'https://atcs-dishubkbb.urbanaccess.net' &&
+      key === 'session' &&
+      /^[A-Za-z0-9_-]{1,128}$/.test(value);
+    if (!providerSession && base.searchParams.get(key) !== value) return null;
+  }
+  return url;
+}
+export function rewriteCameraPlaylist(text, id, base) {
+  if (!text.trimStart().startsWith('#EXTM3U')) throw new Error('Invalid HLS manifest');
+  const rewrite = (value) => {
+    const u = new URL(value, base);
+    const root = new URL('.', cameras.get(id));
+    if (u.origin !== root.origin || !u.pathname.startsWith(root.pathname))
+      throw new Error('Unsupported media reference');
+    const name = u.pathname.slice(root.pathname.length) + u.search;
+    const allowed = cameraMediaUrl(id, name);
+    if (!allowed || allowed.href !== u.href) throw new Error('Unsupported media reference');
+    return mediaResourcePath(id, name);
+  };
+  return text
+    .trimStart()
+    .split(/\r?\n/)
+    .map((raw) => {
+      const line = raw.trim();
+      return line.startsWith('#')
+        ? line.replace(/URI="([^"]+)"/g, (_, url) => `URI="${rewrite(url)}"`)
+        : line.trim()
+          ? rewrite(line.trim())
+          : line;
+    })
+    .join('\n');
+}
+let active = 0;
+export async function serveOsintCameraMedia(req, res, fetchUpstream = fetch) {
+  if (req.method !== 'GET') {
+    res.writeHead(405);
+    res.end();
+    return;
+  }
+  const parts = new URL(req.url, 'http://local').pathname.slice(prefix.length).split('/');
+  let resource = parts[1] || '';
+  if (resource.startsWith('~')) {
+    const token = resource.slice(1);
+    resource = Buffer.from(token, 'base64url').toString('utf8');
+    if (Buffer.from(resource).toString('base64url') !== token) resource = '';
+  }
+  const url = parts.length === 2 ? cameraMediaUrl(parts[0], resource) : null;
+  if (!url) {
+    res.writeHead(404);
+    res.end();
+    return;
+  }
+  if (active >= 20) {
+    res.writeHead(503, { 'Retry-After': '2' });
+    res.end();
+    return;
+  }
+  const abort = new AbortController(),
+    timer = setTimeout(() => abort.abort(), 15000);
+  const closed = () => abort.abort();
+  res.on('close', closed);
+  active++;
+  try {
+    const playlist = /\.m3u8?$/.test(url.pathname);
+    const range = !playlist ? req.headers?.range : undefined;
+    if (range && !/^bytes=\d+-\d*$/.test(range)) {
+      res.writeHead(416);
+      res.end();
+      return;
+    }
+    const response = await fetchUpstream(url, {
+      signal: abort.signal,
+      redirect: 'error',
+      headers: range ? { Range: range } : undefined,
+    });
+    if (!response.ok) {
+      await response.body?.cancel();
+      throw new Error('Upstream unavailable');
+    }
+    const headers = {
+      'Content-Type': playlist ? 'application/vnd.apple.mpegurl' : 'application/octet-stream',
+      'Content-Disposition': 'inline',
+      'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+    };
+    if (playlist) {
+      const chunks = [];
+      let size = 0;
+      for await (const chunk of response.body) {
+        size += chunk.length;
+        if (size > 1024 * 1024) throw new Error('Manifest too large');
+        chunks.push(chunk);
+      }
+      const data = Buffer.from(
+        rewriteCameraPlaylist(Buffer.concat(chunks).toString('utf8'), parts[0], url),
+      );
+      if (!res.destroyed) {
+        res.writeHead(200, headers);
+        res.end(data);
+      }
+    } else {
+      // Pass chunks immediately, respecting downstream backpressure; never buffer a whole segment.
+      let size = 0;
+      const limit = new Transform({
+        transform(chunk, _encoding, done) {
+          size += chunk.length;
+          done(size > 16 * 1024 * 1024 ? new Error('Media too large') : null, chunk);
+        },
+      });
+      if (response.status === 206) {
+        const contentRange = response.headers.get('content-range');
+        if (!contentRange) throw new Error('Missing content range');
+        headers['Content-Range'] = contentRange;
+      }
+      const acceptRanges = response.headers.get('accept-ranges');
+      if (acceptRanges) headers['Accept-Ranges'] = acceptRanges;
+      res.writeHead(response.status === 206 ? 206 : 200, headers);
+      await pipeline(Readable.fromWeb(response.body), limit, res, { signal: abort.signal });
+    }
+  } catch {
+    if (!res.destroyed && !res.headersSent) {
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Stream penyedia tidak tersedia.' }));
+    }
+  } finally {
+    abort.abort();
+    active--;
+    clearTimeout(timer);
+    res.off('close', closed);
+  }
+}

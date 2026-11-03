@@ -1,0 +1,204 @@
+@import 'tailwindcss' source(none);
+@config "../../tailwind.config.js";
+@source "../../index.html";
+@source "../";
+
+/* Preserve the dashboard's v3 form/border defaults during the v4 migration. */
+@layer base {
+  *,
+  ::before,
+  ::after,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: #e5e7eb;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+  dialog {
+    margin: auto;
+  }
+}
+@theme {
+  --default-ring-width: 3px;
+  --default-ring-color: #3b82f6;
+}
+
+@font-face {
+  font-family: 'Quantico';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Quantico-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Quantico';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Quantico-Bold.ttf') format('truetype');
+}
+
+/* ============================================
+   THEME TOKENS — ported from project-2026
+   ============================================ */
+:root {
+  font-family:
+    'Quantico',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  --font-display: 'Quantico', system-ui, -apple-system, sans-serif;
+
+  /* Core surfaces */
+  --bg-base: #1b2428;
+  --bg-panel: #131b20;
+  --bg-elevated: #2a3340;
+  --bg-card: rgba(20, 31, 38, 0.72);
+
+  /* Text */
+  --text-primary: #dce7f5;
+  --text-secondary: #9fb3c8;
+  --text-muted: #8d9294;
+  --text-bright: #cde3ff;
+
+  /* Accents */
+  --accent-cyan: #6cf3ff;
+  --accent-blue: #36a2eb;
+  --accent-sky: #56b8ff;
+  --accent-lime: #67df86;
+  --accent-green: #4de38e;
+  --accent-amber: #f7bf45;
+  --accent-alert: #ff5252;
+  --accent-danger: #ff4444;
+
+  /* Lines */
+  --line-soft: rgba(255, 255, 255, 0.06);
+  --line-medium: rgba(255, 255, 255, 0.15);
+  --line-strong: rgba(255, 255, 255, 0.7);
+
+  line-height: 1.6;
+  font-weight: 400;
+  color: #e5ecf7;
+  background: var(--bg-base);
+  min-height: 100vh;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: block;
+  overflow: hidden;
+  background: var(--bg-base);
+  font-family: var(--font-display);
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ============================================
+   HUD LINE — diagonal stripe pattern
+   ============================================ */
+.hud-line {
+  background-image: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.25) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.25) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 0.375rem 0.375rem;
+  height: 0.25rem;
+  width: 100%;
+}
+
+.hud-line-lg {
+  background-image: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.125) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.125) 50%,
+    rgba(255, 255, 255, 0.125) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 0.5rem 0.5rem;
+  height: 0.5rem;
+  width: 100%;
+}
+
+/* ============================================
+   MAPLIBRE OVERRIDES
+   ============================================ */
+.maplibregl-canvas {
+  outline: none;
+}
+
+.maplibregl-ctrl-attrib {
+  background-color: rgba(27, 36, 40, 0.9) !important;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.maplibregl-ctrl-attrib a {
+  color: var(--text-secondary);
+}
+
+/* Shared Event Monitoring scrollbar palette, including modals and settings. */
+html,
+html :where(*) {
+  scrollbar-color: #365269 transparent !important;
+  scrollbar-width: thin;
+}
+::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #365269 !important;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #365269 !important;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Close/cancel X controls share the same destructive red accent. */
+button:has(svg.lucide-x),
+button:has(svg.lucide-circle-x) {
+  color: #ff6575 !important;
+  border-color: #ff657566 !important;
+}
+button:has(svg.lucide-x):hover:not(:disabled),
+button:has(svg.lucide-circle-x):hover:not(:disabled) {
+  color: #ff8a96 !important;
+  background: #ff65751a !important;
+  border-color: #ff6575 !important;
+}

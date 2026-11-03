@@ -1,0 +1,40 @@
+/* Reusable display-style corners; decoration never intercepts card controls. */
+.corner-frame {
+  position: relative;
+  --corner-color: var(--frame-blue);
+  --corner-length: 8px;
+  --corner-weight: 2px;
+}
+
+.corner-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--corner-color), var(--corner-color)) left top / var(--corner-length) var(--corner-weight),
+    linear-gradient(var(--corner-color), var(--corner-color)) left top / var(--corner-weight) var(--corner-length),
+    linear-gradient(var(--corner-color), var(--corner-color)) right top / var(--corner-length) var(--corner-weight),
+    linear-gradient(var(--corner-color), var(--corner-color)) right top / var(--corner-weight) var(--corner-length),
+    linear-gradient(var(--corner-color), var(--corner-color)) left bottom / var(--corner-length) var(--corner-weight),
+    linear-gradient(var(--corner-color), var(--corner-color)) left bottom / var(--corner-weight) var(--corner-length),
+    linear-gradient(var(--corner-color), var(--corner-color)) right bottom / var(--corner-length) var(--corner-weight),
+    linear-gradient(var(--corner-color), var(--corner-color)) right bottom / var(--corner-weight) var(--corner-length);
+  background-repeat: no-repeat;
+}
+
+
+:root{--frame-blue:#40d9ff;--frame-outline:rgba(0,200,244,.38);--hud-stripe:repeating-linear-gradient(-45deg,rgba(145,170,179,.55) 0 2px,transparent 2px 6px)}
+.fr26-hud-accent{display:flex;flex:1;min-width:0;align-items:center;gap:3px;margin-inline:3px}
+.fr26-hud-accent>.hud-line{flex:1;min-width:0;height:12px;background-image:var(--hud-stripe);background-size:auto;background-repeat:no-repeat;background-position:left center}
+.fr26-hud-accent>i{width:5px;height:5px;flex:0 0 5px;border-radius:1px;background:#535a5d}.fr26-hud-accent>i:nth-last-child(2){background:#8d9294}.fr26-hud-accent>i:last-child{background:#c6c8c9}
+.bms-dialog{padding:0;border:1px solid var(--frame-outline);border-radius:2px;background:#0b202a;color:#e6f2f5;box-shadow:0 28px 70px #0008;font:11px/1.6 var(--font-body,Quantico,system-ui)}
+.bms-dialog::backdrop{background:#070c0fcc;backdrop-filter:blur(2px)}
+.bms-dialog-header{height:52px;flex:0 0 52px;display:flex;gap:16px;align-items:center;padding:0 14px;border-bottom:1px solid #163b48;background:#081820}
+.bms-dialog-header>div:first-child{flex-shrink:0}.bms-dialog-header small{display:block;color:#00c8f4;font-size:10px;font-weight:700;letter-spacing:.12em}
+.bms-dialog-header h2{margin:3px 0 0;color:#fff;font-size:14px;line-height:1.2;letter-spacing:.08em}
+.bms-dialog button,.bms-dialog input,.bms-dialog select{font:inherit;border:1px solid #ffffff24;border-radius:0}
+.bms-dialog button{min-height:30px;padding:5px 12px;color:#b0b0b0;background:transparent;cursor:pointer;font-size:10px}
+.bms-dialog button:hover{background:#ffffff14;color:#fff}.bms-dialog-header button{width:28px;height:28px;min-height:28px;padding:4px;border-radius:3px;flex-shrink:0}
+.bms-dialog input:not([type=checkbox]),.bms-dialog select{height:32px;min-height:32px;padding:6px 9px;background:#081820;color:#e6f2f5}

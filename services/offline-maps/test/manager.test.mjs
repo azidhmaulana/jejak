@@ -1,0 +1,66 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,rm,writeFile,readFile,stat} from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import {setTimeout as delay} from 'node:timers/promises';
+import {createManager} from '../manager.mjs';
+import {validateRegion,initialRegion} from '../regions.mjs';
+const until=async predicate=>{for(let i=0;i<100;i++){if(predicate())return;await delay(10);}assert.fail('timeout');};
+test('bounds, names and zoom are validated before download',()=>{
+  assert.deepEqual(validateRegion(initialRegion).bounds,[105,-8,109.1,-5.1]);
+  for(const patch of [{bounds:[-180,-80,180,80]},{bounds:[109,-8,105,-5]},{bounds:[105,NaN,109,-5]},{name:''},{maxzoom:20}])assert.throws(()=>validateRegion({...initialRegion,...patch}));
+});
+test('download publishes only verified versions; failed updates preserve active package and requested bounds',async t=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'bms-maps-'));let fail=false;
+  const options={findSource:async()=>({url:'https://example.test/source',date:'20260922'}),run:async args=>{if(args[0]==='extract')await writeFile(args[2],'fixture');else if(fail)throw Error('invalid archive');}};
+  const manager=await createManager(dir,options);t.after(async()=>{await manager.close();await rm(dir,{recursive:true,force:true});});
+  await manager.start(initialRegion.id);await until(()=>manager.snapshot().job.status==='complete');await delay(15);
+  const first=manager.snapshot(),file=first.regions[0].file;assert.equal(first.activeId,initialRegion.id);assert.ok(file);
+  assert.equal((await stat(manager.safeFile(file))).size,7);
+  fail=true;await manager.start(initialRegion.id,{...initialRegion,name:'changed',bounds:[106,-7,107,-6]});
+  await until(()=>manager.snapshot().job.status==='failed');await delay(15);
+  assert.equal(manager.snapshot().regions[0].file,file);assert.deepEqual(manager.snapshot().regions[0].bounds,initialRegion.bounds);
+  const restored=await createManager(dir,options);assert.equal(restored.snapshot().activeId,initialRegion.id);await restored.close();
+  assert.throws(()=>manager.safeFile('../../outside.pmtiles'));
+  fail=false;await manager.start(initialRegion.id);await until(()=>manager.snapshot().job.status==='complete');
+  assert.equal(manager.snapshot().regions[0].previousFile,file);
+  const removed=await manager.remove(initialRegion.id);assert.equal(removed.activeId,null);assert.equal(removed.activeByProvider.protomaps,null);assert.equal(removed.regions.length,0);
+  await assert.rejects(stat(manager.safeFile(file)),error=>error.code==='ENOENT');
+});
+test('cancel, one-job-at-a-time, region switching and removal preserve other packages',async t=>{
+  const dir=await mkdtemp(path.join(os.tmpdir(),'bms-maps-'));let release;
+  const manager=await createManager(dir,{findSource:async()=>new Promise(resolve=>{release=()=>resolve({url:'https://example.test/source',date:'20260922'});}),run:async args=>{if(args[0]==='extract')await writeFile(args[2],'fixture');}});
+  t.after(async()=>{release?.();await manager.close();await rm(dir,{recursive:true,force:true});});
+  const added=await manager.add({name:'Other area',bounds:[110,-8,111,-7],maxzoom:12}),id=added.regions.at(-1).id;
+  await manager.start(initialRegion.id);await until(()=>Boolean(release));
+  await assert.rejects(manager.start(id),error=>error.status===409);
+  await assert.rejects(manager.remove(initialRegion.id),error=>error.status===409);
+  await manager.cancel();release();await until(()=>manager.snapshot().job.status==='cancelled');await delay(15);
+  assert.equal(manager.snapshot().regions[0].file,undefined);
+  await manager.start(id);await delay(25);release();await until(()=>manager.snapshot().job.status==='complete');await delay(15);
+  assert.equal(manager.snapshot().activeId,id);
+  await manager.remove(initialRegion.id);assert.equal(manager.snapshot().regions.length,1);
+  const stored=JSON.parse(await readFile(path.join(dir,'regions.json'),'utf8'));assert.equal(stored.activeId,id);
+});
+
+test('off and renamed packages persist across restart and updates do not reactivate them',async t=>{
+ const dir=await mkdtemp(path.join(os.tmpdir(),'bms-maps-toggle-'));
+ const options={findSource:async()=>({url:'https://example.test/source',date:'20260922'}),run:async args=>{if(args[0]==='extract')await writeFile(args[2],'fixture');}};
+ let manager=await createManager(dir,options);t.after(async()=>{await manager.close();await rm(dir,{recursive:true,force:true});});
+ await manager.start(initialRegion.id);await until(()=>manager.snapshot().job.status==='complete');await delay(20);
+ const file=manager.snapshot().regions[0].file;
+ await manager.rename(initialRegion.id,{name:'  Indonesia renamed  ',bounds:[0,0,1,1]});
+ assert.equal(manager.snapshot().regions[0].name,'Indonesia renamed');assert.deepEqual(manager.snapshot().regions[0].bounds,initialRegion.bounds);
+ assert.equal(manager.snapshot().regions[0].file,file);
+ await assert.rejects(manager.rename(initialRegion.id,{name:'   '}));await assert.rejects(manager.rename(initialRegion.id,{name:'x'.repeat(81)}));
+ await assert.rejects(manager.activate(initialRegion.id,'false'));
+ await manager.activate(initialRegion.id,false);await manager.close();manager=await createManager(dir,options);
+ assert.equal(manager.snapshot().activeByProvider.protomaps,null);assert.equal(manager.snapshot().activeId,null);assert.equal(manager.snapshot().regions[0].name,'Indonesia renamed');
+ await manager.start(initialRegion.id);await until(()=>manager.snapshot().job.status==='complete');await delay(20);
+ assert.equal(manager.snapshot().activeByProvider.protomaps,null);assert.equal(manager.snapshot().activeId,null);
+ await manager.activate(initialRegion.id,true);assert.equal(manager.snapshot().activeByProvider.protomaps,initialRegion.id);
+ const other=(await manager.add({...initialRegion,name:'Other'})).regions.at(-1).id;
+ await manager.start(other);await until(()=>manager.snapshot().job.status==='complete');await delay(20);
+ await manager.activate(other,true);await manager.activate(initialRegion.id,false);assert.equal(manager.snapshot().activeByProvider.protomaps,other);
+});

@@ -1,0 +1,91 @@
+.offline-area-selection {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.offline-area-selection.is-drawing {
+  pointer-events: auto;
+  cursor: crosshair;
+  touch-action: none;
+}
+.offline-area-selection svg {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.offline-area-selection polygon {
+  fill: #00c8f422;
+  stroke: #00c8f4;
+  stroke-width: 2;
+  stroke-dasharray: 7 4;
+}
+.offline-area-toolbar.corner-frame {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 6;
+  width: min(390px, calc(100% - 20px));
+  box-sizing: border-box;
+  padding: 10px;
+  background: #0b202af5;
+  border: 1px solid #28505e;
+  color: #dcebf0;
+  font: 11px var(--font-body);
+  box-shadow: 0 8px 25px #0006;
+}
+.offline-area-toolbar header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #00c8f4;
+}
+.offline-area-toolbar p {
+  font-size: 10px;
+  line-height: 1.6;
+  color: #a7bdc7;
+  margin: 8px 0;
+}
+.offline-area-toolbar output {
+  display: block;
+  font-size: 9px;
+  color: #92e4f4;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 10px;
+}
+.offline-area-toolbar .offline-area-error {
+  color: #f4bf63;
+}
+.offline-area-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 26px;
+  padding: 4px 7px;
+  background: #0d252f;
+  color: #b9ccd5;
+  border: 1px solid #28505e;
+  font: 10px var(--font-body);
+  cursor: pointer;
+}
+.offline-area-toolbar button:hover:not(:disabled) {
+  border-color: #00c8f4;
+  color: #00c8f4;
+}
+.offline-area-toolbar button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.offline-area-toolbar button:focus-visible {
+  outline: 1px solid #00c8f4;
+  outline-offset: 2px;
+}
+.offline-area-actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}

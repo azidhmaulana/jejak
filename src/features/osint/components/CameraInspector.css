@@ -1,0 +1,490 @@
+/* Compact camera monitor: identity, controls, feed and a single status row. */
+.command-workspace .camera-inspector.compact-monitor {
+  width: 430px;
+  right: 70px;
+  overflow: auto;
+  max-height: calc(100% - 210px);
+}
+.command-workspace .compact-monitor .inspector-card {
+  border: 1px solid #36593c;
+  border-radius: 5px;
+  background: #06100dee;
+  overflow: hidden;
+}
+.monitor-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 23px;
+  padding: 0 10px;
+  border-bottom: 1px solid #29412c;
+  font: 9px/1 monospace;
+  letter-spacing: 1px;
+  color: #8c9d8f;
+}
+.monitor-identity > span:first-child {
+  max-width: 35%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #93e867;
+}
+.monitor-identity > span:nth-child(2) {
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+.monitor-identity > span:last-child {
+  margin-left: auto;
+  color: #83c46b;
+}
+.monitor-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 10px;
+  background: #07130e;
+}
+.monitor-camera-symbol {
+  color: #93ee55;
+  flex-shrink: 0;
+}
+.monitor-title {
+  min-width: 0;
+  flex: 1;
+}
+.monitor-title h2 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #edf6ee;
+}
+.monitor-title p {
+  margin: 4px 0 0;
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #8fba7a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.monitor-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.monitor-actions button {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border: 1px solid #324336;
+  border-radius: 3px;
+  color: #b4c4b8;
+  background: #0a160f;
+}
+.monitor-actions svg {
+  width: 12px;
+  height: 12px;
+}
+.monitor-actions .monitor-close {
+  color: #f27373;
+  border-color: #63302d;
+  background: #2b100e;
+}
+.command-workspace .compact-monitor .monitor-feed {
+  position: relative;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  aspect-ratio: 4/3;
+  max-height: none;
+  background: #020706;
+  overflow: hidden;
+}
+.command-workspace .compact-monitor .osint-camera-video {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+.command-workspace .compact-monitor .osint-camera-video video,
+.command-workspace .compact-monitor .osint-camera-video > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.compact-monitor .osint-stream-status {
+  display: none;
+}
+.monitor-live-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  background: #04110de0;
+  border: 1px solid #426347;
+  font: 9px/1 monospace;
+  letter-spacing: 1.5px;
+  color: #bed0bd;
+  pointer-events: none;
+}
+.monitor-live-badge i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8c9c8f;
+}
+.monitor-live-badge[data-live='true'] i {
+  background: #63f473;
+  box-shadow: 0 0 6px #63f47366;
+}
+.monitor-favorite {
+  position: absolute;
+  bottom: 40px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid #5e853c;
+  background: #07150ce0;
+  color: #bcf58b;
+  font: 9px/1 monospace;
+  letter-spacing: 1px;
+}
+.monitor-favorite[aria-pressed='true'] svg {
+  fill: currentColor;
+}
+.monitor-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-top: 1px solid #334c35;
+  background: #040e09;
+}
+.monitor-footer > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 10px;
+  border-right: 1px solid #2b402e;
+}
+.monitor-footer small {
+  font: 8px/1 monospace;
+  letter-spacing: 1px;
+  color: #81977f;
+}
+.monitor-footer strong {
+  font: 9px/1 monospace;
+  letter-spacing: 0.6px;
+  color: #b3c0b0;
+}
+.monitor-footer strong[data-live='true'] {
+  color: #5af47a;
+}
+.monitor-footer > a,
+.monitor-footer > button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  border: 1px solid #335237;
+  color: #a6e783;
+  font: 9px/1 monospace;
+  text-decoration: none;
+}
+.monitor-footer > a {
+  margin-left: auto;
+}
+.command-workspace .camera-inspector.compact-monitor.inspector-expanded {
+  position: fixed;
+  inset: 65px 5vw auto auto;
+  width: min(760px, 90vw);
+  max-height: calc(100dvh - 130px);
+  z-index: 40;
+}
+.command-workspace .compact-monitor.inspector-expanded .monitor-feed {
+  aspect-ratio: 16/9;
+}
+@media (max-width: 700px) {
+  .command-workspace[data-camera-selected='true'] .camera-inspector.compact-monitor {
+    left: 48px;
+    right: 48px;
+    top: 106px;
+    width: auto;
+    max-height: calc(100% - 260px);
+  }
+  .monitor-header {
+    flex-wrap: wrap;
+    gap: 7px;
+    padding: 9px;
+  }
+  .monitor-title {
+    min-width: 120px;
+  }
+  .monitor-actions {
+    margin-left: auto;
+  }
+  .monitor-identity {
+    gap: 6px;
+    font-size: 8px;
+    letter-spacing: 0;
+  }
+  .monitor-identity > span:first-child {
+    max-width: 25%;
+  }
+  .command-workspace .compact-monitor .monitor-feed {
+    max-height: none;
+  }
+  .monitor-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .monitor-footer > a {
+    margin-left: 0;
+  }
+  .command-workspace[data-camera-selected='true']
+    .camera-inspector.compact-monitor.inspector-expanded {
+    position: fixed;
+    inset: 100px 10px auto;
+    width: auto;
+    max-height: calc(100dvh - 170px);
+  }
+}
+.command-workspace .camera-inspector.compact-monitor {
+  top: auto;
+  right: 12px;
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 12px);
+  max-height: calc(100% - 130px);
+}
+.monitor-actions button[aria-pressed='true'] {
+  color: #9aef65;
+  border-color: #69a744;
+}
+.monitor-actions button[aria-label='Favorite camera'][aria-pressed='true'] svg {
+  fill: currentColor;
+}
+.monitor-refresh.is-refreshing {
+  border-color: #8bd64d;
+  background: #1c3618;
+}
+.monitor-refresh.is-refreshing svg {
+  animation: monitor-refresh-spin 0.7s linear infinite;
+}
+@keyframes monitor-refresh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.command-workspace .monitor-feed:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+  max-height: none;
+  background: #000;
+}
+.monitor-error {
+  padding: 8px 10px;
+  font-size: 11px;
+  color: #efb79a;
+}
+@media (max-width: 700px) {
+  .command-workspace[data-camera-selected='true'] .camera-inspector.compact-monitor {
+    top: auto;
+    left: 48px;
+    right: 8px;
+    bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 8px);
+    max-height: calc(100% - 155px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .monitor-refresh.is-refreshing svg {
+    animation: none;
+  }
+}
+/* Fullscreen includes the monitor controls and footer, not just the video. */
+.command-workspace .camera-inspector.compact-monitor:fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  background: #020907;
+  overflow: hidden;
+}
+.command-workspace .compact-monitor:fullscreen .inspector-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: 0;
+}
+.compact-monitor:fullscreen .monitor-identity,
+.compact-monitor:fullscreen .monitor-header,
+.compact-monitor:fullscreen .monitor-footer {
+  flex-shrink: 0;
+}
+.command-workspace .compact-monitor:fullscreen .monitor-feed {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  aspect-ratio: auto;
+}
+.command-workspace .compact-monitor:fullscreen .osint-camera-video {
+  height: 100%;
+}
+.compact-monitor:fullscreen .monitor-identity > span:first-child {
+  max-width: 60%;
+}
+.compact-monitor:fullscreen .monitor-identity > span:nth-child(2) {
+  margin-left: auto;
+}
+.compact-monitor:fullscreen .monitor-identity > span:last-child {
+  display: none;
+}
+.compact-monitor:fullscreen .monitor-actions button[aria-label='Expand camera'] {
+  display: none;
+}
+.command-workspace .compact-monitor .osint-stream-placeholder {
+  background: linear-gradient(180deg, #06170df5, #041009ed), #041009;
+}
+.command-workspace .compact-monitor .osint-stream-placeholder::before {
+  background-image:
+    linear-gradient(#65ef6b16 1px, transparent 1px),
+    linear-gradient(90deg, #65ef6b16 1px, transparent 1px);
+  border-top-color: #5dd96540;
+}
+.command-workspace .compact-monitor .osint-placeholder-signal,
+.command-workspace .compact-monitor .osint-placeholder-signal::before {
+  border-color: #4fb66a66;
+}
+.command-workspace .compact-monitor .osint-placeholder-center > small {
+  color: #91bd9a;
+}
+.command-workspace .compact-monitor .osint-placeholder-retry {
+  border-color: #386d43;
+  background: #0a2111;
+  color: #7df09b;
+}
+.monitor-camera-selector {
+  padding: 0 10px 8px;
+  flex-shrink: 0;
+  background: #07130e;
+}
+.monitor-camera-selector select {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid #477139;
+  border-radius: 2px;
+  background: #07130e;
+  color: #b2ed8d;
+  font-size: 11px;
+  outline-offset: 2px;
+}
+.command-workspace .osint-camera-mini {
+  border: 1px solid #7bca4e;
+  background: #05130c;
+  box-shadow: 0 2px 14px #0009;
+}
+.command-workspace .osint-camera-mini > button {
+  background: #07190e;
+  color: #bbef94;
+  border-top: 1px solid #4f8937;
+}
+/* Expand horizontally while keeping the monitor anchored at bottom-right. */
+.command-workspace .camera-inspector.compact-monitor,
+.command-workspace .camera-inspector.compact-monitor.inspector-expanded,
+.command-workspace[data-camera-selected='true']
+  .camera-inspector.compact-monitor.inspector-expanded {
+  position: absolute;
+  inset: auto 12px calc(var(--tactical-footer-height) + var(--ticker-height) + 12px) auto;
+  width: min(430px, calc(100vw - 60px));
+  max-height: calc(100% - 130px);
+  transition: width 280ms cubic-bezier(0.22, 0.7, 0.25, 1);
+}
+.command-workspace .camera-inspector.compact-monitor.inspector-expanded,
+.command-workspace[data-camera-selected='true']
+  .camera-inspector.compact-monitor.inspector-expanded {
+  width: min(760px, calc(100vw - 60px));
+}
+.command-workspace .compact-monitor .monitor-feed,
+.command-workspace .compact-monitor.inspector-expanded .monitor-feed {
+  height: min(320px, calc(100dvh - 300px));
+  aspect-ratio: auto;
+}
+.command-workspace .camera-inspector.compact-monitor:fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-height: none;
+  transition: none;
+}
+.command-workspace .compact-monitor:fullscreen .monitor-feed {
+  height: auto;
+}
+@media (max-width: 700px) {
+  .command-workspace[data-camera-selected='true'] .camera-inspector.compact-monitor,
+  .command-workspace[data-camera-selected='true']
+    .camera-inspector.compact-monitor.inspector-expanded {
+    inset: auto 8px calc(var(--tactical-footer-height) + var(--ticker-height) + 8px) auto;
+    width: calc(100vw - 56px);
+    max-height: calc(100% - 155px);
+  }
+  .command-workspace[data-camera-selected='true']
+    .camera-inspector.compact-monitor.inspector-expanded {
+    width: calc(100vw - 16px);
+  }
+  .command-workspace[data-camera-selected='true'] .camera-inspector.compact-monitor:fullscreen {
+    inset: 0;
+    width: 100vw;
+    max-height: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .command-workspace .camera-inspector.compact-monitor,
+  .command-workspace .camera-inspector.compact-monitor.inspector-expanded {
+    transition: none;
+  }
+}
+.command-workspace[data-camera-selected='true']
+  .camera-inspector.compact-monitor.inspector-expanded:fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-height: none;
+  transition: none;
+}
+/* Grow upward as well as sideways from the fixed bottom-right anchor. */
+.command-workspace .compact-monitor .monitor-feed {
+  transition: height 280ms cubic-bezier(0.22, 0.7, 0.25, 1);
+}
+.command-workspace .compact-monitor.inspector-expanded .monitor-feed {
+  height: min(480px, calc(100dvh - 300px));
+}
+.command-workspace .compact-monitor:fullscreen .monitor-feed,
+.command-workspace .compact-monitor.inspector-expanded:fullscreen .monitor-feed {
+  height: auto;
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .command-workspace .compact-monitor .monitor-feed {
+    transition: none;
+  }
+}

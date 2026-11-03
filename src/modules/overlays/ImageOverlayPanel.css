@@ -1,0 +1,340 @@
+.image-overlay-dialog {
+  position: fixed;
+  inset: 70px 20px auto auto;
+  margin: 0;
+  width: min(430px, calc(100vw - 32px));
+  max-height: 75dvh;
+  padding: 0;
+  background: #0b2029;
+  color: #bce7ef;
+  border: 1px solid #16768b;
+  font:
+    12px Quantico,
+    sans-serif;
+  box-shadow: 0 12px 40px #0007;
+}
+.image-overlay-dialog::backdrop {
+  background: transparent;
+  pointer-events: none;
+}
+.image-overlay-dialog header,
+.image-overlay-dialog footer,
+.overlay-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #214854;
+}
+.image-overlay-dialog button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #06202b;
+  color: #00d7f4;
+  border: 1px solid #17647a;
+  padding: 5px;
+  cursor: pointer;
+}
+.image-overlay-dialog button:hover {
+  background: #124351;
+}
+.image-overlay-dialog button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.image-overlay-dialog button svg {
+  width: 13px;
+  height: 13px;
+}
+.image-overlay-dialog form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.image-overlay-dialog fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  overflow: auto;
+  max-height: calc(75dvh - 125px);
+}
+.overlay-fields {
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+.overlay-fields label {
+  display: grid;
+  gap: 5px;
+}
+.overlay-fields input,
+.overlay-fields textarea {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background: #061922;
+  color: inherit;
+  border: 1px solid #235363;
+  padding: 6px;
+  font: inherit;
+}
+.overlay-fields input[type='range'] {
+  padding: 0;
+  accent-color: #00cde9;
+}
+.overlay-bounds {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.overlay-preview {
+  max-width: 100%;
+  height: 90px;
+  object-fit: contain;
+}
+.overlay-list {
+  overflow: auto;
+  max-height: calc(75dvh - 110px);
+  padding: 10px;
+}
+.overlay-list article {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #214854;
+}
+.overlay-list article > img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+.overlay-list article > div {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.overlay-list p {
+  margin: 5px 0;
+}
+.overlay-list nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-content: start;
+  width: 82px;
+}
+.overlay-error {
+  color: #ff9c9c;
+  padding: 8px;
+  margin: 0;
+}
+.image-overlay-dialog footer {
+  justify-content: flex-end;
+  border-top: 1px solid #214854;
+}
+.image-overlay-dialog {
+  z-index: 1100;
+}
+.image-overlay-dialog header button {
+  color: #ff667c;
+}
+.image-overlay-dialog button:focus-visible {
+  outline: 2px solid #00d7f4;
+  outline-offset: 2px;
+}
+/* Match the root Config/operations panels, with a fixed header and footer. */
+.image-overlay-dialog {
+  background: var(--ops-panel, #0b2029);
+  color: var(--ops-text, #c4e1e9);
+  border-color: var(--frame-outline, #174653);
+  font-family: var(--font-body, Quantico, sans-serif);
+  font-size: 11px;
+  border-radius: 0;
+  --corner-length: 6px;
+  --corner-weight: 1px;
+  --corner-color: rgba(64, 217, 255, 0.9);
+}
+.image-overlay-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  max-height: 75dvh;
+}
+.image-overlay-dialog > header {
+  flex: none;
+  min-height: 42px;
+  padding: 0 12px;
+  background: #081820;
+  border-color: var(--ops-line, #21414d);
+  gap: 12px;
+}
+.image-overlay-dialog > header strong {
+  white-space: nowrap;
+  font-size: 12px;
+  letter-spacing: 0.7px;
+}
+.image-overlay-dialog > header button {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  justify-content: center;
+  padding: 0;
+  border-color: #703341;
+  color: #ff667c;
+}
+.image-overlay-dialog [data-dialog-handle] {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.image-overlay-dialog [data-dialog-handle].is-dragging {
+  cursor: grabbing;
+}
+.image-overlay-dialog [data-dialog-handle]:focus-visible {
+  outline: 1px solid #00d7f4;
+  outline-offset: -2px;
+}
+.image-overlay-dialog form,
+.image-overlay-dialog fieldset,
+.overlay-list {
+  min-height: 0;
+}
+.image-overlay-dialog form {
+  overflow: hidden;
+  flex: 1;
+}
+.image-overlay-dialog fieldset {
+  max-height: none;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: #285263 transparent;
+}
+.image-overlay-dialog footer {
+  flex: none;
+  padding: 9px 12px;
+  background: #081820;
+}
+.overlay-list {
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: #285263 transparent;
+}
+.overlay-toolbar {
+  flex: none;
+  padding: 9px 12px;
+}
+.image-overlay-dialog button {
+  height: 25px;
+  font: inherit;
+  border-color: #214b5b;
+  background: #081b24;
+}
+.overlay-toolbar button {
+  color: #26e9a9;
+  border-color: #197659;
+}
+.overlay-fields {
+  padding: 12px;
+  gap: 12px;
+}
+.overlay-fields input:not([type='range']),
+.overlay-fields textarea {
+  background: #081b24;
+  border-color: #21414d;
+  font-size: 11px;
+  border-radius: 0;
+}
+.overlay-fields textarea {
+  min-height: 54px;
+  resize: vertical;
+}
+.overlay-fields p {
+  color: #769eac;
+  font-size: 10px;
+  line-height: 1.5;
+  margin: 0;
+}
+.overlay-list article {
+  align-items: center;
+}
+.overlay-list article strong {
+  font-size: 12px;
+}
+.overlay-list article p,
+.overlay-list article small {
+  color: #769eac;
+}
+.overlay-list nav button {
+  width: 24px;
+  height: 24px;
+  justify-content: center;
+  padding: 4px;
+}
+.overlay-list button[title='Delete overlay'] {
+  color: #ff667c;
+  border-color: #703341;
+}
+.overlay-list button[title='Lock overlay'],
+.overlay-list button[title='Unlock overlay'] {
+  color: #efc46d;
+}
+@media (max-width: 480px) {
+  .image-overlay-dialog {
+    width: calc(100vw - 32px);
+    right: 16px;
+  }
+  .image-overlay-dialog > header {
+    gap: 8px;
+  }
+}
+/* Give the editor a definite height; scroll its content rather than the fieldset box. */
+.image-overlay-dialog.is-editing[open] {
+  height: 75dvh;
+  overflow: hidden;
+}
+.image-overlay-dialog.is-editing form {
+  flex: 1 1 0;
+  min-height: 0;
+}
+.image-overlay-dialog.is-editing fieldset {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.image-overlay-dialog.is-editing .overlay-fields {
+  display: block;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #46788a #081b24;
+  overscroll-behavior: contain;
+}
+.image-overlay-dialog.is-editing .overlay-fields > * + * {
+  margin-top: 12px;
+}
+.image-overlay-dialog.is-editing .overlay-fields::-webkit-scrollbar {
+  width: 8px;
+}
+.image-overlay-dialog.is-editing .overlay-fields::-webkit-scrollbar-track {
+  background: #081b24;
+}
+.image-overlay-dialog.is-editing .overlay-fields::-webkit-scrollbar-thumb {
+  background: #46788a;
+  border: 2px solid #081b24;
+  border-radius: 4px;
+}
+.image-overlay-dialog.is-editing .overlay-fields::-webkit-scrollbar-thumb:hover {
+  background: #60adc4;
+}
+.overlay-error {
+  flex-shrink: 0;
+  max-height: 70px;
+  overflow: auto;
+}

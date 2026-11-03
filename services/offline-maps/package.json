@@ -1,0 +1,17 @@
+{
+  "name": "bms-offline-maps",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@protomaps/basemaps": "5.7.2",
+    "express": "5.1.0",
+    "jpeg-js": "^0.4.4",
+    "pmtiles": "4.5.0",
+    "pngjs": "^7.0.0"
+  }
+}

@@ -1,0 +1,89 @@
+.command-workspace {
+  --ticker-height: 24px;
+  --tactical-footer-height: 34px;
+}
+.command-workspace .workspace-status.tactical-status {
+  bottom: var(--ticker-height);
+}
+.command-workspace .osint-map-workspace {
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height));
+}
+.command-workspace #map-corner-type {
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 48px);
+}
+.command-workspace #map-corner-scale {
+  bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 8px);
+}
+.workspace-ticker {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--ticker-height);
+  display: flex;
+  align-items: center;
+  background: #020a07;
+  border-top: 1px solid #28482e;
+  color: #a4bda9;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  z-index: 26;
+}
+.ticker-label {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: #102418;
+  color: #83ed60;
+  border-right: 1px solid #34523a;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  flex-shrink: 0;
+}
+.ticker-window {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: workspace-ticker 65s linear infinite;
+}
+.ticker-track > span {
+  flex-shrink: 0;
+  white-space: pre;
+  padding-right: 70px;
+}
+.workspace-ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+@keyframes workspace-ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+  .ticker-window {
+    overflow-x: auto;
+  }
+}
+@media (max-width: 700px) {
+  .command-workspace {
+    --tactical-footer-height: 30px;
+    --ticker-height: 22px;
+  }
+  .workspace-ticker {
+    font-size: 9px;
+  }
+  .ticker-label {
+    padding: 0 10px;
+  }
+  .command-workspace .workspace-map-toolbar {
+    bottom: 58px;
+  }
+}

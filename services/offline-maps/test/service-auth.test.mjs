@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,writeFile,rm} from 'node:fs/promises';
+import path from 'node:path';
+import {tmpdir} from 'node:os';
+import {once} from 'node:events';
+import {createApp} from '../server.mjs';
+import {serviceAuth} from '../service-auth.mjs';
+test('map tiles and management require service authentication',async t=>{
+  const dir=await mkdtemp(path.join(tmpdir(),'bms-map-auth-')),file=path.join(dir,'key.json'),key='a'.repeat(64);
+  await writeFile(file,JSON.stringify({internalKey:key}));
+  const app=createApp({snapshot:()=>({regions:[]})},{authenticate:serviceAuth({file})});
+  const server=app.listen(0,'127.0.0.1');await once(server,'listening');
+  t.after(async()=>{server.closeAllConnections();await new Promise(r=>server.close(r));await rm(dir,{recursive:true,force:true});});
+  const base=`http://127.0.0.1:${server.address().port}`;
+  assert.equal((await fetch(base+'/api/offline-maps/health')).status,200);
+  for(const route of ['/api/offline-maps/regions','/offline-maps/style.json'])assert.equal((await fetch(base+route)).status,401);
+  assert.equal((await fetch(base+'/api/offline-maps/regions',{headers:{'x-bms-service-key':key}})).status,200);
+  await rm(file);
+  assert.equal((await fetch(base+'/api/offline-maps/regions',{headers:{'x-bms-service-key':key}})).status,503);
+});

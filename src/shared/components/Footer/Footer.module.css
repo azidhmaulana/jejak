@@ -1,0 +1,86 @@
+.footer {
+  flex: 0 0 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  background: var(--bg-base);
+}
+
+/* Footer Rail — ported from project-2026 (Tv page) */
+.footerRail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 18px;
+  flex: 1 0 100px;
+  min-width: 100px;
+  margin: 0 7px;
+  padding: 0;
+}
+
+.footerRailLine {
+  flex: 1;
+  height: 18px;
+  background-color: rgba(214, 223, 228, 0.08);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(214, 223, 228, 0.82) 0,
+    rgba(214, 223, 228, 0.82) 4px,
+    transparent 4px,
+    transparent 9px
+  );
+  background-size: auto;
+  background-position: left center;
+  box-sizing: border-box;
+}
+
+.footerRailBoxes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 18px;
+}
+
+.footerRailBox {
+  width: 16px;
+  height: 18px;
+  background: rgba(214, 223, 228, 0.9);
+  box-sizing: border-box;
+}
+
+.footerRail {
+  flex: 1 1 80px;
+  min-width: 50px;
+  margin: 0 7px;
+}
+.footerRailLine {
+  height: 16px;
+  opacity: 0.65;
+}
+.footerRailBoxes {
+  gap: 4px;
+}
+.footerRailBox {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+}
+.footerRailBox:nth-child(1) {
+  background: #535a5d;
+}
+.footerRailBox:nth-child(2) {
+  background: #8d9294;
+}
+.footerRailBox:nth-child(3) {
+  background: #c6c8c9;
+}
+.footerRailLine {
+  height: 12px;
+  opacity: 1;
+  background-color: transparent;
+  background-image: var(--hud-stripe);
+}
+.footerRailBoxes {
+  opacity: 0.9;
+}

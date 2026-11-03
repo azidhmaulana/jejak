@@ -1,0 +1,404 @@
+﻿@import '../../../public/bms-ui.css';
+/* Template chrome matched to fr26v.2/fe/styles.css.
+   Workspace placement remains owned by Operations.css. */
+:root {
+  --font-display: 'Quantico', system-ui, sans-serif;
+  --ops-bg: #1b2428;
+  --ops-panel: #1b2428;
+  --ops-raised: #202b30;
+  --ops-line: rgba(255, 255, 255, 0.1);
+  --ops-cyan: #67ceff;
+  --ops-text: #e5ecf7;
+  --ops-muted: #8d9294;
+  --accent-cyan: #67ceff;
+}
+.ops-app {
+  font-family: var(--font-display);
+}
+.ops-topbar {
+  height: 34px;
+  flex-basis: 34px;
+  background: #1b2428;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+.ops-app .bms-workspace {
+  padding: 6px;
+  gap: 6px;
+}
+.ops-layout-label {
+  color: #fff;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.ops-layout-label span {
+  color: #8d9294;
+}
+.ops-mode-toolbar button,
+.ops-mode-toolbar select,
+.ops-context-toggle {
+  font-family: var(--font-display);
+  font-size: 9px;
+  height: 25px;
+  color: #8d9294;
+}
+.ops-mode-toolbar button[aria-pressed='true'] {
+  color: #67ceff;
+  border-color: rgba(103, 206, 255, 0.62);
+  background: rgba(103, 206, 255, 0.12);
+}
+.ops-mode-toolbar select {
+  background: #11181c;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.ops-app .bms-left-sidebar {
+  gap: 6px;
+}
+.ops-targets,
+.ops-app .bms-sidebar-card,
+.ops-context-panel {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0;
+  background: #1b2428;
+}
+.ops-panel-heading,
+.ops-app .bms-card-header {
+  height: 32px;
+  min-height: 32px;
+  padding: 0 8px 0 10px;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.ops-panel-heading h2,
+.ops-app .bms-card-header > span:first-child {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+}
+.ops-panel-heading select {
+  background: #11181c;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cde3ef;
+}
+.ops-panel-heading > button,
+.ops-app .bms-card-header button {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #182126;
+  color: #9aabb2;
+}
+.fr26-hud-accent {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 3px;
+  margin-inline: 3px;
+}
+.fr26-hud-accent > .hud-line,
+.ops-app .bms-card-header .hud-line {
+  flex: 1;
+  min-width: 0;
+  height: 14px;
+  opacity: 0.65;
+  background-image: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.22) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.22) 50%,
+    rgba(255, 255, 255, 0.22) 75%,
+    transparent 75%
+  );
+  background-size: 6px 6px;
+}
+.fr26-hud-accent > i {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+  border-radius: 1px;
+  background: #535a5d;
+}
+.fr26-hud-accent > i:nth-last-child(2) {
+  background: #8d9294;
+}
+.fr26-hud-accent > i:last-child {
+  background: #c6c8c9;
+}
+.ops-panel-heading h2 {
+  flex: 0 1 auto;
+}
+.ops-targets .fr26-hud-accent > i {
+  display: none;
+}
+.ops-target-row {
+  background: #11181c;
+  border: 1px solid #34444c;
+  border-left: 2px solid transparent;
+  border-radius: 0;
+}
+.ops-target-row:hover {
+  border-color: #67ceff;
+  background: #202b30;
+}
+.ops-target-row[aria-pressed='true'] {
+  background: rgba(103, 206, 255, 0.12);
+  border-color: rgba(103, 206, 255, 0.62);
+  border-left-color: #67ceff;
+}
+.ops-target-title strong {
+  color: #67ceff;
+  font-size: 10px;
+}
+.ops-target-metrics b {
+  color: #e5ecf7;
+}
+.ops-target-meta,
+.ops-status,
+.ops-panel-foot,
+.ops-alarm-row time {
+  color: #8d9294;
+}
+.ops-panel-foot {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.ops-app .bms-card-body {
+  padding: 8px;
+}
+.ops-app .bms-event-log li,
+.ops-alarm-row,
+.ops-alarm-summary {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.ops-context-name > strong {
+  font-size: 16px;
+  color: #67ceff;
+}
+.ops-detail-grid dd {
+  font-size: 16px;
+  color: #e5ecf7;
+}
+.ops-context-actions button,
+.ops-context-summary > button {
+  border: 1px solid #34444c;
+  background: #182126;
+  color: #b0c5d0;
+  font-family: var(--font-display);
+}
+.ops-context-actions .is-primary {
+  border-color: rgba(103, 206, 255, 0.62);
+  color: #67ceff;
+  background: rgba(103, 206, 255, 0.12);
+}
+.ops-app .bms-workspace-controls {
+  height: 44px;
+  min-height: 44px;
+  padding: 6px 12px;
+  gap: 6px;
+  background: #1b2428;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+}
+.ops-app .bms-workspace-controls button {
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  background: rgba(18, 25, 29, 0.76);
+  color: #8d9294;
+  font: 700 9px var(--font-display);
+  letter-spacing: 0.3px;
+  gap: 5px;
+}
+.ops-app .bms-workspace-controls button[aria-pressed='true'],
+.ops-app .bms-workspace-controls button[aria-expanded='true'] {
+  color: #67ceff;
+  border-color: rgba(103, 206, 255, 0.62);
+  background: rgba(103, 206, 255, 0.12);
+  box-shadow:
+    inset 0 0 8px rgba(103, 206, 255, 0.08),
+    0 0 8px rgba(103, 206, 255, 0.1);
+}
+.fr26-display-mode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  padding-left: 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+.fr26-display-mode > span {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #8d9294;
+}
+.fr26-display-mode > div {
+  display: flex;
+  gap: 3px;
+}
+.ops-app .fr26-display-mode button {
+  height: 30px;
+  width: 35px;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fr26-display-mode button > span {
+  font-size: 8px;
+}
+.mode-grid {
+  width: 13px;
+  height: 12px;
+  display: grid;
+  gap: 1px;
+}
+.mode-grid::before,
+.mode-grid::after {
+  content: '';
+  border: 1px solid currentColor;
+}
+.mode-grid.one {
+  grid-template-columns: 1fr;
+}
+.mode-grid.one::after {
+  display: none;
+}
+.mode-grid.two {
+  grid-template-columns: 1fr 1fr;
+}
+.mode-grid.three,
+.mode-grid.four {
+  grid-template: 1fr 1fr / 1fr 1fr;
+}
+.mode-grid.three::before {
+  grid-row: span 2;
+}
+.mode-grid.three::after,
+.mode-grid.four::before,
+.mode-grid.four::after {
+  box-shadow:
+    0 6px 0 -1px #151d20,
+    0 6px 0 0 currentColor;
+}
+.ops-alarm-center {
+  background: #1b2428;
+  border-color: rgba(255, 255, 255, 0.15);
+  font-family: var(--font-display);
+  box-shadow: 0 20px 80px #000b;
+}
+.ops-alarm-center > header {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.ops-alarm-center h2 {
+  font-size: 16px;
+  font-weight: 700;
+}
+.ops-alarm-center header small {
+  color: #67ceff;
+}
+.ops-app .ops-header-metrics {
+  color: #8d9294;
+  font-size: 8px !important;
+  gap: 10px;
+}
+.ops-header-metrics b {
+  color: #cde3ff;
+  font-size: 10px;
+}
+@media (max-width: 1450px) {
+  .ops-footer-version {
+    display: none;
+  }
+  .fr26-display-mode > span {
+    display: none;
+  }
+  .ops-header-metrics {
+    gap: 6px;
+    padding-inline: 4px;
+  }
+  .ops-app .bms-workspace-controls {
+    gap: 4px;
+    padding-inline: 8px;
+  }
+}
+
+/* The shared corner decoration must not change the positioned context panel. */
+.ops-context-panel.corner-frame {
+  position: absolute;
+}
+
+/* Monitoring strip: sidebar visibility only; navigation lives in the footer. */
+.ops-topbar {
+  justify-content: space-between;
+  padding-inline: 6px;
+  gap: 12px;
+}
+.ops-monitoring-title {
+  flex: 1;
+  color: #fff;
+  font: 700 9px var(--font-display);
+  letter-spacing: 1px;
+}
+.ops-sidebar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 25px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  background: #12191dc2;
+  color: #8d9294;
+  font: 700 8px var(--font-display) !important;
+}
+.ops-sidebar-toggle[aria-expanded='true'] {
+  color: #67ceff;
+  border-color: #67ceff70;
+}
+.ops-app .bms-left-sidebar[hidden] {
+  display: none;
+}
+.ops-alarm-center-link > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ops-sidebar-toggle {
+  width: 28px;
+  padding: 0;
+  justify-content: center;
+  flex: 0 0 28px;
+}
+
+/* Blue outer frames, with brighter corners than the connecting outline. */
+:root {
+  --frame-blue: #369fff;
+  --frame-outline: rgba(54, 159, 255, 0.5);
+  --frame-corner-color: var(--frame-blue);
+  --frame-border-color: var(--frame-outline);
+}
+.ops-targets,
+.ops-app .bms-sidebar-card,
+.ops-context-panel,
+.ops-app .bms-map-stage,
+.ops-alarm-center {
+  border-color: var(--frame-outline);
+}
+
+/* Subtle cyan fade beside the monitoring title. */
+.ops-monitoring-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.ops-monitoring-title::after {
+  content: '';
+  flex: 1;
+  min-width: 12px;
+  height: 1px;
+  background: linear-gradient(90deg, #16cbe5, transparent);
+}

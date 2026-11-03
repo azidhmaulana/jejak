@@ -1,0 +1,160 @@
+.workspace-shell {
+  min-height: 100dvh;
+}
+.workspace-empty {
+  flex: 1;
+  min-height: 0;
+  margin: 8px;
+  background: rgba(2, 22, 31, 0.55);
+}
+.workspace-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #14576a;
+  flex-wrap: wrap;
+}
+.workspace-tabs a {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #81aab8;
+  padding: 5px 12px;
+  text-decoration: none;
+  border: 1px solid #14576a;
+}
+.workspace-tabs a[aria-current='page'] {
+  color: #00d7f5;
+  background: #003647;
+  border-color: #00bad9;
+}
+.workspace-message {
+  padding: 24px;
+  color: #b6d7e0;
+  font-size: 12px;
+}
+.workspace-message a {
+  color: #00d7f5;
+}
+
+.ops-app.workspace-shell {
+  min-width: 0;
+  width: 100%;
+}
+
+.osint-map-workspace {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  --osint-primary: var(--ops-cyan);
+  --osint-secondary: var(--frame-blue);
+  --osint-glow: 0.35;
+}
+.osint-map-stage {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  border: 0;
+}
+.osint-map-stage > .ops-tactical-map {
+  height: 100%;
+  width: 100%;
+}
+
+#osint-map-footer {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+#osint-map-footer .map-panel-navbar {
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#osint-map-footer .map-key-form {
+  top: auto;
+  bottom: calc(100% + 5px);
+}
+.workspace-shell:has(#osint-map-footer) > .bms-workspace-controls {
+  height: auto;
+  min-height: 34px;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.workspace-shell:has(.osint-map-workspace[data-map-controls='false'])
+  #osint-map-footer
+  .map-navbar-navigation {
+  display: none;
+}
+@media (max-width: 700px) {
+  #osint-map-footer {
+    flex-basis: 100%;
+  }
+  #osint-map-footer .fr26-hud-accent {
+    display: none;
+  }
+}
+
+/* Keep map navigation directly beside the map style in the OSINT footer. */
+#osint-map-footer .map-panel-navbar > .fr26-hud-accent {
+  display: none;
+}
+#osint-map-footer .map-navbar-controls {
+  margin-left: 0;
+}
+.workspace-shell:has(#osint-map-footer) > .bms-workspace-controls > .map-tools {
+  border-left: 0;
+  padding-left: 0;
+}
+
+/* Match the search and map selectors to the shared footer controls. */
+.workspace-shell .bms-workspace-controls .map-search-box,
+#osint-map-footer .map-panel-navbar > select {
+  box-sizing: border-box;
+  height: 28px;
+  border: 1px solid var(--ops-line);
+  border-radius: 2px;
+  background-color: var(--ops-panel);
+  color: var(--ops-muted);
+  font: 600 11px var(--font-body);
+  letter-spacing: 0.2px;
+}
+.workspace-shell .bms-workspace-controls .map-search-box input {
+  height: 26px;
+  color: var(--ops-text);
+  font: 600 11px var(--font-body);
+  letter-spacing: 0.2px;
+}
+.workspace-shell .bms-workspace-controls .map-search-box input::placeholder {
+  color: var(--ops-muted);
+  opacity: 1;
+}
+.workspace-shell .bms-workspace-controls .map-search-box button {
+  height: 26px;
+  border-radius: 0 2px 2px 0;
+}
+#osint-map-footer .map-panel-navbar > select {
+  appearance: none;
+  padding: 0 22px 0 8px;
+  color-scheme: dark;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%2391aab3' stroke-width='1.4'/%3E%3C/svg%3E");
+  background-position: right 6px center;
+  background-repeat: no-repeat;
+}
+#osint-map-footer .map-panel-navbar > select option {
+  background: var(--ops-panel);
+  color: var(--ops-text);
+}
+.workspace-shell .bms-workspace-controls .map-search-box:focus-within,
+#osint-map-footer .map-panel-navbar > select:focus-visible {
+  border-color: var(--ops-cyan);
+  outline: 1px solid var(--ops-cyan);
+  outline-offset: 1px;
+}
+#osint-map-footer .map-panel-navbar > select:not(:disabled):hover {
+  border-color: var(--ops-cyan);
+  background-color: var(--ops-raised);
+}
