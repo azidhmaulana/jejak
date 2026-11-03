@@ -1,4 +1,6 @@
 import ImageOverlayLayer from '../overlays/ImageOverlayLayer';
+import { useAuth } from '../../features/auth/authStore';
+import { projectCache } from '../drawing/projectCache';
 import OfflineAreaSelection from './OfflineAreaSelection';
 import { useOfflineSelection } from './offlineSelectionStore';
 import { offlineProviderFor } from './mapProviders';
@@ -32,6 +34,9 @@ export default function MapCanvas({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const drawing = useRef<ReturnType<typeof createDrawingController> | null>(null);
+  const drawingOwner = useAuth((state) =>
+    state.user?.permissions.includes('objects.write') ? state.user.id : null,
+  );
   const previousStyle = useRef<maplibregl.StyleSpecification | string>(EMPTY_MAP_STYLE);
   useLanguage();
   const {
@@ -139,13 +144,7 @@ export default function MapCanvas({
 
     const instance = map.current;
     setMapInstance(instance);
-    const installDrawing = () => {
-      if (!drawing.current) drawing.current = createDrawingController(instance);
-    };
-    instance.on('style.load', installDrawing);
-
     return () => {
-      instance.off('style.load', installDrawing);
       drawing.current?.destroy();
       drawing.current = null;
 
@@ -165,6 +164,22 @@ export default function MapCanvas({
     drawing.current = null;
     mapInstance.setStyle(basemapStyle as never, { diff: false });
   }, [mapInstance, basemapStyle]);
+
+  useEffect(() => {
+    if (!mapInstance || !drawingOwner) return;
+    const install = () => {
+      if (!drawing.current) drawing.current = createDrawingController(mapInstance);
+    };
+    mapInstance.on('style.load', install);
+    if (mapInstance.getStyle()?.layers) install();
+    return () => {
+      mapInstance.off('style.load', install);
+      drawing.current?.destroy();
+      drawing.current = null;
+      projectCache.clear();
+      useMapTools.setState({ features: [], folders: [], selectedId: null, preview: null });
+    };
+  }, [mapInstance, drawingOwner]);
 
   useEffect(() => {
     const receive = (event: MessageEvent) => {

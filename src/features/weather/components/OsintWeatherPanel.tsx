@@ -1,6 +1,9 @@
+import { useLanguage } from '../../../shared/i18n/useLanguage';
+import { getLocale } from '../../../shared/i18n/runtime.js';
 import { useOsintWeather, toggleWeather, type WeatherLayer } from '../osintWeatherStore';
 
 export default function OsintWeatherPanel() {
+  const language = useLanguage();
   const s = useOsintWeather();
   const time = s.frames[s.rainIndex < 0 ? s.frames.length - 1 : s.rainIndex]?.time;
   const row = (key: WeatherLayer, title: string, description: string) => (
@@ -57,7 +60,7 @@ export default function OsintWeatherPanel() {
         {s.wind && s.windTime && (
           <label className="osint-weather-timeline">
             <output>
-              {s.windHour === 0 ? 'Sekarang' : `${s.windHour > 0 ? '+' : ''}${s.windHour} jam`}
+              {s.windHour === 0 ? (language === 'en' ? 'Now' : 'Sekarang') : `${s.windHour > 0 ? '+' : ''}${s.windHour} ${language === 'en' ? 'hours' : 'jam'}`}
             </output>
             <input
               aria-label="Wind forecast hour"
@@ -108,7 +111,7 @@ export default function OsintWeatherPanel() {
         {s.rain && s.rainTime && (
           <div className="osint-weather-timeline">
             <output>
-              {time ? new Date(time * 1000).toLocaleString('id-ID') : 'Belum ada frame'}
+              {time ? new Date(time * 1000).toLocaleString(getLocale()) : 'Belum ada frame'}
             </output>
             <input
               aria-label="Rain radar time"

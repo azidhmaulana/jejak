@@ -1,3 +1,4 @@
+import { projectCache } from './projectCache';
 import { drawingProjectUrl, mapStorageKey } from '../maps/mapWorkspace';
 import { useMapTools, type Drawing, type DrawingFolder, type DrawingId } from './mapToolsStore';
 
@@ -87,14 +88,14 @@ export function createSharedDrawingProject(
   let pending: { remote: DrawingProject; sent: DrawingProject } | null = null;
   let unacknowledged: { sent: DrawingProject; changes: Changes } | null = null;
   try {
-    const saved = JSON.parse(localStorage.getItem(baseKey) || 'null');
+    const saved = JSON.parse(projectCache.getItem(baseKey) || 'null');
     if (saved?.version === 2 && Array.isArray(saved.features) && Array.isArray(saved.folders))
       base = cleanProject(saved);
   } catch {
     /* Legacy browser-only drawings are migrated as new entities. */
   }
   try {
-    const saved = JSON.parse(localStorage.getItem(pendingKey) || 'null');
+    const saved = JSON.parse(projectCache.getItem(pendingKey) || 'null');
     if (saved?.sent?.version === 2 && saved?.changes?.version === 2) unacknowledged = saved;
   } catch {
     /* The normal local snapshot remains available. */
@@ -107,8 +108,8 @@ export function createSharedDrawingProject(
   };
   const cache = (local: DrawingProject) => {
     try {
-      localStorage.setItem(baseKey, JSON.stringify(base));
-      localStorage.setItem(cacheKey, JSON.stringify(local));
+      projectCache.setItem(baseKey, JSON.stringify(base));
+      projectCache.setItem(cacheKey, JSON.stringify(local));
     } catch {
       status('error', 'Cadangan browser penuh. Jangan tutup halaman sebelum data tersinkron.');
     }
@@ -124,7 +125,7 @@ export function createSharedDrawingProject(
     cache(next);
     unacknowledged = null;
     try {
-      localStorage.removeItem(pendingKey);
+      projectCache.removeItem(pendingKey);
     } catch {
       /* An exact retry remains idempotent. */
     }
@@ -153,7 +154,7 @@ export function createSharedDrawingProject(
     if (write && !unacknowledged) {
       unacknowledged = { sent, changes };
       try {
-        localStorage.setItem(pendingKey, JSON.stringify(unacknowledged));
+        projectCache.setItem(pendingKey, JSON.stringify(unacknowledged));
       } catch {
         /* Server save still proceeds; the regular cache reports storage failures. */
       }
@@ -207,7 +208,7 @@ export function createSharedDrawingProject(
   const reload = () => {
     if (busy) return;
     try {
-      localStorage.setItem(
+      projectCache.setItem(
         mapStorageKey('bms-map-conflict-backup-v1'),
         JSON.stringify({ savedAt: new Date().toISOString(), base, project: cleanProject(read()) }),
       );
@@ -220,7 +221,7 @@ export function createSharedDrawingProject(
     pending = null;
     unacknowledged = null;
     try {
-      localStorage.removeItem(pendingKey);
+      projectCache.removeItem(pendingKey);
     } catch {
       /* Backup has already been saved. */
     }

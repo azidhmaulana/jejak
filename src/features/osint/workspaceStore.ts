@@ -1,3 +1,4 @@
+import { useAuth } from '../auth/authStore';
 import { create } from 'zustand';
 
 export type WorkspacePanel =
@@ -42,7 +43,8 @@ export const useWorkspace = create<{
         ? [selectedId, ...state.recent.filter((id) => id !== selectedId)].slice(0, 30)
         : state.recent;
       try {
-        localStorage.setItem('jejak-recent-cameras', JSON.stringify(recent));
+        if (!useAuth.getState().user)
+          localStorage.setItem('jejak-recent-cameras', JSON.stringify(recent));
       } catch {
         /* In-memory state remains usable. */
       }
@@ -54,7 +56,8 @@ export const useWorkspace = create<{
         ? state.favorites.filter((item) => item !== id)
         : [...state.favorites, id];
       try {
-        localStorage.setItem('jejak-favorite-cameras', JSON.stringify(favorites));
+        if (!useAuth.getState().user)
+          localStorage.setItem('jejak-favorite-cameras', JSON.stringify(favorites));
       } catch {
         /* In-memory state remains usable. */
       }

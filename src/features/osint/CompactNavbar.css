@@ -1184,3 +1184,7 @@
     bottom: calc(var(--tactical-footer-height) + var(--ticker-height) + 88px);
   }
 }
+
+/* Native language menu must remain readable outside the transparent trigger. */
+.language-dropdown select { color-scheme: dark; color: #e6f4e9; background-color: #0b1c14; }
+.language-dropdown select option { color: #e6f4e9; background-color: #0b1c14; }

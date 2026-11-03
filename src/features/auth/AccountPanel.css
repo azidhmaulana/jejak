@@ -1,0 +1,97 @@
+.account-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: #0009;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.account-panel {
+  width: min(480px, 100%);
+  max-height: 85vh;
+  overflow: auto;
+  background: #071b12f5;
+  border: 1px solid #36532a;
+  border-radius: 12px;
+  padding: 20px;
+  color: #e0eee3;
+  box-shadow: 0 12px 48px #000a;
+  font-size: 13px;
+}
+.account-panel header,
+.account-panel nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.account-panel form {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.account-panel label {
+  display: grid;
+  gap: 6px;
+}
+.account-panel input,
+.account-panel select,
+.route-panel input,
+.route-panel select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 9px;
+  background: #0a2117;
+  color: #e0eee3;
+  border: 1px solid #36532a;
+  border-radius: 5px;
+  color-scheme: dark;
+}
+.account-panel button,
+.route-panel button {
+  padding: 8px 12px;
+  border: 1px solid #36532a;
+  border-radius: 5px;
+  background: #102d1d;
+  color: #a4ef81;
+  cursor: pointer;
+}
+.account-panel button:disabled,
+.route-panel button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.account-panel fieldset {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.account-panel p {
+  line-height: 1.6;
+  color: #a4b8aa;
+}
+.account-panel [role='alert'],
+.route-panel [role='alert'] {
+  color: #ffba9e;
+}
+.account-panel .permission-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.permission-row input {
+  width: auto;
+}
+.account-user {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid #36532a;
+}
+.account-user small {
+  grid-column: 1;
+  overflow-wrap: anywhere;
+}

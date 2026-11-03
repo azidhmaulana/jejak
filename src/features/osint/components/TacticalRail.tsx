@@ -1,8 +1,10 @@
+import { useAuth } from '../../auth/authStore';
 import SurveillanceSettingsPopover from './SurveillanceSettingsPopover';
 import { Network, CloudSun, SlidersHorizontal, PencilRuler, MapPin } from 'lucide-react';
 import { openWorkspacePanel, useWorkspace } from '../workspaceStore';
 import { useMapTools } from '../../../modules/drawing/mapToolsStore';
 export default function TacticalRail() {
+  const editable = useAuth((state) => Boolean(state.user?.permissions.includes('objects.write')));
   const { controller, bms } = useMapTools();
   return (
     <nav className="tactical-rail" aria-label="Workspace tools">
@@ -13,7 +15,7 @@ export default function TacticalRail() {
       <button
         aria-label="Drawing workspace"
         aria-pressed={bms}
-        disabled={!controller}
+        disabled={!controller || !editable}
         onClick={() => controller?.mode(bms ? 'render' : 'select')}
       >
         <PencilRuler />

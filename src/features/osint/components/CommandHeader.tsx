@@ -1,19 +1,16 @@
+import JejakLogo from '../../../shared/components/JejakLogo';
+import AccountMenu from '../../auth/AccountMenu';
+import { useAuth } from '../../auth/authStore';
+import { useRoute } from '../../routes/routeStore';
+import { Route } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
 import { useState } from 'react';
-import {
-  Bell,
-  Camera,
-  BarChart3,
-  Layers,
-  Map,
-  Search,
-  UserRound,
-  AlertTriangle,
-  FolderArchive,
-} from 'lucide-react';
+import { Bell, Camera, BarChart3, Layers, Map, Search, AlertTriangle } from 'lucide-react';
 import { openWorkspacePanel, useWorkspace } from '../workspaceStore';
 
 export default function CommandHeader() {
+  const user = useAuth((state) => state.user);
+  const routeOpen = useRoute((state) => state.open);
   const { panel, camerasOpen, query } = useWorkspace();
   const [search, setSearch] = useState(false);
   const showCameras = () => useWorkspace.setState({ camerasOpen: !camerasOpen, panel: null });
@@ -44,10 +41,7 @@ export default function CommandHeader() {
             </button>
           </nav>
           <a className="tactical-brand" href="/" aria-label="JEJAK home" translate="no">
-            <svg viewBox="0 0 40 40" aria-hidden="true">
-              <path d="M14 4h22L25 31l-8 5H3l-3-5 6-8h8l-4 6h8l7-18H13z" fill="currentColor" />
-              <path d="m10 7 7 5-5 7-7-5z" fill="currentColor" />
-            </svg>
+            <JejakLogo />
             <span>
               <strong>JEJAK</strong>
               <small>GEOSPATIAL INTELLIGENCE</small>
@@ -65,13 +59,16 @@ export default function CommandHeader() {
               <AlertTriangle />
               Peringatan
             </button>
-            <button
-              aria-pressed={panel === 'analytics'}
-              onClick={() => openWorkspacePanel('analytics')}
-            >
-              <FolderArchive />
-              Laporan
-            </button>
+            {user?.permissions.includes('routes.use') && (
+              <button
+                aria-label="CCTV route"
+                aria-pressed={routeOpen}
+                onClick={() => useRoute.setState({ open: !routeOpen, picking: null })}
+              >
+                <Route />
+                Route
+              </button>
+            )}
           </nav>
         </div>
         <div className="navbar-utilities">
@@ -90,9 +87,7 @@ export default function CommandHeader() {
             <button aria-label="Feed alerts" onClick={() => openWorkspacePanel('alerts')}>
               <Bell />
             </button>
-            <button aria-label="Workspace settings" onClick={() => openWorkspacePanel('settings')}>
-              <UserRound />
-            </button>
+            <AccountMenu />
           </div>
         </div>
       </header>

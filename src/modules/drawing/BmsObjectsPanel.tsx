@@ -1,3 +1,4 @@
+import { useAuth } from '../../features/auth/authStore';
 import { mapWorkspaceLabel, isOsintMap, mapStorageKey } from '../maps/mapWorkspace';
 import { useEffect, useState } from 'react';
 import {
@@ -400,7 +401,7 @@ function ObjectDetails({ feature }: { feature: Drawing }) {
   );
 }
 
-export default function BmsObjectsPanel() {
+function EditableObjectsPanel() {
   const state = useMapTools();
   const { collapsed, toggle, cardRef } = useCardCollapse('bms-objects', { persist: false });
   const [addingFolder, setAddingFolder] = useState(false),
@@ -687,6 +688,23 @@ export default function BmsObjectsPanel() {
           </div>
         )}
       </div>
+    </section>
+  );
+}
+
+export default function BmsObjectsPanel() {
+  const editable = useAuth((state) => Boolean(state.user?.permissions.includes('objects.write')));
+  const features = useMapTools((state) => state.features);
+  const controller = useMapTools((state) => state.controller);
+  if (editable) return <EditableObjectsPanel />;
+  return (
+    <section className="readonly-objects">
+      <h4>Objects</h4>
+      {features.map((feature) => (
+        <button key={feature.id} onClick={() => controller?.focusDrawing(feature.id!)}>
+          {String(feature.properties.name || feature.id)}
+        </button>
+      ))}
     </section>
   );
 }

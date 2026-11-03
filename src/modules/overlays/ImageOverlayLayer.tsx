@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useAuth } from '../../features/auth/authStore';
 import type { Map, ImageSource, MapMouseEvent } from 'maplibre-gl';
 import { corners, overlayRequest, useOverlays, type Overlay } from './imageOverlayStore';
 import { useMapTools } from '../drawing/mapToolsStore';
@@ -14,10 +15,14 @@ export default function ImageOverlayLayer({
   map: Map | null;
   editable?: boolean;
 }) {
+  const owner = useAuth((state) =>
+    state.user?.permissions.includes('objects.write') ? state.user.id : null,
+  );
   useEffect(() => {
+    if (!owner) return;
     useOverlays.setState({ editable });
     void overlayRequest().catch((e) => useOverlays.setState({ error: e.message }));
-  }, [editable]);
+  }, [editable, owner]);
   useEffect(() => {
     if (!map) return;
     const images = new globalThis.Map<string, string>();

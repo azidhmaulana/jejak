@@ -1,3 +1,4 @@
+import { useAuth } from '../../features/auth/authStore';
 import { isOsintMap, mapWorkspaceLabel } from '../maps/mapWorkspace';
 import { useOfflineSelection } from '../maps/offlineSelectionStore';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -81,7 +82,11 @@ export default function MapTools({
   visible: boolean;
   searchItems?: MapSearchResult[];
 }) {
+  const editable = useAuth((state) => Boolean(state.user?.permissions.includes('objects.write')));
   const state = useMapTools();
+  useEffect(() => {
+    if (!editable) state.controller?.mode('render');
+  }, [editable, state.controller]);
   const selectingOffline = useOfflineSelection((s) => s.active);
   const [panel, setPanel] = useState<'search' | 'import' | 'layers' | null>(null);
   const [query, setQuery] = useState('');
@@ -333,7 +338,7 @@ export default function MapTools({
           type="button"
           aria-label="Import BMS"
           title="Import KML / GeoJSON"
-          disabled={!ready}
+          disabled={!ready || !editable}
           aria-pressed={panel === 'import'}
           onClick={() => showPanel('import')}
         >
@@ -355,7 +360,7 @@ export default function MapTools({
           aria-label="BMS drawing tools"
           title="BMS — gambar dan edit objek peta"
           aria-pressed={state.bms}
-          disabled={!ready}
+          disabled={!ready || !editable}
           onClick={() => {
             state.controller?.mode(state.bms ? 'render' : 'select');
             setPanel(null);
@@ -364,7 +369,7 @@ export default function MapTools({
           <Layers />
           <span>{mapWorkspaceLabel}</span>
         </button>
-        {state.bms && (
+        {state.bms && editable && (
           <div className="map-bms-tools" role="group" aria-label="BMS drawing controls">
             <div className="map-bms-group" role="group" aria-label="Bentuk dan seleksi">
               {modes.map(({ mode, label, hint, icon }) => (

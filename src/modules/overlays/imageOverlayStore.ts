@@ -1,4 +1,5 @@
 import { overlayApiUrl } from '../maps/mapWorkspace';
+import { useAuth } from '../../features/auth/authStore';
 import { create } from 'zustand';
 import { MercatorCoordinate } from 'maplibre-gl';
 export type Overlay = {
@@ -25,6 +26,8 @@ export const useOverlays = create<{
   viewport?: { west: number; east: number; south: number; north: number };
 }>(() => ({ items: [], draft: null, open: false, hidden: [], error: '', editable: false }));
 export async function overlayRequest(id = '', method = 'GET', body?: unknown) {
+  const owner = useAuth.getState().user;
+  if (!owner?.permissions.includes('objects.write')) return;
   const r = await fetch(overlayApiUrl + (id ? '/' + id : ''), {
     method,
     headers: { 'Content-Type': 'application/json' },
@@ -33,8 +36,21 @@ export async function overlayRequest(id = '', method = 'GET', body?: unknown) {
   });
   const data = await r.json();
   if (!r.ok) throw Error(data.error || 'Overlay request failed');
-  useOverlays.setState({ items: data.items, error: '' });
+  const current = useAuth.getState().user;
+  if (current?.id === owner.id && current.permissions.includes('objects.write'))
+    useOverlays.setState({ items: data.items, error: '' });
 }
+useAuth.subscribe((state, previous) => {
+  if (state.user?.id !== previous.user?.id || !state.user?.permissions.includes('objects.write'))
+    useOverlays.setState({
+      items: [],
+      draft: null,
+      open: false,
+      hidden: [],
+      error: '',
+      editable: false,
+    });
+});
 type Corners = [[number, number], [number, number], [number, number], [number, number]];
 export function corners(o: Overlay): Corners {
   const a = MercatorCoordinate.fromLngLat([o.west, o.north]),

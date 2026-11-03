@@ -1,3 +1,8 @@
+import ToastHost from '../../shared/components/Toast';
+import CmsPanel from '../auth/CmsPanel';
+import AccountPanel from '../auth/AccountPanel';
+import AccountCameraPreferences from '../auth/AccountCameraPreferences';
+import RoutePanel from '../routes/RoutePanel';
 import WorkspaceTicker from './components/WorkspaceTicker';
 import TacticalRail from './components/TacticalRail';
 import MapCorner from './components/MapCorner';
@@ -53,6 +58,11 @@ export default function OsintWorkspace() {
       }
     >
       <CommandHeader />
+      <ToastHost />
+      <AccountPanel />
+      <CmsPanel />
+      <AccountCameraPreferences />
+      <RoutePanel />
       <main className="osint-map-workspace" aria-label="OSINT map workspace">
         <TacticalRail />
         <LayerPanel />

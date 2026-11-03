@@ -1,3 +1,4 @@
+import RouteLayer from '../../routes/RouteLayer';
 import MapCanvas from '../../../modules/maps/MapCanvas';
 import OsintWeatherLayer from '../../weather/OsintWeatherLayer';
 import OsintSurveillanceLayer from '../../surveillance/OsintSurveillanceLayer';
@@ -21,6 +22,7 @@ export default function OsintMap() {
             externalSelectedId={selectedId}
             onSelect={useWorkspace.getState().selectCamera}
           />
+          <RouteLayer map={map} />
           <MapHud map={map} />
         </>
       )}

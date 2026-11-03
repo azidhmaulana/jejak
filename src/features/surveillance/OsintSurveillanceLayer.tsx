@@ -1,3 +1,4 @@
+import { useRoute } from '../routes/routeStore';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { createPortal } from 'react-dom';
@@ -50,12 +51,19 @@ export default function OsintSurveillanceLayer({
   externalSelectedId?: string | null;
   onSelect?: (id: string | null) => void;
 }) {
+  const routeResult = useRoute((state) => (state.filter ? state.result : null));
   const manual = useSurveillance((s) => s.sources),
     bandung = useSurveillance((s) => s.bandung);
 
   const sources = useMemo(
-    () => (bandung ? [...bandungCameras, ...manual] : manual),
-    [bandung, manual],
+    () =>
+      (bandung ? [...bandungCameras, ...manual] : manual).filter(
+        (source) =>
+          !routeResult ||
+          source.kind !== 'camera' ||
+          routeResult.cameras.some((camera) => camera.id === source.id),
+      ),
+    [bandung, manual, routeResult],
   );
 
   const cameras = useSurveillance((s) => s.cameras),

@@ -10,6 +10,18 @@ export default defineConfig(({ mode }) => {
       host: '127.0.0.1',
       port: Number(env.JEJAK_WEB_PORT || 5173),
       strictPort: true,
+      fs: {
+        deny: [
+          '.env',
+          '.env.*',
+          '*.{crt,pem,key}',
+          '**/.git/**',
+          '**/.runtime/**',
+          '**/*.{sqlite,sqlite-wal,sqlite-shm,db,db-wal,db-shm}',
+          '**/setup-token.txt',
+          ...(env.JEJAK_DATA_DIR ? [env.JEJAK_DATA_DIR.replaceAll('\\', '/') + '/**'] : []),
+        ],
+      },
       proxy: {
         '/api': { target, changeOrigin: false },
         '/offline-maps': { target, changeOrigin: false },

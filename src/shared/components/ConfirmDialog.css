@@ -1,0 +1,109 @@
+dialog.confirm-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 28px;
+  color: #dcebdd;
+  border: 1px solid #589d50;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #071e14f5, #03170ef7);
+  box-shadow: 0 18px 60px #0009;
+  font-family: inherit;
+}
+dialog.confirm-dialog::backdrop {
+  background: #0009;
+  backdrop-filter: blur(3px);
+}
+.confirm-symbol {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 1px solid #4d9142;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #204c25, #15391b);
+  color: #b2ef91;
+}
+.confirm-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid #284839;
+  border-radius: 7px;
+  background: #061c1480;
+  color: #c1cec7;
+  cursor: pointer;
+}
+.confirm-dialog h2 {
+  font-size: 23px;
+  margin: 18px 0 12px;
+  color: #f1f7f2;
+}
+.confirm-dialog p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #bac8c0;
+  margin: 0 0 22px;
+}
+.confirm-dialog .confirm-error {
+  color: #ffbc9d;
+}
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  border-top: 1px solid #294a37;
+  padding-top: 20px;
+}
+.confirm-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 9px 22px;
+  border: 1px solid #537e43;
+  border-radius: 8px;
+  background: #08231880;
+  color: #ddedd3;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.confirm-actions .confirm-primary {
+  background: linear-gradient(135deg, #c2fa68, #95f34b);
+  border-color: #a9ee64;
+  color: #10200b;
+  font-weight: 600;
+}
+.confirm-dialog button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.confirm-dialog button:focus-visible {
+  outline: 2px solid #b0ef88;
+  outline-offset: 3px;
+}
+.confirm-dialog button:not(:disabled):hover {
+  filter: brightness(1.12);
+}
+@media (max-width: 480px) {
+  dialog.confirm-dialog {
+    padding: 22px;
+  }
+  .confirm-dialog h2 {
+    font-size: 21px;
+  }
+  .confirm-actions button {
+    padding-inline: 16px;
+  }
+}

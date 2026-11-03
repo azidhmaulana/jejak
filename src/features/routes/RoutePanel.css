@@ -1,0 +1,97 @@
+.route-panel {
+  position: absolute;
+  z-index: 35;
+  top: 86px;
+  left: 48px;
+  width: 300px;
+  max-height: calc(100dvh - 180px);
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 14px;
+  background: #071b12ed;
+  border: 1px solid #36532a;
+  border-radius: 8px;
+  color: #e0eee3;
+  font-size: 12px;
+  display: grid;
+  gap: 10px;
+  box-shadow: 0 8px 28px #0006;
+}
+.route-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.route-panel label {
+  display: grid;
+  gap: 6px;
+}
+.route-panel button {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+.route-actions,
+.saved-route {
+  display: flex;
+  gap: 8px;
+}
+.saved-route > button:first-child {
+  flex: 1;
+}
+.route-panel .route-filter {
+  display: flex;
+  align-items: center;
+}
+.route-filter input {
+  width: auto;
+}
+.route-hint {
+  font-size: 10px;
+  color: #a7b9a9;
+  line-height: 1.5;
+}
+.route-cameras {
+  max-height: 210px;
+  overflow: auto;
+  padding-left: 22px;
+}
+.route-cameras button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 5px;
+}
+.route-cameras small {
+  display: block;
+  margin-top: 4px;
+  color: #a7b9a9;
+}
+.route-panel form {
+  display: grid;
+  gap: 8px;
+}
+.route-endpoint {
+  background: #9ef55f;
+  color: #08150b;
+  border: 2px solid #153d22;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  box-shadow: 0 0 8px #0008;
+}
+.route-panel p {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .route-panel {
+    top: 100px;
+    left: 44px;
+    width: calc(100vw - 88px);
+    max-height: calc(100dvh - 220px);
+  }
+}

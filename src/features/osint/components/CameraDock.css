@@ -190,3 +190,5 @@
     width: min(840px, calc(100% - 908px));
   }
 }
+
+.command-workspace .camera-dock-heading [role='tab'][aria-selected='true'] { border-bottom-color: transparent; }

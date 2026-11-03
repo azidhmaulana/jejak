@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createApp } from '../server/app.mjs';
@@ -18,10 +18,22 @@ test('standalone API serves project, overlay and offline contracts and rejects c
     await rm(directory, { recursive: true, force: true });
   });
   const base = `http://127.0.0.1:${server.address().port}`;
-  assert.deepEqual(await (await fetch(base + '/api/osint/map-overlays')).json(), { items: [] });
+  assert.equal((await fetch(base + '/api/osint/map-overlays')).status, 401);
   assert.ok(
     Array.isArray((await (await fetch(base + '/api/offline-maps/regions')).json()).regions),
   );
+  const setup = await fetch(base + '/api/auth/setup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      token: await readFile(path.join(directory, 'setup-token.txt'), 'utf8'),
+      name: 'API Admin',
+      email: 'api@example.test',
+      password: 'api-test-password-123',
+    }),
+  });
+  assert.equal(setup.status, 200);
+  const cookie = setup.headers.get('set-cookie').split(';')[0];
   const changes = {
     version: 2,
     features: [],
@@ -35,12 +47,22 @@ test('standalone API serves project, overlay and offline contracts and rejects c
   };
   const options = {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Cookie: cookie },
     body: JSON.stringify(changes),
   };
+  assert.equal(
+    (
+      await fetch(base + '/api/bms/projects/osint', {
+        ...options,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    ).status,
+    401,
+  );
   assert.equal((await fetch(base + '/api/bms/projects/osint', options)).status, 200);
   assert.equal(
-    (await (await fetch(base + '/api/bms/projects/osint')).json()).folders[0].name,
+    (await (await fetch(base + '/api/bms/projects/osint', { headers: { Cookie: cookie } })).json())
+      .folders[0].name,
     'Browser folder',
   );
   assert.equal(

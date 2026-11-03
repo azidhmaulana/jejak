@@ -1,3 +1,4 @@
+import { projectCache } from './projectCache';
 import { mapStorageKey } from '../maps/mapWorkspace';
 import { Marker, type Map as LibreMap, type MapMouseEvent } from 'maplibre-gl';
 import {
@@ -141,7 +142,7 @@ export function createDrawingController(map: LibreMap) {
       historyState();
     }
     try {
-      localStorage.setItem(
+      projectCache.setItem(
         storageKey,
         JSON.stringify({ version: 2, folders, features: snapshot() }),
       );
@@ -180,7 +181,7 @@ export function createDrawingController(map: LibreMap) {
   draw.start();
   draw.setMode('render');
   try {
-    const project = JSON.parse(localStorage.getItem(storageKey) || 'null');
+    const project = JSON.parse(projectCache.getItem(storageKey) || 'null');
     if (project?.version === 2 && Array.isArray(project.folders)) {
       const ids = new Set<string>();
       folders = project.folders
@@ -198,7 +199,7 @@ export function createDrawingController(map: LibreMap) {
     const saved: unknown =
       project?.version === 2
         ? project.features
-        : JSON.parse(localStorage.getItem(mapStorageKey('bms-map-drawings-v1')) || '[]');
+        : JSON.parse(projectCache.getItem(mapStorageKey('bms-map-drawings-v1')) || '[]');
     if (Array.isArray(saved)) {
       for (const [index, feature] of saved.entries()) {
         try {

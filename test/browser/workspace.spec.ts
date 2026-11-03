@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
 
 const cameras = Array.from({ length: 12 }, (_, i) => ({
@@ -32,6 +33,22 @@ test.beforeEach(async ({ page }) => {
   );
   await page.goto('/');
   await expect(page.locator('.maplibregl-canvas')).toBeVisible();
+});
+
+test('development server blocks private runtime files including raw and encoded URLs', async ({
+  page,
+}) => {
+  for (const url of [
+    '/.runtime/browser-tests/setup-token.txt',
+    '/.runtime/browser-tests/accounts.sqlite',
+    '/.runtime/browser-tests/accounts.sqlite-wal',
+    '/.RUNTIME/browser-tests/setup-token.txt',
+    '/%2eruntime/browser-tests/setup-token.txt',
+    '/.runtime/browser-tests/setup-token.txt?raw',
+    '/.runtime/browser-tests/setup-token.txt?url',
+    `/@fs/${process.cwd().replaceAll('\\', '/')}/.runtime/browser-tests/setup-token.txt`,
+  ])
+    expect((await page.request.get(url)).status(), url).toBe(403);
 });
 
 test('pagination keeps cards and empty tabs stable; monitor never overlaps tray', async ({
@@ -128,6 +145,25 @@ test('expand, fullscreen and language survive state changes', async ({ page }) =
 });
 
 test('drawing persists and providers remain accessible', async ({ page }) => {
+  const session = await (await page.request.get('/api/auth/session')).json();
+  if (session.setupRequired) {
+    const response = await page.request.post('/api/auth/setup', {
+      data: {
+        token: await readFile('.runtime/browser-tests/setup-token.txt', 'utf8'),
+        name: 'Browser Admin',
+        email: 'browser@example.test',
+        password: 'browser-test-password-123',
+      },
+    });
+    expect(response.ok()).toBeTruthy();
+  } else {
+    const response = await page.request.post('/api/auth/login', {
+      data: { email: 'browser@example.test', password: 'browser-test-password-123' },
+    });
+    expect(response.ok()).toBeTruthy();
+  }
+  await page.reload();
+
   await page.getByRole('button', { name: 'Map provider settings', exact: true }).click();
   const drawing = page.getByRole('button', { name: 'BMS drawing tools', exact: true });
   await expect(drawing).toBeEnabled();
@@ -155,6 +191,21 @@ test('drawing persists and providers remain accessible', async ({ page }) => {
     'aria-pressed',
     'true',
   );
+  // A real logout must clear private map state as well as the server cookie.
+  await page.getByRole('button', { name: 'Account', exact: true }).click();
+  await page.getByRole('button', { name: 'Logout', exact: true }).click();
+  await page.getByRole('button', { name: 'Yes, sign out', exact: true }).click();
+  await expect
+    .poll(async () =>
+      page.evaluate(async () => {
+        const modulePath = '/src/modules/drawing/mapToolsStore.ts';
+        const { useMapTools } = await import(modulePath);
+        return useMapTools.getState().features.length;
+      }),
+    )
+    .toBe(0);
+  expect((await page.request.get('/api/bms/projects/osint')).status()).toBe(401);
+  expect(await page.evaluate(() => localStorage.getItem('osint-map-project-v2'))).toBeNull();
 });
 
 for (const width of [390, 768, 1024, 1440]) {
@@ -197,4 +248,222 @@ test.describe('touch interaction', () => {
     await page.locator('.maplibregl-canvas').tap({ position: { x: 350, y: 500 } });
     await expect(page.locator('.surveillance-popover')).toHaveCount(0);
   });
+});
+
+test('language menu contrast and dynamic English copy remain readable', async ({ page }) => {
+  const option = page.locator('.language-dropdown option[value="en"]');
+  await expect(option).toHaveCSS('color', 'rgb(230, 244, 233)');
+  await expect(option).toHaveCSS('background-color', 'rgb(11, 28, 20)');
+  await expect(page.locator('.ticker-track').first()).toContainText('registered cameras');
+  await page.getByRole('button', { name: 'CCTV', exact: true }).click();
+  await page.getByRole('tab', { name: 'Favorites', exact: true }).click();
+  await expect(page.locator('.camera-dock')).toContainText('No favorites yet.');
+  await page.locator('.language-dropdown select').selectOption('id');
+  await expect(page.locator('.ticker-track').first()).toContainText('kamera terdaftar');
+  await expect(page.locator('.camera-dock')).toContainText('Belum ada favorit.');
+  await page.locator('.language-dropdown select').selectOption('en');
+  await expect(page.locator('.camera-dock')).toContainText('No favorites yet.');
+});
+
+test('guest signs in as Viewer, filters CCTV by route and saves a private route', async ({
+  page,
+}) => {
+  await expect(page.getByRole('button', { name: 'CCTV route', exact: true })).toHaveCount(0);
+  expect(
+    (
+      await page.request.post('/api/routes/calculate', {
+        data: { start: [107.61, -6.91], end: [107.62, -6.92] },
+      })
+    ).status(),
+  ).toBe(401);
+  const session = await (await page.request.get('/api/auth/session')).json();
+  if (session.setupRequired)
+    await page.request.post('/api/auth/setup', {
+      data: {
+        token: await readFile('.runtime/browser-tests/setup-token.txt', 'utf8'),
+        name: 'Browser Admin',
+        email: 'browser@example.test',
+        password: 'browser-test-password-123',
+      },
+    });
+  else
+    await page.request.post('/api/auth/login', {
+      data: { email: 'browser@example.test', password: 'browser-test-password-123' },
+    });
+  const email = `viewer-${Date.now()}@example.test`;
+  expect(
+    (
+      await page.request.post('/api/auth/users', {
+        data: { name: 'Route Viewer', email, password: 'viewer-test-password-123', role: 'viewer' },
+      })
+    ).status(),
+  ).toBe(201);
+  await page.request.post('/api/auth/logout');
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  const account = page.getByRole('dialog');
+  await account.getByLabel('Email', { exact: true }).fill(email);
+  await account.getByLabel('Password', { exact: true }).fill('wrong-password-123');
+  await account.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await expect(page.locator('.toast-item.error')).toContainText('Invalid email or password.');
+  await account.getByLabel('Password', { exact: true }).fill('viewer-test-password-123');
+  await account.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await expect(account).toHaveCount(0);
+  await expect(page.locator('.toast-item.success')).toContainText('Signed in successfully.');
+  await expect(page.getByRole('button', { name: 'Drawing workspace' })).toBeDisabled();
+  await page.route('**/api/routes/calculate', (route) =>
+    route.fulfill({
+      json: {
+        start: [107.61, -6.91],
+        end: [107.62, -6.92],
+        tolerance: 50,
+        distance: 2500,
+        duration: 300,
+        provider: 'OSRM',
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [107.61, -6.91],
+            [107.62, -6.92],
+          ],
+        },
+        cameras: [{ ...cameras[0], distanceAlongRoute: 100, distanceFromRoute: 20 }],
+      },
+    }),
+  );
+  await page.getByRole('button', { name: 'CCTV route', exact: true }).click();
+  const panel = page.getByRole('region', { name: 'CCTV route' });
+  await panel.getByLabel('A · Start (lat, lon)', { exact: true }).fill('-6.91, 107.61');
+  await panel.getByLabel('B · Destination (lat, lon)', { exact: true }).fill('-6.92, 107.62');
+  await panel.getByLabel('B · Destination (lat, lon)', { exact: true }).blur();
+  await panel.getByRole('button', { name: 'Find route', exact: true }).click();
+  await expect(panel).toContainText('2.5 km');
+  await expect(panel.locator('.route-cameras li')).toHaveCount(1);
+  await page.getByRole('button', { name: 'CCTV', exact: true }).click();
+  await expect(page.locator('.camera-card')).toHaveCount(1);
+  await panel.getByLabel('Route name', { exact: true }).fill('My test route');
+  await panel.getByRole('button', { name: 'Save route', exact: true }).click();
+  await expect(panel.getByRole('button', { name: 'My test route', exact: true })).toBeVisible();
+  await panel.getByRole('button', { name: 'Clear', exact: true }).click();
+  await expect(page.locator('.camera-card')).toHaveCount(5);
+  await page.getByRole('button', { name: 'Account', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'CMS', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Account', exact: true })).toContainText(
+    'Route Viewer',
+  );
+  await page.getByRole('button', { name: 'Logout', exact: true }).click();
+  const confirmation = page.getByRole('dialog', { name: 'Sign out of JEJAK?' });
+  await expect(confirmation).toBeVisible();
+  expect((await (await page.request.get('/api/auth/session')).json()).user).not.toBeNull();
+  await confirmation.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(confirmation).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Account', exact: true })).toContainText(
+    'Route Viewer',
+  );
+  await page.getByRole('button', { name: 'Account', exact: true }).click();
+  await page.getByRole('button', { name: 'Logout', exact: true }).click();
+  await confirmation.getByRole('button', { name: 'Yes, sign out', exact: true }).click();
+
+  await expect(page.getByRole('button', { name: 'CCTV route', exact: true })).toHaveCount(0);
+  await expect(panel).toHaveCount(0);
+});
+
+test('account dropdown opens separate profile and CMS tables for administrators', async ({
+  page,
+}) => {
+  const session = await (await page.request.get('/api/auth/session')).json();
+  if (session.setupRequired)
+    await page.request.post('/api/auth/setup', {
+      data: {
+        token: await readFile('.runtime/browser-tests/setup-token.txt', 'utf8'),
+        name: 'Browser Admin',
+        email: 'browser@example.test',
+        password: 'browser-test-password-123',
+      },
+    });
+  else
+    await page.request.post('/api/auth/login', {
+      data: { email: 'browser@example.test', password: 'browser-test-password-123' },
+    });
+  await page.reload();
+  await page.getByRole('button', { name: 'Account', exact: true }).click();
+  await expect(page.locator('.account-dropdown hr')).toBeVisible();
+  await page.getByRole('button', { name: 'Profile', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Profile', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Show current password', exact: true }).click();
+  await expect(page.getByLabel('Current password', { exact: true })).toHaveAttribute(
+    'type',
+    'text',
+  );
+  await page.screenshot({ path: 'test-results/profile-design.png' });
+
+  await expect(
+    page.getByRole('dialog').getByRole('button', { name: 'Users', exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole('button', { name: 'Close account' }).click();
+  await page.getByRole('button', { name: 'Account', exact: true }).click();
+  await page.getByRole('button', { name: 'CMS', exact: true }).click();
+  const cms = page.getByRole('dialog', { name: 'JEJAK CMS' });
+  await expect(cms.getByRole('table')).toBeVisible();
+  await expect(cms).not.toContainText('superadmin');
+  expect((await cms.boundingBox())!.width).toBe(940);
+  await cms
+    .getByRole('button', { name: /^Edit .*@/ })
+    .first()
+    .click();
+  await expect(cms.locator('select[name=role]')).toBeVisible();
+  await cms.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await page.screenshot({ path: 'test-results/cms-users-compact.png' });
+  await cms.getByRole('button', { name: 'Roles & permissions', exact: true }).click();
+  await cms.getByRole('button', { name: 'Edit viewer', exact: true }).click();
+  await expect(cms.getByLabel('Role name', { exact: true })).toHaveValue('viewer');
+  await page.screenshot({ path: 'test-results/cms-tables.png' });
+  await cms.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await page.keyboard.press('Escape');
+  await expect(cms).toHaveCount(0);
+  const email = `cms-admin-${Date.now()}@example.test`;
+  await page.request.post('/api/auth/users', {
+    data: { name: 'CMS Admin', email, password: 'cms-admin-password-123', role: 'admin' },
+  });
+  await page.request.post('/api/auth/logout');
+  await page.request.post('/api/auth/login', {
+    data: { email, password: 'cms-admin-password-123' },
+  });
+  await page.reload();
+  await page.getByRole('button', { name: 'Account', exact: true }).click();
+  await page.getByRole('button', { name: 'CMS', exact: true }).click();
+  await expect(cms.getByRole('table')).toBeVisible();
+  await expect(cms).not.toContainText('superadmin');
+  await cms.getByRole('button', { name: 'Roles & permissions', exact: true }).click();
+  await expect(cms.getByRole('button', { name: 'Add role', exact: true })).toHaveCount(0);
+  await expect(cms).toContainText('Read only');
+});
+
+test('public registration creates a Viewer account', async ({ page }) => {
+  const session = await (await page.request.get('/api/auth/session')).json();
+  if (session.setupRequired) {
+    await page.request.post('/api/auth/setup', {
+      data: {
+        token: await readFile('.runtime/browser-tests/setup-token.txt', 'utf8'),
+        name: 'Browser Admin',
+        email: 'browser@example.test',
+        password: 'browser-test-password-123',
+      },
+    });
+    await page.request.post('/api/auth/logout');
+    await page.reload();
+  }
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('tab', { name: 'Register', exact: true }).click();
+  await dialog.getByLabel('Full name', { exact: true }).fill('Public Viewer');
+  await dialog.getByLabel('Email', { exact: true }).fill(`public-${Date.now()}@example.test`);
+  await dialog.getByLabel('Password', { exact: true }).fill('public-password-123');
+  await dialog.getByLabel('Confirm password', { exact: true }).fill('public-password-123');
+  await dialog.locator('input[name=terms]').check();
+  await page.screenshot({ path: 'test-results/register-design.png' });
+  await dialog.getByRole('button', { name: 'Create account', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'CCTV route', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Account', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'CMS', exact: true })).toHaveCount(0);
 });
