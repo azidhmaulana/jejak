@@ -1,6 +1,8 @@
 import publicCameras from './data/bandungPublicCameras.json';
 import garut from './data/garutCameras.json';
 import jabar from './data/jabarCameras.json';
+import regional from './data/regionalCameras.json';
+import mudik from './data/mudikCameras.json';
 import bandung from './data/bandungCameras.json';
 import { create } from 'zustand';
 export interface SurveillanceSource {
@@ -9,18 +11,38 @@ export interface SurveillanceSource {
   kind: 'camera' | 'news';
   url: string;
   previewUrl: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   streamUrl?: string;
   locationName?: string;
   provider?: string;
   discoveryUrl?: string;
+  coordinateAccuracy?: 'approximate';
+}
+export function hasSourceCoordinates(
+  source: SurveillanceSource,
+): source is SurveillanceSource & { latitude: number; longitude: number } {
+  return (
+    typeof source.latitude === 'number' &&
+    Number.isFinite(source.latitude) &&
+    Math.abs(source.latitude) <= 90 &&
+    typeof source.longitude === 'number' &&
+    Number.isFinite(source.longitude) &&
+    Math.abs(source.longitude) <= 180
+  );
+}
+export function sourceCoordinates(source: SurveillanceSource, precision = 4) {
+  return hasSourceCoordinates(source)
+    ? `${source.coordinateAccuracy === 'approximate' ? '\u2248 ' : ''}${source.latitude.toFixed(precision)}, ${source.longitude.toFixed(precision)}`
+    : '\u2014';
 }
 export const bandungCameras = [
   ...bandung.cameras,
   ...publicCameras.cameras,
   ...garut.cameras,
   ...jabar.cameras,
+  ...regional.cameras,
+  ...mudik.cameras,
 ] as SurveillanceSource[];
 export function hasCameraFeed(source: SurveillanceSource) {
   return Boolean(
@@ -46,7 +68,7 @@ export function reportCameraHealth(id: string, status: CameraHealth['status'], r
 }
 export function cameraHealth(id: string): CameraHealth {
   const health = useSurveillance.getState().health[id];
-  return health && Date.now() - health.checkedAt < 300000
+  return health && (health.status === 'offline' || Date.now() - health.checkedAt < 300000)
     ? health
     : { status: 'unknown', checkedAt: 0, reason: 'Belum terverifikasi' };
 }
@@ -83,6 +105,7 @@ export function validSource(s: SurveillanceSource) {
     typeof s.previewUrl === 'string' &&
     (!s.previewUrl || validSurveillanceUrl(s.previewUrl)) &&
     (!s.streamUrl || validSurveillanceUrl(s.streamUrl)) &&
+    hasSourceCoordinates(s) &&
     Number.isFinite(s.latitude) &&
     Math.abs(s.latitude) <= 85 &&
     Number.isFinite(s.longitude) &&

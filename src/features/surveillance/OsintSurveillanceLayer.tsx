@@ -1,3 +1,4 @@
+import { hasSourceCoordinates, sourceCoordinates } from './osintSurveillanceStore';
 import { useRoute } from '../routes/routeStore';
 import { useActiveBundledCameras } from './cameraSourceState';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -173,8 +174,8 @@ export default function OsintSurveillanceLayer({
     (s) => s.id === selected && (s.kind === 'camera' ? cameras : news),
   );
   useEffect(() => {
-    onSelect?.(selectedSource?.id ?? null);
-  }, [selectedSource?.id, onSelect]);
+    if (!externalPanel) onSelect?.(selectedSource?.id ?? null);
+  }, [selectedSource?.id, onSelect, externalPanel]);
 
   useEffect(() => {
     const changed = () => setHidden(document.hidden);
@@ -195,10 +196,11 @@ export default function OsintSurveillanceLayer({
         ...(cameraAvailability(source).status === 'offline' ? { showOffline: true } : {}),
       });
       setSelected(source.id);
-      map?.easeTo({
-        center: [source.longitude, source.latitude],
-        zoom: Math.max(map.getZoom(), 15),
-      });
+      if (hasSourceCoordinates(source))
+        map?.easeTo({
+          center: [source.longitude, source.latitude],
+          zoom: Math.max(map.getZoom(), 15),
+        });
     };
     window.addEventListener('osint-select-camera', select);
     return () => window.removeEventListener('osint-select-camera', select);
@@ -207,7 +209,9 @@ export default function OsintSurveillanceLayer({
   useEffect(() => {
     if (!map) return;
 
-    const list = sources.filter((s) => (s.kind === 'camera' ? cameras : news));
+    const list = sources
+      .filter(hasSourceCoordinates)
+      .filter((s) => (s.kind === 'camera' ? cameras : news));
 
     const layer = createCameraMapLayer(
       map,
@@ -217,7 +221,10 @@ export default function OsintSurveillanceLayer({
             previewSettings.current.showOffline || cameraAvailability(source).status !== 'offline',
         ),
       () => previewSettings.current.selected,
-      setSelected,
+      (id) => {
+        setSelected(id);
+        onSelect?.(id);
+      },
     );
     const entries = new Map<
       string,
@@ -335,9 +342,15 @@ export default function OsintSurveillanceLayer({
     <>
       {visiblePreviews.map(({ source, host }) =>
         createPortal(
-          <div className="osint-camera-mini corner-frame" onClick={() => setSelected(source.id)}>
+          <div
+            className="osint-camera-mini corner-frame"
+            onClick={() => {
+              setSelected(source.id);
+              onSelect?.(source.id);
+            }}
+          >
             <OsintCameraVideo source={source} compact />
-            <button aria-label={'Open ' + source.name} onClick={() => setSelected(source.id)}>
+            <button aria-label={'Open ' + source.name}>
               <i className="osint-preview-online-dot" aria-hidden="true" />
               {source.name}
             </button>
@@ -355,9 +368,7 @@ export default function OsintSurveillanceLayer({
         >
           <div className="osint-camera-meta">
             <span>{selectedSource.id}</span>
-            <span>
-              {selectedSource.latitude.toFixed(5)}, {selectedSource.longitude.toFixed(5)}
-            </span>
+            <span>{sourceCoordinates(selectedSource, 5)}</span>
           </div>
 
           <header>
@@ -385,6 +396,7 @@ export default function OsintSurveillanceLayer({
               title="Locate camera"
               aria-label="Locate camera"
               onClick={() =>
+                hasSourceCoordinates(selectedSource) &&
                 map?.easeTo({
                   center: [selectedSource.longitude, selectedSource.latitude],
                   zoom: Math.max(map.getZoom(), 15),

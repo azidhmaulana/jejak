@@ -163,3 +163,31 @@ test('byte ranges are forwarded and partial response semantics preserved', async
   assert.equal((await response.arrayBuffer()).byteLength, 3);
   assert.equal((await fetch(url, { headers: { Range: 'bytes=1-2,4-5' } })).status, 416);
 });
+
+test('HTML and JSON error pages cannot masquerade as successful video segments', async (t) => {
+  const { createServer } = await import('node:http');
+  const { once } = await import('node:events');
+  let contentType = 'text/html';
+  const server = createServer(
+    (req, res) =>
+      void serveOsintCameraMedia(
+        req,
+        res,
+        async () => new Response('provider error', { headers: { 'Content-Type': contentType } }),
+      ),
+  );
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  t.after(() => {
+    server.closeAllConnections();
+    server.close();
+  });
+  const url =
+    'http://127.0.0.1:' +
+    server.address().port +
+    mediaResourcePath('bandung-atcs-76', 'segment.ts');
+  for (const type of ['text/html; charset=utf-8', 'application/json']) {
+    contentType = type;
+    assert.equal((await fetch(url)).status, 502);
+  }
+});

@@ -1,7 +1,7 @@
 import { useLanguage } from '../../../shared/i18n/useLanguage';
 import { useAuth } from '../../auth/authStore';
 import SurveillanceSettingsPopover from './SurveillanceSettingsPopover';
-import { Network, CloudSun, SlidersHorizontal, PencilRuler, MapPin } from 'lucide-react';
+import { Network, CloudSun, SlidersHorizontal, PencilRuler, MapPin, Satellite } from 'lucide-react';
 import { openWorkspacePanel, useWorkspace } from '../workspaceStore';
 import { useMapTools } from '../../../modules/drawing/mapToolsStore';
 export default function TacticalRail() {
@@ -22,6 +22,19 @@ export default function TacticalRail() {
         </span>
       </button>
       <SurveillanceSettingsPopover />
+      <button
+        data-space-trigger
+        aria-label={english ? 'Space' : 'Antariksa'}
+        aria-pressed={panel === 'space'}
+        aria-expanded={panel === 'space'}
+        aria-controls="space-stream-panel"
+        onClick={() => openWorkspacePanel('space')}
+      >
+        <Satellite />
+        <span className="rail-tooltip" role="tooltip">
+          {english ? 'Live from space' : 'Siaran antariksa'}
+        </span>
+      </button>
       <button
         aria-label="Drawing workspace"
         aria-pressed={bms}

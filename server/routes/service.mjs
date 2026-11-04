@@ -3,7 +3,7 @@ import { publicCameras } from '../camera-catalog.mjs';
 import { randomUUID } from 'node:crypto';
 
 const invalid = (message, status = 400) => Object.assign(new Error(message), { status });
-export function validatePoints({ start, end, tolerance = 50 }) {
+export function validatePoints({ start, end, tolerance = 50, mode = 'car' }) {
   for (const point of [start, end])
     if (
       !Array.isArray(point) ||
@@ -15,12 +15,15 @@ export function validatePoints({ start, end, tolerance = 50 }) {
       throw invalid('Choose valid start and end coordinates.');
   if (![25, 50, 100].includes(tolerance)) throw invalid('Tolerance must be 25, 50 or 100 meters.');
   if (start[0] === end[0] && start[1] === end[1]) throw invalid('Start and end must be different.');
-  return { start, end, tolerance };
+  if (!['car', 'motorcycle'].includes(mode)) throw invalid('Choose car or motorcycle.');
+  return { start, end, tolerance, mode };
 }
 // Local metric projection per segment: sufficient for short road segments, not a bounding-box match.
 export function camerasAlongRoute(coordinates, cameras, tolerance) {
   const hits = [];
   for (const camera of cameras) {
+    if (camera.coordinateAccuracy === 'approximate') continue;
+    if (!Number.isFinite(camera.latitude) || !Number.isFinite(camera.longitude)) continue;
     let best = Infinity,
       progress = 0,
       travelled = 0;
@@ -78,10 +81,34 @@ export function createRouteRouter(
       const base = (
         process.env.JEJAK_ROUTING_URL || 'https://routing.openstreetmap.de/routed-car'
       ).replace(/\/$/, '');
-      const url = `${base}/route/v1/driving/${points.start.join(',')};${points.end.join(',')}?overview=full&geometries=geojson&steps=false`;
+      let url = `${base}/route/v1/driving/${points.start.join(',')};${points.end.join(',')}?overview=full&geometries=geojson&steps=false`;
+      if (points.mode === 'motorcycle') {
+        const payload = {
+          locations: [points.start, points.end].map(([lon, lat]) => ({ lon, lat })),
+          costing: 'motorcycle',
+          costing_options: {
+            motorcycle: {
+              use_highways: 0,
+              use_tolls: 0,
+              exclude_highways: true,
+              exclude_tolls: true,
+            },
+          },
+          format: 'osrm',
+          shape_format: 'geojson',
+          units: 'kilometers',
+        };
+        const motorcycleBase = (
+          process.env.JEJAK_MOTORCYCLE_ROUTING_URL || 'https://valhalla1.openstreetmap.de'
+        ).replace(/\/$/, '');
+        url = `${motorcycleBase}/route?json=${encodeURIComponent(JSON.stringify(payload))}`;
+      }
       const response = await fetcher(url, {
         signal: AbortSignal.timeout(20000),
-        headers: { 'User-Agent': 'JEJAK/1.0 (interactive CCTV route planner)' },
+        headers: {
+          'User-Agent': 'JEJAK/1.0 (interactive CCTV route planner)',
+          'X-Client-Id': 'jejak-local-route-planner',
+        },
       });
       if (!response.ok) throw invalid('Routing provider is unavailable. Please try again.', 502);
       const data = await response.json(),
@@ -100,7 +127,8 @@ export function createRouteRouter(
         distance: route.distance,
         duration: route.duration,
         cameras: camerasAlongRoute(coordinates, cameras.filter(cameraEnabled), points.tolerance),
-        provider: 'OSRM / OpenStreetMap',
+        provider:
+          points.mode === 'motorcycle' ? 'Valhalla / OpenStreetMap' : 'OSRM / OpenStreetMap',
       });
     } catch (error) {
       if (error.name === 'TimeoutError' || error.name === 'TypeError')

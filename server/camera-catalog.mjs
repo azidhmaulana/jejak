@@ -5,6 +5,8 @@ export const cameraCatalogs = [
   'bandungPublicCameras.json',
   'garutCameras.json',
   'jabarCameras.json',
+  'mudikCameras.json',
+  'regionalCameras.json',
 ].map((file) =>
   JSON.parse(
     readFileSync(new URL(`../src/features/surveillance/data/${file}`, import.meta.url), 'utf8'),

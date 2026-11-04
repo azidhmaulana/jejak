@@ -5,6 +5,13 @@ export const cameras = new Map(
   publicCameras.filter((c) => c.streamUrl).map((c) => [c.id, new URL(c.streamUrl)]),
 );
 const origins = new Set([
+  'https://camera.jtd.co.id',
+  'https://extstream.hk-opt2.com',
+  'https://info.serbaraja-tollroad.co.id:20443',
+  'https://pub.hk-opt.com',
+
+  'https://restreamer2.kotabogor.go.id',
+  'https://dki-jkt.balitower.co.id:7028',
   'https://atcs-dishub.bandung.go.id:1990',
   'https://pelindung.bandung.go.id:3443',
   'https://atcs-dishubkbb.urbanaccess.net',
@@ -21,6 +28,19 @@ const origins = new Set([
   'https://ruas-ciranjang.jaring.host',
 ]);
 const prefix = '/api/osint/camera-media/';
+// Indramayu's public server first redirects to the same resource with a cookie check.
+// Follow only this exact redirect, never an arbitrary upstream destination.
+export async function fetchCameraMedia(url, options = {}, fetcher = fetch) {
+  const first = await fetcher(url, { ...options, redirect: 'manual' });
+  if (![301, 302, 303, 307, 308].includes(first.status)) return first;
+  await first.body?.cancel();
+  const target = new URL(first.headers.get('location') || '', url);
+  const expected = new URL(url);
+  expected.searchParams.set('cookieCheck', '1');
+  if (new URL(url).origin !== 'https://cctv.indramayukab.go.id' || target.href !== expected.href)
+    throw new Error('Unsupported media redirect');
+  return fetcher(target, { ...options, redirect: 'error' });
+}
 export function mediaResourcePath(id, name) {
   return prefix + id + '/~' + Buffer.from(name).toString('base64url');
 }
@@ -48,10 +68,19 @@ export function cameraMediaUrl(id, resource) {
   // Only the public provider query keys already present in the catalogue are accepted.
   for (const [key, value] of url.searchParams) {
     const providerSession =
-      base.origin === 'https://atcs-dishubkbb.urbanaccess.net' &&
+      [
+        'https://atcs-dishubkbb.urbanaccess.net',
+        'https://cctv.indramayukab.go.id',
+        'https://restreamer2.kotabogor.go.id',
+      ].includes(base.origin) &&
       key === 'session' &&
       /^[A-Za-z0-9_-]{1,128}$/.test(value);
-    if (!providerSession && base.searchParams.get(key) !== value) return null;
+    const reloadParameter =
+      base.origin === 'https://cctv.indramayukab.go.id' &&
+      /\.m3u8?$/.test(url.pathname) &&
+      ((['_HLS_msn', '_HLS_part'].includes(key) && /^\d{1,12}$/.test(value)) ||
+        (key === '_HLS_skip' && ['YES', 'v2'].includes(value)));
+    if (!providerSession && !reloadParameter && base.searchParams.get(key) !== value) return null;
   }
   return url;
 }
@@ -94,7 +123,17 @@ export async function serveOsintCameraMedia(req, res, fetchUpstream = fetch) {
     resource = Buffer.from(token, 'base64url').toString('utf8');
     if (Buffer.from(resource).toString('base64url') !== token) resource = '';
   }
-  const url = parts.length === 2 ? cameraMediaUrl(parts[0], resource) : null;
+  let url = parts.length === 2 ? cameraMediaUrl(parts[0], resource) : null;
+  const reload = new URL(req.url, 'http://local').searchParams;
+  if (url && url.origin === 'https://cctv.indramayukab.go.id' && reload.size) {
+    const requested = new URL(url);
+    for (const [key, value] of reload) requested.searchParams.set(key, value);
+    const root = new URL('.', cameras.get(parts[0]));
+    url = cameraMediaUrl(
+      parts[0],
+      requested.pathname.slice(root.pathname.length) + requested.search,
+    );
+  }
   if (!url) {
     res.writeHead(404);
     res.end();
@@ -118,14 +157,25 @@ export async function serveOsintCameraMedia(req, res, fetchUpstream = fetch) {
       res.end();
       return;
     }
-    const response = await fetchUpstream(url, {
-      signal: abort.signal,
-      redirect: 'error',
-      headers: range ? { Range: range } : undefined,
-    });
+    const response = await fetchCameraMedia(
+      url,
+      {
+        signal: abort.signal,
+        redirect: 'error',
+        headers: range ? { Range: range } : undefined,
+      },
+      fetchUpstream,
+    );
     if (!response.ok) {
       await response.body?.cancel();
       throw new Error('Upstream unavailable');
+    }
+    if (
+      !playlist &&
+      /(?:text\/html|application\/json)/i.test(response.headers.get('content-type') || '')
+    ) {
+      await response.body?.cancel();
+      throw new Error('Upstream returned an error page instead of media');
     }
     const headers = {
       'Content-Type': playlist ? 'application/vnd.apple.mpegurl' : 'application/octet-stream',

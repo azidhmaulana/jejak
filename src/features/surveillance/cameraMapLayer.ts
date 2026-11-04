@@ -1,3 +1,4 @@
+import { hasSourceCoordinates } from './osintSurveillanceStore';
 import {
   Map as MapLibreMap,
   Popup,
@@ -27,12 +28,14 @@ export function createCameraMapLayer(
   });
   const data = (): GeoJSON.FeatureCollection<GeoJSON.Point> => ({
     type: 'FeatureCollection',
-    features: cameras().map((camera) => ({
-      type: 'Feature',
-      id: camera.id,
-      geometry: { type: 'Point', coordinates: [camera.longitude, camera.latitude] },
-      properties: { id: camera.id, name: camera.name, status: cameraAvailability(camera).status },
-    })),
+    features: cameras()
+      .filter(hasSourceCoordinates)
+      .map((camera) => ({
+        type: 'Feature',
+        id: camera.id,
+        geometry: { type: 'Point', coordinates: [camera.longitude, camera.latitude] },
+        properties: { id: camera.id, name: camera.name, status: cameraAvailability(camera).status },
+      })),
   });
   const select = (id: string | null) => {
     if (map.getLayer(SELECTED)) map.setFilter(SELECTED, ['==', ['get', 'id'], id || '']);
@@ -106,9 +109,10 @@ export function createCameraMapLayer(
   const keepAboveRoads = () => {
     if (raising || disposed) return;
     const layers = map.getStyle()?.layers || [];
-    const road = layers.findIndex((layer) => layer.id === 'jejak-road-reference');
-    const point = layers.findIndex((layer) => layer.id === SELECTED);
-    if (point < 0 || road <= point) return;
+    const overlays = ['jejak-road-reference', 'jejak-route-halo', 'jejak-route-line'];
+    const road = Math.max(...overlays.map((id) => layers.findIndex((layer) => layer.id === id)));
+    const point = layers.findIndex((layer) => layer.id === POINTS);
+    if (point < 0 || !map.getLayer(SELECTED) || road <= point) return;
     raising = true;
     map.moveLayer(POINTS);
     map.moveLayer(SELECTED);

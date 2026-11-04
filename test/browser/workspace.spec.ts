@@ -334,11 +334,87 @@ test('guest signs in as Viewer, filters CCTV by route and saves a private route'
   );
   await page.getByRole('button', { name: 'CCTV route', exact: true }).click();
   const panel = page.getByRole('region', { name: 'CCTV route' });
-  await panel.getByLabel('A · Start (lat, lon)', { exact: true }).fill('-6.91, 107.61');
-  await panel.getByLabel('B · Destination (lat, lon)', { exact: true }).fill('-6.92, 107.62');
-  await panel.getByLabel('B · Destination (lat, lon)', { exact: true }).blur();
+  await page.route('https://photon.komoot.io/api/**', (route) =>
+    route.fulfill({
+      json: {
+        features: [
+          {
+            geometry: { coordinates: [107.61, -6.91] },
+            properties: {
+              name: 'Bandung',
+              state: 'Jawa Barat',
+              country: 'Indonesia',
+            },
+          },
+        ],
+      },
+    }),
+  );
+  const startInput = panel.getByRole('combobox', { name: /Start/ });
+  await expect(panel).toHaveAttribute('data-expanded', 'false');
+  await startInput.fill('Bandung draft');
+  await panel.getByRole('button', { name: /Clear A/ }).click();
+  await expect(startInput).toHaveValue('');
+  await startInput.fill('Bandung');
+  await panel.getByRole('option', { name: 'Bandung, Jawa Barat, Indonesia' }).click();
+  await expect(startInput).toHaveValue('Bandung, Jawa Barat, Indonesia');
+  await panel.getByRole('combobox', { name: 'B · Destination', exact: true }).fill('-6.92, 107.62');
+  await panel.getByRole('combobox', { name: 'B · Destination', exact: true }).blur();
+  await startInput.fill('Bandung baru');
+  await expect(panel.getByRole('button', { name: 'Find route', exact: true })).toBeDisabled();
+  await panel.getByRole('option', { name: 'Bandung, Jawa Barat, Indonesia' }).waitFor();
+  await startInput.press('ArrowDown');
+  await startInput.press('Enter');
+  await expect(startInput).toHaveValue('Bandung, Jawa Barat, Indonesia');
   await panel.getByRole('button', { name: 'Find route', exact: true }).click();
   await expect(panel).toContainText('2.5 km');
+  await expect(panel).toHaveAttribute('data-expanded', 'true');
+  await panel.getByRole('button', { name: 'Not expand' }).click();
+  await expect(panel).toHaveAttribute('data-expanded', 'false');
+  await expect(panel.getByRole('region', { name: 'CCTV along route' })).toHaveCount(0);
+  await panel.getByRole('button', { name: 'Expand' }).click();
+  await expect(panel.getByRole('region', { name: 'CCTV along route' })).toBeVisible();
+  await expect.poll(async () => Math.round((await panel.boundingBox())!.width)).toBe(628);
+  await page.screenshot({ path: '.runtime/route-expanded.png' });
+
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const container = document.querySelector('.maplibregl-map') as any;
+        let fiber =
+          container?.[Object.keys(container).find((key) => key.startsWith('__reactFiber'))!];
+        while (fiber) {
+          let hook = fiber.memoizedState;
+          while (hook) {
+            const map = hook.memoizedState?.current;
+            if (map?.getLayer && map.getLayer('jejak-route-line')) {
+              const ids = map.getStyle().layers.map((layer: any) => layer.id);
+              return (
+                ids.indexOf('jejak-cameras-points') > ids.indexOf('jejak-route-line') &&
+                ids.indexOf('jejak-cameras-selected') > ids.indexOf('jejak-route-line')
+              );
+            }
+            hook = hook.next;
+          }
+          fiber = fiber.return;
+        }
+        return false;
+      }),
+    )
+    .toBe(true);
+  await panel.getByRole('button', { name: 'Motorcycle', exact: true }).click();
+  await expect(panel.getByRole('button', { name: 'Motorcycle', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  const motorcycleRequest = page.waitForRequest(
+    (request) =>
+      request.url().includes('/routes/calculate') && request.postDataJSON()?.mode === 'motorcycle',
+  );
+  await panel.getByRole('button', { name: 'Find route', exact: true }).click();
+  await motorcycleRequest;
+  await expect(panel).toContainText('2.5 km');
+
   await expect(panel.locator('.route-cameras li')).toHaveCount(1);
   await page.getByRole('button', { name: 'CCTV', exact: true }).click();
   await expect(page.locator('.camera-card')).toHaveCount(1);
@@ -409,8 +485,8 @@ test('account dropdown opens separate profile and CMS tables for administrators'
   await expect(cms).not.toContainText('superadmin');
   expect((await cms.boundingBox())!.width).toBe(940);
   await cms.getByRole('button', { name: 'CCTV Source', exact: true }).click();
-  await expect(cms.locator('.cms-source-summary')).toContainText('823');
-  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(14);
+  await expect(cms.locator('.cms-source-summary')).toContainText('841');
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(18);
   const filterBoxes = await cms
     .locator('.cms-source-field > .cms-search, .cms-source-field > select')
     .evaluateAll((elements) =>
@@ -431,7 +507,7 @@ test('account dropdown opens separate profile and CMS tables for administrators'
   );
   await cms.getByRole('combobox', { name: 'Filter province' }).selectOption('Jawa Barat');
   await expect(cms.getByRole('combobox', { name: 'Filter city' })).toHaveValue('');
-  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(14);
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(15);
   await cms.getByRole('combobox', { name: 'Filter city' }).selectOption('Kabupaten Garut');
   await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(1);
   await expect(cms.locator('.cms-camera-sources tbody tr')).toContainText('DISKOMINFO GARUT');

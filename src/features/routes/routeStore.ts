@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 import { api, useAuth } from '../auth/authStore';
+export type TravelMode = 'car' | 'motorcycle';
 export type Point = [number, number];
 export type RouteResult = {
   start: Point;
   end: Point;
   tolerance: number;
+  mode: TravelMode;
   geometry: GeoJSON.LineString;
   distance: number;
   duration: number;
@@ -25,6 +27,7 @@ export const useRoute = create<{
   start: Point | null;
   end: Point | null;
   tolerance: number;
+  mode: TravelMode;
   result: RouteResult | null;
   busy: boolean;
   error: string;
@@ -37,17 +40,23 @@ export const useRoute = create<{
   start: null,
   end: null,
   tolerance: 50,
+  mode: 'car',
   result: null,
   busy: false,
   error: '',
   filter: false,
   calculate: async () => {
-    const { start, end, tolerance } = get();
+    const { start, end, tolerance, mode } = get();
     if (!start || !end) return;
     const request = ++revision;
     set({ busy: true, error: '', result: null, filter: false, picking: null });
     try {
-      const result = await api<RouteResult>('/routes/calculate', 'POST', { start, end, tolerance });
+      const result = await api<RouteResult>('/routes/calculate', 'POST', {
+        start,
+        end,
+        tolerance,
+        mode,
+      });
       if (request === revision) set({ result, filter: true });
     } catch (e) {
       if (request === revision) set({ error: (e as Error).message });
@@ -78,7 +87,8 @@ useRoute.subscribe((state, previous) => {
   if (
     state.start !== previous.start ||
     state.end !== previous.end ||
-    state.tolerance !== previous.tolerance
+    state.tolerance !== previous.tolerance ||
+    state.mode !== previous.mode
   ) {
     revision++;
     if (state.busy || state.result) useRoute.setState({ busy: false, result: null, filter: false });

@@ -127,7 +127,7 @@ export default function OsintSurveillancePanel({
                   min="-85"
                   max="85"
                   step="any"
-                  value={Number.isNaN(s.latitude) ? '' : s.latitude}
+                  value={Number.isNaN(s.latitude) ? '' : (s.latitude ?? '')}
                   onChange={(e) => patch(s.id, { latitude: e.target.valueAsNumber })}
                 />
               </label>
@@ -138,7 +138,7 @@ export default function OsintSurveillancePanel({
                   min="-180"
                   max="180"
                   step="any"
-                  value={Number.isNaN(s.longitude) ? '' : s.longitude}
+                  value={Number.isNaN(s.longitude) ? '' : (s.longitude ?? '')}
                   onChange={(e) => patch(s.id, { longitude: e.target.valueAsNumber })}
                 />
               </label>

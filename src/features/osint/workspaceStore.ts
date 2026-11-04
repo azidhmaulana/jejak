@@ -2,7 +2,7 @@ import { useAuth } from '../auth/authStore';
 import { create } from 'zustand';
 
 export type WorkspacePanel =
-  'layers' | 'objects' | 'weather' | 'sources' | 'settings' | 'analytics' | 'alerts';
+  'layers' | 'objects' | 'weather' | 'sources' | 'settings' | 'analytics' | 'alerts' | 'space';
 function readIds(key: string): string[] {
   try {
     const value: unknown = JSON.parse(localStorage.getItem(key) || '[]');
@@ -16,6 +16,7 @@ export const useWorkspace = create<{
   mapSettingsOpen: boolean;
   panel: WorkspacePanel | null;
   selectedId: string | null;
+  selectionAttempt: number;
   favorites: string[];
   recent: string[];
   coordinates: [number, number];
@@ -30,6 +31,7 @@ export const useWorkspace = create<{
   mapSettingsOpen: false,
   panel: null,
   selectedId: null,
+  selectionAttempt: 0,
   favorites: readIds('jejak-favorite-cameras'),
   recent: readIds('jejak-recent-cameras'),
   coordinates: [107.6191, -6.9175],
@@ -48,7 +50,7 @@ export const useWorkspace = create<{
       } catch {
         /* In-memory state remains usable. */
       }
-      return { selectedId, recent };
+      return { selectedId, recent, selectionAttempt: state.selectionAttempt + 1 };
     }),
   toggleFavorite: (id) =>
     set((state) => {

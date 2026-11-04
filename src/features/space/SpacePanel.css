@@ -1,0 +1,129 @@
+.command-workspace .space-stream-panel {
+  position: absolute;
+  left: 52px;
+  z-index: 12;
+  width: min(350px, calc(100% - 64px));
+  max-height: calc(100% - 20px);
+  overflow: auto;
+  color: #c9d9ce;
+  background: #06150ff5;
+  border: 1px solid #36513f;
+  border-radius: 6px;
+  box-shadow: 0 8px 28px #0006;
+  transition: width 220ms ease;
+}
+.command-workspace .space-stream-panel[data-expanded='true'] {
+  width: min(640px, calc(100% - 64px));
+}
+.space-stream-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px;
+  border-bottom: 1px solid #36513f;
+  color: #a3e66f;
+}
+.space-stream-heading h2 {
+  margin: 0;
+  flex: 1;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.space-stream-count {
+  color: #849c8b;
+  font-size: 8px;
+  white-space: nowrap;
+}
+.space-stream-heading button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 23px;
+  width: 23px;
+  height: 23px;
+  padding: 0;
+  border: 1px solid #36513f;
+  border-radius: 3px;
+  background: transparent;
+  color: #bfd3c5;
+}
+.space-stream-video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #020907;
+}
+.space-stream-video iframe {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.space-stream-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #8cab97;
+  font-size: 10px;
+}
+.space-stream-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 7px;
+}
+.space-stream-tabs button {
+  padding: 8px 2px;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: #879c8f;
+  background: #0a1912;
+  border: 1px solid #233d2d;
+  border-radius: 3px;
+}
+.space-stream-tabs button[aria-pressed='true'] {
+  color: #b3f17a;
+  border-color: #619947;
+  background: #19351f;
+}
+.space-stream-panel button:hover,
+.space-stream-panel button:focus-visible {
+  color: #c5ff96;
+  border-color: #8bb965;
+}
+.space-stream-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 2px 9px 9px;
+}
+.space-stream-footer p {
+  flex: 1;
+  margin: 0;
+  color: #8fa895;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.space-stream-footer strong {
+  color: #c2d4c6;
+}
+.space-stream-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #a3e66f;
+  font-size: 9px;
+  text-decoration: none;
+}
+.space-stream-footer small {
+  width: 100%;
+  font-size: 9px;
+  color: #738c7b;
+  line-height: 1.4;
+}
+@media (prefers-reduced-motion: reduce) {
+  .command-workspace .space-stream-panel {
+    transition: none;
+  }
+}

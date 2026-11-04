@@ -1,5 +1,6 @@
 // UI phrases: [English, Bahasa Indonesia]. Keep API values and user data unchanged.
 export const messages = [
+  ["RECORDING", "REKAMAN"],
   ["No favorites yet. Select a camera and press the star icon.", "Belum ada favorit. Pilih kamera lalu tekan ikon bintang."],
   ["Opened cameras will appear here.", "Kamera yang dibuka akan muncul di sini."],
   ["No cameras match your search.", "Tidak ada kamera yang cocok dengan pencarian."],

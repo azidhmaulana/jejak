@@ -61,6 +61,11 @@ test('monitor bounds concurrency and confirms failure then recovery', async (t) 
   assert.equal(monitor.snapshot().health.id0.status, 'offline');
   fail = false;
   at += 200;
+  monitor.snapshot();
+  await new Promise((r) => setTimeout(r, 10));
+  assert.equal(monitor.snapshot().health.id0.status, 'offline');
+  assert.equal(monitor.retry('id0'), true);
+  assert.equal(monitor.retry('id0'), false);
   for (let i = 0; i < 4; i++) {
     monitor.snapshot();
     await new Promise((r) => setTimeout(r, 10));

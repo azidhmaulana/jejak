@@ -1,0 +1,149 @@
+{
+  "checkedAt": "2026-11-04T09:15:41.157Z",
+  "scope": [
+    "DKI Jakarta",
+    "Jawa Barat",
+    "Banten"
+  ],
+  "importedCount": 12,
+  "coordinateAccuracy": "Catalogue locations are approximate; excluded from precise route corridor matching.",
+  "results": [
+    {
+      "id": "occ-mudik-BUJT-2368",
+      "city": "Jakarta",
+      "name": "19+850",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-2371",
+      "city": "Jakarta",
+      "name": "21+300",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-868",
+      "city": "Jakarta",
+      "name": "22+670",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-859",
+      "city": "Jakarta",
+      "name": "27+100",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-2387",
+      "city": "Jakarta",
+      "name": "61+400 B",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-2379",
+      "city": "Jakarta",
+      "name": "58+400 B",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-2120",
+      "city": "Jakarta",
+      "name": "JORRS GT GEDONG 2",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-2122",
+      "city": "Jakarta",
+      "name": "JORRS GT LENTENG 1",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-2471",
+      "city": "Tangerang",
+      "name": "14+700 B",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-2474",
+      "city": "Tangerang",
+      "name": "15+650 A",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-2483",
+      "city": "Tangerang",
+      "name": "GT BSD Timur 2",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-2467",
+      "city": "Tangerang",
+      "name": "13+700 B",
+      "result": "media-available"
+    },
+    {
+      "id": "occ-mudik-BUJT-2183",
+      "city": "Bekasi",
+      "name": "KM 53+500",
+      "result": "unavailable",
+      "reason": "UND_ERR_CONNECT_TIMEOUT"
+    },
+    {
+      "id": "occ-mudik-BUJT-2186",
+      "city": "Bekasi",
+      "name": "KM 55+400",
+      "result": "unavailable",
+      "reason": "UND_ERR_CONNECT_TIMEOUT"
+    },
+    {
+      "id": "occ-mudik-BUJT-425",
+      "city": "Rangkasbitung",
+      "name": "IC CIKEUSAL",
+      "result": "unavailable",
+      "reason": "CERT_HAS_EXPIRED"
+    },
+    {
+      "id": "occ-mudik-BUJT-324",
+      "city": "Rangkasbitung",
+      "name": "IC RANGKASBITUNG",
+      "result": "unavailable",
+      "reason": "CERT_HAS_EXPIRED"
+    },
+    {
+      "id": "occ-mudik-BUJT-340",
+      "city": "Rangkasbitung",
+      "name": "MR 66+900",
+      "result": "unavailable",
+      "reason": "CERT_HAS_EXPIRED"
+    },
+    {
+      "id": "occ-mudik-BUJT-197",
+      "city": "Serang",
+      "name": "ON RAMP WALANTAKA",
+      "result": "unavailable",
+      "reason": "CERT_HAS_EXPIRED"
+    },
+    {
+      "id": "occ-mudik-BUJT-904",
+      "city": "Bekasi",
+      "name": "VMS KM 25",
+      "result": "unavailable",
+      "reason": "UND_ERR_CONNECT_TIMEOUT"
+    },
+    {
+      "id": "occ-mudik-BUJT-1169",
+      "city": "Bogor",
+      "name": "GT Jatikarya 1",
+      "result": "unavailable",
+      "reason": "UND_ERR_CONNECT_TIMEOUT"
+    }
+  ],
+  "jejakProxyVerification": {
+    "passed": 12,
+    "initiallyPassed": 10,
+    "passedOnSingleRecheck": [
+      "occ-mudik-BUJT-2120",
+      "occ-mudik-BUJT-2122"
+    ],
+    "note": "Media bytes received through local JEJAK proxy; intermittent upstream failures remain possible. No continuous uptime guarantee."
+  }
+}

@@ -35,3 +35,12 @@ test('West Java catalogs preserve publisher coordinates, city filters and scoped
     assert.throws(() => rewriteCameraPlaylist('#EXTM3U\nhttps://other.example/a.ts', c.id, base));
   }
 });
+
+test('Depok playback uses the dot-free camera identifier published by its player', () => {
+  const cameras = publicCameras.filter((c) => c.provider === 'DISHUB DEPOK');
+  assert.equal(cameras.length, 66);
+  for (const camera of cameras) {
+    const identifier = camera.id.replace('jabar-public-dishub-depok-', '').replaceAll('-', '');
+    assert.equal(new URL(camera.streamUrl).pathname, `/vi/${identifier}.m3u8`);
+  }
+});

@@ -86,9 +86,9 @@ test('all roles enforce API boundaries, hidden superadmin, private account data 
     assert.equal(sources.status, role === 'superadmin' ? 200 : deny);
     if (role === 'superadmin') {
       const catalog = await sources.json();
-      assert.equal(catalog.sourceCount, 14);
-      assert.equal(catalog.cameraCount, 823);
-      assert.equal(catalog.feedCount, 806);
+      assert.equal(catalog.sourceCount, 18);
+      assert.equal(catalog.cameraCount, 841);
+      assert.equal(catalog.feedCount, 824);
       const garut = catalog.sources.find((source) => source.name === 'DISKOMINFO GARUT');
       assert.equal(garut.cameraCount, 16);
       assert.equal(garut.province, 'Jawa Barat');

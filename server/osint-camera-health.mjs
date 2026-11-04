@@ -1,4 +1,4 @@
-import { cameras, cameraMediaUrl } from './osint-camera-media.mjs';
+import { cameras, cameraMediaUrl, fetchCameraMedia } from './osint-camera-media.mjs';
 
 // Only catalogue URLs are probed; this endpoint never accepts arbitrary destinations.
 export async function probeCamera(id, base, { fetcher = fetch, signal } = {}) {
@@ -13,7 +13,7 @@ export async function probeCamera(id, base, { fetcher = fetch, signal } = {}) {
   };
   let url = base;
   for (let depth = 0; depth < 3; depth++) {
-    const response = await fetcher(url, { signal, redirect: 'error' });
+    const response = await fetchCameraMedia(url, { signal }, fetcher);
     if (!response.ok) {
       await response.body?.cancel();
       throw Error('Playlist unavailable');
@@ -41,11 +41,15 @@ export async function probeCamera(id, base, { fetcher = fetch, signal } = {}) {
     if (text.includes('#EXT-X-ENDLIST')) throw Error('Stream ended');
     const last = media.at(-1),
       segment = allowed(new URL(last, url));
-    const sample = await fetcher(segment, {
-      signal,
-      redirect: 'error',
-      headers: { Range: 'bytes=0-1023' },
-    });
+    const sample = await fetchCameraMedia(
+      segment,
+      {
+        signal,
+        redirect: 'error',
+        headers: { Range: 'bytes=0-1023' },
+      },
+      fetcher,
+    );
     if (!sample.ok) {
       await sample.body?.cancel();
       throw Error('Segment unavailable');
@@ -77,6 +81,7 @@ export function createCameraHealthMonitor({
   interval = 60000,
   lease = 45000,
 } = {}) {
+  const manualRetries = new Map();
   const records = new Map(),
     busy = new Set(),
     hosts = new Map();
@@ -92,6 +97,7 @@ export function createCameraHealthMonitor({
       const old = records.get(id);
       if (
         busy.has(id) ||
+        old?.status === 'offline' ||
         (old && now() - old.checkedAt < interval) ||
         (hosts.get(url.origin) || 0) >= 2
       )
@@ -140,6 +146,17 @@ export function createCameraHealthMonitor({
     }
   };
   return {
+    retry(id) {
+      if (!catalogue.has(id)) return false;
+      const last = manualRetries.get(id);
+      if (last !== undefined && now() - last < 30000) return false;
+      if (busy.has(id)) return false;
+      manualRetries.set(id, now());
+      records.delete(id);
+      lastClient = now();
+      tick();
+      return true;
+    },
     snapshot() {
       lastClient = now();
       if (!timer) {
@@ -152,7 +169,12 @@ export function createCameraHealthMonitor({
           [...records].map(([id, r]) => [
             id,
             {
-              status: now() - r.checkedAt > 300000 ? 'unknown' : r.status,
+              status:
+                r.status === 'offline'
+                  ? 'offline'
+                  : now() - r.checkedAt > 300000
+                    ? 'unknown'
+                    : r.status,
               checkedAt: r.checkedAt,
               reason: r.reason,
             },
@@ -172,6 +194,13 @@ export function createCameraHealthMonitor({
 }
 const monitor = createCameraHealthMonitor();
 export function serveOsintCameraHealth(req, res) {
+  if (req.method === 'POST') {
+    const id = new URL(req.url, 'http://local').searchParams.get('id');
+    const accepted = id && monitor.retry(id);
+    res.writeHead(accepted ? 202 : 429, { 'Cache-Control': 'no-store' });
+    res.end();
+    return;
+  }
   if (req.method !== 'GET') {
     res.writeHead(405);
     res.end();

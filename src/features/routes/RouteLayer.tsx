@@ -47,22 +47,31 @@ export default function RouteLayer({ map }: { map: MapLibreMap | null }) {
           data: { type: 'Feature', properties: {}, geometry: result.geometry },
         });
       if (!map.getLayer('jejak-route-halo'))
-        map.addLayer({
-          id: 'jejak-route-halo',
-          type: 'line',
-          source: 'jejak-route',
-          paint: { 'line-color': '#05180d', 'line-width': 9 },
-        });
+        map.addLayer(
+          {
+            id: 'jejak-route-halo',
+            type: 'line',
+            source: 'jejak-route',
+            layout: { 'line-cap': 'round', 'line-join': 'round' },
+            paint: { 'line-color': '#153b83', 'line-width': 10 },
+          },
+          map.getLayer('jejak-cameras-points') ? 'jejak-cameras-points' : undefined,
+        );
       if (!map.getLayer('jejak-route-line'))
-        map.addLayer({
-          id: 'jejak-route-line',
-          type: 'line',
-          source: 'jejak-route',
-          paint: { 'line-color': '#92f650', 'line-width': 4 },
-        });
+        map.addLayer(
+          {
+            id: 'jejak-route-line',
+            type: 'line',
+            source: 'jejak-route',
+            layout: { 'line-cap': 'round', 'line-join': 'round' },
+            paint: { 'line-color': '#529dff', 'line-width': 6 },
+          },
+          map.getLayer('jejak-cameras-points') ? 'jejak-cameras-points' : undefined,
+        );
     };
     draw();
     map.on('styledata', draw);
+    map.on('idle', draw);
     const points = result.geometry.coordinates;
     const lngs = points.map((p) => p[0]),
       lats = points.map((p) => p[1]);
@@ -75,6 +84,7 @@ export default function RouteLayer({ map }: { map: MapLibreMap | null }) {
     );
     return () => {
       map.off('styledata', draw);
+      map.off('idle', draw);
       for (const id of ['jejak-route-line', 'jejak-route-halo'])
         if (map.getLayer(id)) map.removeLayer(id);
       if (map.getSource('jejak-route')) map.removeSource('jejak-route');

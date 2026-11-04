@@ -1,3 +1,5 @@
+import { selectCamera } from './CameraDock';
+import { hasSourceCoordinates } from '../../surveillance/osintSurveillanceStore';
 import MapTools, { type MapSearchResult } from '../../../modules/drawing/MapTools';
 import { useActiveBundledCameras } from '../../surveillance/cameraSourceState';
 import { cameraAvailability, useSurveillance } from '../../surveillance/osintSurveillanceStore';
@@ -9,6 +11,7 @@ export default function OsintMapTools() {
     ...(surveillance.bandung ? bandungCameras : []),
     ...surveillance.sources,
   ]
+    .filter(hasSourceCoordinates)
     .filter((source) => source.kind === 'camera')
     .map((source) => ({
       id: `camera-${source.id}`,
@@ -17,8 +20,7 @@ export default function OsintMapTools() {
       longitude: source.longitude,
       latitude: source.latitude,
       onSelect() {
-        useSurveillance.setState({ cameras: true });
-        window.dispatchEvent(new CustomEvent('osint-select-camera', { detail: { id: source.id } }));
+        selectCamera(source);
       },
     }));
   return <MapTools visible searchItems={searchItems} />;

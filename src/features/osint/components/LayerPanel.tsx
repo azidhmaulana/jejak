@@ -27,6 +27,7 @@ import { useWorkspace } from '../workspaceStore';
 import { useCameraCatalog } from '../hooks/useCameraCatalog';
 import { cameraAvailability } from '../../surveillance/osintSurveillanceStore';
 import WorkspaceAppearance from './WorkspaceAppearance';
+import SpacePanel from '../../space/SpacePanel';
 
 function LayerToggle({
   icon: Icon,
@@ -77,12 +78,18 @@ export default function LayerPanel() {
   const cameras = useCameraCatalog();
   useEffect(() => {
     const close = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') useWorkspace.setState({ panel: null });
+      if (event.key !== 'Escape') return;
+      const wasSpace = useWorkspace.getState().panel === 'space';
+      useWorkspace.setState({ panel: null });
+      if (wasSpace) {
+        document.querySelector<HTMLButtonElement>('[data-space-trigger]')?.focus();
+      }
     };
     window.addEventListener('keydown', close);
     return () => window.removeEventListener('keydown', close);
   }, []);
   if (!panel) return null;
+  if (panel === 'space') return <SpacePanel />;
   return (
     <aside className="command-panel layer-panel" data-panel={panel} aria-label={titles[panel]}>
       {panel !== 'sources' && (

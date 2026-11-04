@@ -1,3 +1,4 @@
+import { hasSourceCoordinates } from '../../surveillance/osintSurveillanceStore';
 import { useMemo, useState } from 'react';
 import { Camera, ChevronLeft, ChevronRight, Layers, Settings2, Star, Bell } from 'lucide-react';
 import { useCameraCatalog } from '../hooks/useCameraCatalog';
@@ -21,6 +22,7 @@ export default function NearbyCameras() {
   const list = useMemo(
     () =>
       cameras
+        .filter(hasSourceCoordinates)
         .filter((c) =>
           `${c.name} ${c.locationName || ''} ${c.provider || ''}`
             .toLowerCase()

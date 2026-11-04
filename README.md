@@ -105,3 +105,12 @@ npm run format:check
 Browser test menggunakan Google Chrome yang terpasang, menjalankan server sementara, dan menyimpan data pengujian di `.runtime/browser-tests`. Screenshot berada di `test-results`. Test mencakup drawing melalui klik, penyimpanan/reload, provider/key UI, panel OSINT, dan ukuran layar mobile. Live CCTV/cuaca tidak dijadikan syarat kelulusan karena bergantung jaringan/provider.
 
 Provider online dan dataset katalog dipertahankan dari sumber. Saat verifikasi lokal, ArcGIS mengalami timeout; map satelit GMDB berhasil dirender dari data offline.
+
+### Vehicle routing
+
+The route panel supports car (OSRM) and motorcycle (Valhalla) routing. Vehicle choice is saved with a route; older saved routes default to car. Motorcycle requests use the motorcycle costing profile with highway/toll exclusions; routing depends on OpenStreetMap access data and is not live traffic navigation.
+
+- `JEJAK_ROUTING_URL`: OSRM car endpoint (default `https://routing.openstreetmap.de/routed-car`).
+- `JEJAK_MOTORCYCLE_ROUTING_URL`: Valhalla server base URL (default `https://valhalla1.openstreetmap.de`).
+
+The public Valhalla endpoint is for bounded development use. Before a public deployment, configure a suitable hosted/self-hosted service or follow the provider's publication notice and identification requirements: https://valhalla.github.io/valhalla/start/introduction/ . Requests are rate-limited server-side and have no automatic retries.

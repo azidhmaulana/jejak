@@ -1,3 +1,4 @@
+import { hasSourceCoordinates, sourceCoordinates } from '../../surveillance/osintSurveillanceStore';
 import {
   Camera,
   ArrowLeft,
@@ -58,9 +59,7 @@ export function CameraThumbnail({
       ) : null}
       <div className="thumbnail-grid" />
       <Camera size={24} />
-      <span className="thumbnail-coordinates">
-        {source.latitude.toFixed(4)} / {source.longitude.toFixed(4)}
-      </span>
+      <span className="thumbnail-coordinates">{sourceCoordinates(source)}</span>
       <small>SELECT TO CONNECT</small>
     </div>
   );
@@ -110,13 +109,15 @@ export default function CameraDock() {
         .filter((camera) => recent.includes(camera.id))
         .sort((a, b) => recent.indexOf(a.id) - recent.indexOf(b.id));
     if (cameraTab === 'nearby')
-      result.sort(
-        (a, b) =>
-          (a.longitude - coordinates[0]) ** 2 +
-          (a.latitude - coordinates[1]) ** 2 -
-          (b.longitude - coordinates[0]) ** 2 -
-          (b.latitude - coordinates[1]) ** 2,
-      );
+      result = result
+        .filter(hasSourceCoordinates)
+        .sort(
+          (a, b) =>
+            (a.longitude - coordinates[0]) ** 2 +
+            (a.latitude - coordinates[1]) ** 2 -
+            (b.longitude - coordinates[0]) ** 2 -
+            (b.latitude - coordinates[1]) ** 2,
+        );
     return result;
   }, [cameras, cameraTab, favorites, recent, coordinates, query]);
   const tabs = [

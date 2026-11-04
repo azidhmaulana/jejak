@@ -1,3 +1,4 @@
+import { hasSourceCoordinates, sourceCoordinates } from '../../surveillance/osintSurveillanceStore';
 import { useEffect, useRef, useState } from 'react';
 import {
   Camera,
@@ -18,7 +19,7 @@ import { selectCamera } from './CameraDock';
 
 export default function CameraInspector() {
   const cameras = useCameraCatalog();
-  const { selectedId, favorites, toggleFavorite } = useWorkspace();
+  const { selectedId, selectionAttempt, favorites, toggleFavorite } = useWorkspace();
   const source = cameras.find((camera) => camera.id === selectedId);
   const monitor = useRef<HTMLElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
@@ -43,19 +44,25 @@ export default function CameraInspector() {
   }, [selectedId]);
   if (!source) return null;
   const locationCameras = cameras.filter(
-    (camera) => camera.latitude === source.latitude && camera.longitude === source.longitude,
+    (camera) =>
+      camera.id === source.id ||
+      (hasSourceCoordinates(source)
+        ? camera.latitude === source.latitude && camera.longitude === source.longitude
+        : camera.provider === source.provider && camera.locationName === source.locationName),
   );
   const live = status === 'LIVE';
   const loading = status === 'MEMUAT' || status === 'BUFFERING' || status === 'MENGHUBUNGKAN ULANG';
   const label = live
     ? 'LIVE'
-    : status === 'SNAPSHOT'
-      ? 'SNAPSHOT'
-      : loading
-        ? 'CONNECTING'
-        : status === 'TEKAN PLAY'
-          ? 'PRESS PLAY'
-          : 'UNAVAILABLE';
+    : status === 'REKAMAN'
+      ? 'RECORDING'
+      : status === 'SNAPSHOT'
+        ? 'SNAPSHOT'
+        : loading
+          ? 'CONNECTING'
+          : status === 'TEKAN PLAY'
+            ? 'PRESS PLAY'
+            : 'UNAVAILABLE';
   return (
     <aside
       className={`camera-inspector compact-monitor${expanded ? ' inspector-expanded' : ''}`}
@@ -65,9 +72,7 @@ export default function CameraInspector() {
       <section className="command-panel inspector-card">
         <div className="monitor-identity">
           <span title={source.id}>{source.id}</span>
-          <span>
-            {source.latitude.toFixed(4)}, {source.longitude.toFixed(4)}
-          </span>
+          <span>{sourceCoordinates(source)}</span>
           <span>CCTV</span>
         </div>
         <header className="monitor-header">
@@ -103,6 +108,7 @@ export default function CameraInspector() {
             <button
               aria-label="Locate camera"
               title="Locate camera"
+              disabled={!hasSourceCoordinates(source)}
               onClick={() => selectCamera(source)}
             >
               <MapPin />
@@ -161,7 +167,14 @@ export default function CameraInspector() {
           </div>
         )}
         <div className="inspector-video monitor-feed">
-          <OsintCameraVideo key={`${source.id}-${attempt}`} source={source} onStatus={setStatus} />
+          <OsintCameraVideo
+            key={source.id}
+            requestToken={
+              selectionAttempt || attempt ? `${selectionAttempt}:${attempt}` : undefined
+            }
+            source={source}
+            onStatus={setStatus}
+          />
         </div>
         <footer className="monitor-footer">
           <div>

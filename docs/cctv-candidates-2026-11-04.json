@@ -1,0 +1,165 @@
+{
+  "checkedAt": "2026-11-04T07:37:45.571585+00:00",
+  "scope": [
+    "Jawa Barat",
+    "DKI Jakarta",
+    "Banten"
+  ],
+  "imported": true,
+  "sampleCount": 27,
+  "verification": "Selected public playlists and media samples only; not a guarantee of current live footage or uptime.",
+  "candidates": [
+    {
+      "region": "atcs-bogor",
+      "title": "CCTV-GANG AUT",
+      "url": "https://restreamer2.kotabogor.go.id/memfs/64b180ce-d237-44d9-b857-c610e1d0c75c.m3u8",
+      "source": "https://bsw.kotabogor.go.id/cctv",
+      "sequence": "21996",
+      "result": "media-available"
+    },
+    {
+      "region": "atcs-bogor",
+      "title": "CCTV - TUGU KUJANG",
+      "url": "https://restreamer2.kotabogor.go.id/memfs/5a5cf878-9d9b-4400-a73a-27a5b24a6ec4.m3u8",
+      "sequence": "24747",
+      "result": "media-available"
+    },
+    {
+      "region": "atcs-bogor",
+      "title": "CCTV - DJUANDA ARAH BALAIKOTA",
+      "url": "https://restreamer2.kotabogor.go.id/memfs/f707b72a-5c95-421a-9f3a-2e478794bd76.m3u8",
+      "sequence": "18613",
+      "result": "media-available"
+    },
+    {
+      "region": "atcs-bogor",
+      "title": "CCTV DEPAN ALUN ALUN",
+      "url": "https://restreamer2.kotabogor.go.id/memfs/c07c1926-288c-46e4-a19c-9f51022edc5d.m3u8",
+      "sequence": "103788",
+      "result": "media-available"
+    },
+    {
+      "region": "Jakarta",
+      "title": "Gatot Subroto 7 CCTV-1",
+      "url": "https://dki-jkt.balitower.co.id:7028/502045_JKP_POLDA_JPO-JL.-GATOT-SUBROTO-7_CCTV-01/index.fmp4.m3u8",
+      "sequence": "40198",
+      "result": "media-available"
+    },
+    {
+      "region": "Jakarta",
+      "title": "Gatot Subroto 7 CCTV-2",
+      "url": "https://dki-jkt.balitower.co.id:7028/502045_JKP_POLDA_JPO-JL.-GATOT-SUBROTO-7_CCTV-02/index.fmp4.m3u8",
+      "sequence": "40197",
+      "result": "media-available"
+    }
+  ],
+  "unverified": [
+    {
+      "name": "CCTV Ciceri 1",
+      "group": "atcs-serang",
+      "result": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+    },
+    {
+      "name": "CCTV Ciceri 2",
+      "group": "atcs-serang",
+      "result": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+    },
+    {
+      "name": "CCTV Ciracas Sepang",
+      "group": "atcs-serang",
+      "result": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+    },
+    {
+      "name": "CCTV- KAPTEN MUSLIHAT",
+      "group": "atcs-bogor",
+      "result": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "CCTV _ MAYOR OKING",
+      "group": "atcs-bogor",
+      "result": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "Perempatan Pasar Darurat",
+      "group": "atcs-kuningan",
+      "result": "<urlopen error timed out>"
+    },
+    {
+      "name": "Perempatan Ciporang",
+      "group": "atcs-kuningan",
+      "result": "<urlopen error timed out>"
+    },
+    {
+      "name": "Tugu Sajati",
+      "group": "atcs-kuningan",
+      "result": "<urlopen error timed out>"
+    },
+    {
+      "name": "Padalarang-Cileunyi GT. PASTEUR EXIT",
+      "group": "tol-padaleunyi",
+      "result": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "name": "Padalarang-Cileunyi KM 122+450 | B",
+      "group": "tol-padaleunyi",
+      "result": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "name": "Padalarang-Cileunyi KM 132+400 / SS PASIR KOJA",
+      "group": "tol-padaleunyi",
+      "result": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "name": "JTC KM 07+000",
+      "group": "tol-jakarta",
+      "result": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "name": "JTC KM 19+000",
+      "group": "tol-jakarta",
+      "result": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "name": "JTC KM 18+200",
+      "group": "tol-jakarta",
+      "result": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "name": "Cikupa Entrance",
+      "group": "tol-banten",
+      "result": "<urlopen error timed out>"
+    },
+    {
+      "name": "KM 96+500 B",
+      "group": "tol-banten",
+      "result": "<urlopen error timed out>"
+    },
+    {
+      "name": "Balaraja Barat Entrance",
+      "group": "tol-banten",
+      "result": "<urlopen error timed out>"
+    },
+    {
+      "name": "ON RAMP WALANTAKA",
+      "group": "tol-serang",
+      "result": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)>"
+    },
+    {
+      "name": "MR 84+150",
+      "group": "tol-serang",
+      "result": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)>"
+    },
+    {
+      "name": "IC TUNJUNGTEJA",
+      "group": "tol-serang",
+      "result": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)>"
+    },
+    {
+      "name": "CCTV -CIHELEUT",
+      "group": "atcs-bogor",
+      "result": "HTTP Error 404: Not Found"
+    }
+  ],
+  "importedCount": 6,
+  "coordinateNote": "Four Bogor cameras retain published coordinates. Two Jakarta streams are list-only until verified coordinates are available."
+}
