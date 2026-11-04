@@ -1163,36 +1163,25 @@
   color: #00df85;
 }
 .osint-camera-scan {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 3px;
+  flex-shrink: 0;
+  z-index: 1;
   pointer-events: none;
-  background: #d4af3722;
+  background: linear-gradient(90deg, transparent, #83bd4933 20%, #83bd4933 80%, transparent);
 }
 .osint-camera-scan::after {
   content: '';
   display: block;
-  width: 30%;
+  width: 56%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, #ffd84d, transparent);
-  animation: osint-camera-scan 2.4s ease-in-out infinite alternate;
+  margin: auto;
+  background: linear-gradient(90deg, transparent, #9bea51 12%, #c2ff78 50%, #9bea51 88%, transparent);
+  box-shadow: 0 0 7px #9bea5166;
 }
-@keyframes osint-camera-scan {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(233.333%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .osint-camera-scan::after {
-    animation: none;
-    margin: auto;
-  }
+.osint-camera-player .osint-camera-scan + footer {
+  border-top: 0;
 }
 
 .ops-app .osint-camera-dot {
@@ -1259,6 +1248,23 @@
   pointer-events: none;
   background: linear-gradient(180deg, #06141cf5, #06141cdb), #06141c;
 }
+.osint-stream-recovery {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 9px;
+  border: 1px solid #457a48;
+  background: #06170dd9;
+  color: #a8e68a;
+  font-size: 10px;
+  z-index: 2;
+}
+.osint-stream-recovery button { color: #a8ef80; background: #102e1b; border: 1px solid #477447; border-radius: 4px; padding: 4px 7px; cursor: pointer; }
 .osint-stream-placeholder::before {
   content: '';
   position: absolute;

@@ -6,10 +6,38 @@
   max-height: calc(100% - 210px);
 }
 .command-workspace .compact-monitor .inspector-card {
+  position: relative;
   border: 1px solid #36593c;
   border-radius: 5px;
   background: #06100dee;
   overflow: hidden;
+}
+.monitor-loading-border {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+  background: #83bd4926;
+}
+.monitor-loading-border::after {
+  content: '';
+  display: block;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #a6f34e 20%, #d4ff94 50%, #a6f34e 80%, transparent);
+  box-shadow: 0 0 6px #a6f34e;
+  animation: monitor-border-loading 1.5s ease-in-out infinite alternate;
+}
+@keyframes monitor-border-loading {
+  from { transform: translateX(0); }
+  to { transform: translateX(123%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .monitor-loading-border::after { animation: none; margin: auto; }
 }
 .monitor-identity {
   display: flex;

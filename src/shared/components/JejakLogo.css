@@ -1,0 +1,68 @@
+.jejak-logo-icon {
+  display: block;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.jejak-brand-art {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+}
+.command-workspace .tactical-brand .jejak-brand-art {
+  width: 180px;
+}
+.command-workspace .tactical-brand .jejak-brand-type strong {
+  font-family: Arial, sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 26px;
+  letter-spacing: 1px;
+  line-height: 1;
+  color: #f8fbfa;
+}
+.command-workspace .tactical-brand .jejak-brand-type small {
+  font-family: Arial, sans-serif;
+  font-size: 6px;
+  letter-spacing: 0.1px;
+  margin-top: 3px;
+  text-transform: none;
+  color: #d1dcd5;
+  white-space: nowrap;
+}
+.auth-panel header strong > .jejak-logo-icon {
+  width: 28px;
+  height: 28px;
+}
+.cms-brand > .jejak-logo-icon {
+  width: 25px;
+  height: 25px;
+}
+@media (max-width: 600px) {
+  .command-workspace .tactical-brand .jejak-brand-art {
+    width: auto;
+    gap: 4px;
+  }
+  .command-workspace .tactical-brand .jejak-logo-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .command-workspace .tactical-brand .jejak-brand-type strong {
+    font-size: 19px;
+  }
+  .command-workspace .tactical-brand .jejak-brand-type small {
+    font-size: 4.5px;
+  }
+}
+
+.auth-panel header .auth-brand-tagline {
+  display: block;
+  width: 100%;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: #a5b9aa;
+}

@@ -1,10 +1,13 @@
 import { setLanguage } from '../../shared/i18n/runtime.js';
+import CameraSourcesPanel from './CameraSourcesPanel';
+import JejakLogo from '../../shared/components/JejakLogo';
 import { toast } from '../../shared/components/Toast';
 import { useEffect, useRef, useState } from 'react';
 import {
   X,
   Home,
   Settings,
+  Video,
   Menu,
   UserRound,
   Bell,
@@ -20,7 +23,7 @@ import {
 import { api, hasCmsAccess, useAuth, type User } from './authStore';
 import { useLanguage } from '../../shared/i18n/useLanguage';
 import './CmsPanel.css';
-type CmsTab = 'dashboard' | 'users' | 'roles' | 'settings';
+type CmsTab = 'dashboard' | 'users' | 'roles' | 'sources' | 'settings';
 type Role = { id: string; permissions: string[] };
 export default function CmsPanel() {
   const { user, cmsOpen, refresh } = useAuth();
@@ -169,6 +172,7 @@ export default function CmsPanel() {
             >
               <Menu size={17} />
             </button>
+            <JejakLogo />
             <strong>JEJAK CMS</strong>
           </div>
           <div className="cms-top-actions">
@@ -216,6 +220,17 @@ export default function CmsPanel() {
               <ShieldCheck size={15} />
               <span>{tx('Role & izin', 'Roles & permissions')}</span>
             </button>
+            {user.role === 'superadmin' && (
+              <button
+                title="CCTV Source"
+                aria-label="CCTV Source"
+                aria-pressed={tab === 'sources'}
+                onClick={() => changeTab('sources')}
+              >
+                <Video size={15} />
+                <span>CCTV Source</span>
+              </button>
+            )}
             <button
               title={tx('Pengaturan', 'Settings')}
               aria-label={tx('Pengaturan', 'Settings')}
@@ -228,7 +243,9 @@ export default function CmsPanel() {
           </nav>
           <div className="cms-content">
             <div className="cms-section-heading">
-              {tab === 'roles' ? (
+              {tab === 'sources' ? (
+                <Video />
+              ) : tab === 'roles' ? (
                 <ShieldCheck />
               ) : tab === 'users' ? (
                 <Users />
@@ -239,34 +256,41 @@ export default function CmsPanel() {
               )}
               <div>
                 <h2>
-                  {tab === 'users'
-                    ? tx('Pengguna', 'Users')
-                    : tab === 'roles'
-                      ? tx('Role & izin', 'Roles & permissions')
-                      : tab === 'settings'
-                        ? tx('Pengaturan', 'Settings')
-                        : 'Dashboard'}
+                  {tab === 'sources'
+                    ? 'CCTV Source'
+                    : tab === 'users'
+                      ? tx('Pengguna', 'Users')
+                      : tab === 'roles'
+                        ? tx('Role & izin', 'Roles & permissions')
+                        : tab === 'settings'
+                          ? tx('Pengaturan', 'Settings')
+                          : 'Dashboard'}
                 </h2>
                 <p>
-                  {tab === 'users'
+                  {tab === 'sources'
                     ? tx(
-                        'Kelola pengguna sistem, atur peran, dan status akses.',
-                        'Manage system users, roles, and access status.',
+                        'Daftar provider CCTV yang terhubung ke katalog.',
+                        'CCTV providers connected to the catalog.',
                       )
-                    : tab === 'roles'
+                    : tab === 'users'
                       ? tx(
-                          'Atur peran pengguna dan hak akses pada sistem.',
-                          'Manage user roles and system permissions.',
+                          'Kelola pengguna sistem, atur peran, dan status akses.',
+                          'Manage system users, roles, and access status.',
                         )
-                      : tab === 'settings'
+                      : tab === 'roles'
                         ? tx(
-                            'Preferensi antarmuka dan akun Anda.',
-                            'Your interface and account preferences.',
+                            'Atur peran pengguna dan hak akses pada sistem.',
+                            'Manage user roles and system permissions.',
                           )
-                        : tx(
-                            'Ringkasan pengguna dan akses sistem.',
-                            'User and system access overview.',
-                          )}
+                        : tab === 'settings'
+                          ? tx(
+                              'Preferensi antarmuka dan akun Anda.',
+                              'Your interface and account preferences.',
+                            )
+                          : tx(
+                              'Ringkasan pengguna dan akses sistem.',
+                              'User and system access overview.',
+                            )}
                 </p>
               </div>
             </div>
@@ -298,6 +322,8 @@ export default function CmsPanel() {
                   <span>{tx('Peran', 'Roles')}</span>
                 </button>
               </div>
+            ) : tab === 'sources' ? (
+              <CameraSourcesPanel />
             ) : tab === 'settings' ? (
               <div className="cms-settings">
                 <label>

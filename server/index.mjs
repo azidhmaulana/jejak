@@ -1,15 +1,16 @@
 import { createApp } from './app.mjs';
 
+const production = process.argv.includes('--production');
+if (production) process.env.NODE_ENV = 'production';
+
 const app = await createApp({
   directory: process.env.JEJAK_DATA_DIR || '.runtime',
-  serveDist: process.argv.includes('--production'),
+  serveDist: production,
 });
 const host = process.env.HOST || '127.0.0.1';
 const port = Number(process.env.PORT || 4174);
 const server = app.listen(port, host, () =>
-  console.log(
-    `JEJAK ${process.argv.includes('--production') ? 'app' : 'API'}: http://${host}:${port}`,
-  ),
+  console.log(`JEJAK ${production ? 'app' : 'API'}: http://${host}:${server.address().port}`),
 );
 server.requestTimeout = 60 * 60 * 1000;
 async function shutdown() {

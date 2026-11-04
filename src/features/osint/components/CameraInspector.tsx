@@ -46,7 +46,7 @@ export default function CameraInspector() {
     (camera) => camera.latitude === source.latitude && camera.longitude === source.longitude,
   );
   const live = status === 'LIVE';
-  const loading = status === 'MEMUAT' || status === 'BUFFERING';
+  const loading = status === 'MEMUAT' || status === 'BUFFERING' || status === 'MENGHUBUNGKAN ULANG';
   const label = live
     ? 'LIVE'
     : status === 'SNAPSHOT'
@@ -182,6 +182,7 @@ export default function CameraInspector() {
             {fullscreenError}
           </p>
         )}
+        {loading && <div className="monitor-loading-border" aria-hidden="true" />}
       </section>
     </aside>
   );

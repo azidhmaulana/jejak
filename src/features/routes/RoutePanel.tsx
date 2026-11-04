@@ -52,6 +52,8 @@ export default function RoutePanel() {
     [message, setMessage] = useState(''),
     [saving, setSaving] = useState(false);
   const canSave = user?.permissions.includes('routes.save');
+  const routeCameras =
+    s.result?.cameras.filter((camera) => cameras.some((source) => source.id === camera.id)) || [];
   const load = async () => {
     const owner = useAuth.getState().user?.id;
     const data = await api('/routes');
@@ -126,7 +128,7 @@ export default function RoutePanel() {
         <>
           <p>
             {(s.result.distance / 1000).toFixed(1)} km · {Math.round(s.result.duration / 60)}{' '}
-            {tx('menit', 'min')} · {s.result.cameras.length} CCTV
+            {tx('menit', 'min')} · {routeCameras.length} CCTV
           </p>
           <label className="route-filter">
             <input
@@ -143,7 +145,7 @@ export default function RoutePanel() {
             )}
           </p>
           <ol className="route-cameras">
-            {s.result.cameras.map((c) => (
+            {routeCameras.map((c) => (
               <li key={c.id}>
                 <button
                   onClick={() => {
@@ -160,7 +162,7 @@ export default function RoutePanel() {
               </li>
             ))}
           </ol>
-          {!s.result.cameras.length && (
+          {!routeCameras.length && (
             <p>
               {tx(
                 'Tidak ada CCTV pada jarak yang dipilih.',

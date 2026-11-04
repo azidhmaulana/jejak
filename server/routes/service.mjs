@@ -1,16 +1,7 @@
 import express from 'express';
-import { readFileSync } from 'node:fs';
+import { publicCameras } from '../camera-catalog.mjs';
 import { randomUUID } from 'node:crypto';
 
-const publicCameras = ['bandungCameras.json', 'bandungPublicCameras.json'].flatMap(
-  (file) =>
-    JSON.parse(
-      readFileSync(
-        new URL(`../../src/features/surveillance/data/${file}`, import.meta.url),
-        'utf8',
-      ),
-    ).cameras,
-);
 const invalid = (message, status = 400) => Object.assign(new Error(message), { status });
 export function validatePoints({ start, end, tolerance = 50 }) {
   for (const point of [start, end])
@@ -63,7 +54,10 @@ export function camerasAlongRoute(coordinates, cameras, tolerance) {
   }
   return hits.sort((a, b) => a.distanceAlongRoute - b.distanceAlongRoute);
 }
-export function createRouteRouter(auth, { fetcher = fetch, cameras = publicCameras } = {}) {
+export function createRouteRouter(
+  auth,
+  { fetcher = fetch, cameras = publicCameras, cameraEnabled = () => true } = {},
+) {
   const router = express.Router();
   router.use(express.json({ limit: '4mb' }));
   router.use(auth.requirePermission('routes.use'));
@@ -105,7 +99,7 @@ export function createRouteRouter(auth, { fetcher = fetch, cameras = publicCamer
         geometry: route.geometry,
         distance: route.distance,
         duration: route.duration,
-        cameras: camerasAlongRoute(coordinates, cameras, points.tolerance),
+        cameras: camerasAlongRoute(coordinates, cameras.filter(cameraEnabled), points.tolerance),
         provider: 'OSRM / OpenStreetMap',
       });
     } catch (error) {

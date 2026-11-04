@@ -1,11 +1,9 @@
 import MapTools, { type MapSearchResult } from '../../../modules/drawing/MapTools';
-import {
-  bandungCameras,
-  cameraAvailability,
-  useSurveillance,
-} from '../../surveillance/osintSurveillanceStore';
+import { useActiveBundledCameras } from '../../surveillance/cameraSourceState';
+import { cameraAvailability, useSurveillance } from '../../surveillance/osintSurveillanceStore';
 
 export default function OsintMapTools() {
+  const bandungCameras = useActiveBundledCameras();
   const surveillance = useSurveillance();
   const searchItems: MapSearchResult[] = [
     ...(surveillance.bandung ? bandungCameras : []),

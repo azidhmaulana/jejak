@@ -1,4 +1,5 @@
 import express from 'express';
+import { createCameraSources } from './camera-sources.mjs';
 import { publicMapCatalog } from './public-map-catalog.mjs';
 import { createAuth } from './auth/service.mjs';
 import { createRouteRouter } from './routes/service.mjs';
@@ -34,9 +35,26 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
   });
   const drawings = createDrawingStore(directory);
   const auth = createAuth(directory);
+  const cameraSources = createCameraSources(auth.db);
   app.use(auth.middleware);
+  app.get('/api/cctv-source-state', (_req, res) =>
+    res.set('Cache-Control', 'no-store').json({ active: cameraSources.state() }),
+  );
+  app.use('/api/cctv-sources', (req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    if (!req.user) return res.status(401).json({ error: 'Please sign in.' });
+    if (req.user.role !== 'superadmin')
+      return res.status(403).json({ error: 'Permission denied.' });
+    next();
+  });
+  app.get('/api/cctv-sources', (_req, res) => res.json(cameraSources.catalog()));
+  app.patch('/api/cctv-sources', express.json({ limit: '4kb' }), (req, res) => {
+    const result = cameraSources.update(req.body?.name, req.body?.active);
+    auth.audit(req.user.id, 'camera-source.update', req.body.name);
+    res.json(result);
+  });
   app.use('/api/auth', auth.router);
-  app.use('/api/routes', createRouteRouter(auth));
+  app.use('/api/routes', createRouteRouter(auth, { cameraEnabled: cameraSources.enabled }));
   app.use(['/api/bms/projects', '/api/osint/map-overlays'], (req, res, next) =>
     auth.requirePermission('objects.write')(req, res, next),
   );

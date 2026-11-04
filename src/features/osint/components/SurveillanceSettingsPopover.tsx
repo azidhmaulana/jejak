@@ -1,9 +1,11 @@
+import { useLanguage } from '../../../shared/i18n/useLanguage';
 import { useWorkspace } from '../workspaceStore';
 import { useState } from 'react';
 import { Camera } from 'lucide-react';
 import SurveillanceSettings from './SurveillanceSettings';
 
 export default function SurveillanceSettingsPopover() {
+  const english = useLanguage() === 'en';
   const [open, setOpen] = useState(false);
   return (
     <div
@@ -37,6 +39,9 @@ export default function SurveillanceSettingsPopover() {
         }}
       >
         <Camera />
+        <span className="rail-tooltip" role="tooltip">
+          {english ? 'Camera surveillance' : 'Pengawasan kamera'}
+        </span>
       </button>
       {open && (
         <div id="surveillance-hover-settings" className="surveillance-popover">

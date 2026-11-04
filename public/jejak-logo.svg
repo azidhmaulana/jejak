@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="jejak-green" x1="30" y1="12" x2="66" y2="92" gradientUnits="userSpaceOnUse"><stop stop-color="#baff00"/><stop offset=".48" stop-color="#72ef20"/><stop offset="1" stop-color="#00b64b"/></linearGradient>
+  </defs>
+  <g stroke="url(#jejak-green)" stroke-width="7" stroke-linecap="round">
+    <path d="M8 32V19A11 11 0 0 1 19 8H34M66 8H81A11 11 0 0 1 92 19V32M92 68V81A11 11 0 0 1 81 92H66M34 92H19A11 11 0 0 1 8 81V68"/>
+  </g>
+  <path d="M44 24H77L57 66C50 81 38 82 21 80L29 63H38C42 63 45 61 47 57L57 37H38Z" fill="url(#jejak-green)" stroke="#8cec22" stroke-width=".6"/>
+</svg>

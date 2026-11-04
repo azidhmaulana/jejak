@@ -32,7 +32,7 @@ export default function WorkspaceHeader({ title, subtitle }: { title: string; su
   return (
     <header className={`${styles.navbar} ${styles.minimal}`}>
       <div className={styles.navLeft}>
-        <img src="/bms-logo.png" alt="" className={styles.logo} />
+        <img src="/jejak-logo.svg" alt="" className={styles.logo} />
         <span className={styles.title} translate="no">
           {title}
         </span>

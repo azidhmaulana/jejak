@@ -1,4 +1,6 @@
 import publicCameras from './data/bandungPublicCameras.json';
+import garut from './data/garutCameras.json';
+import jabar from './data/jabarCameras.json';
 import bandung from './data/bandungCameras.json';
 import { create } from 'zustand';
 export interface SurveillanceSource {
@@ -17,6 +19,8 @@ export interface SurveillanceSource {
 export const bandungCameras = [
   ...bandung.cameras,
   ...publicCameras.cameras,
+  ...garut.cameras,
+  ...jabar.cameras,
 ] as SurveillanceSource[];
 export function hasCameraFeed(source: SurveillanceSource) {
   return Boolean(

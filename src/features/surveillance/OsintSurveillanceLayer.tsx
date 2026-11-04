@@ -1,4 +1,5 @@
 import { useRoute } from '../routes/routeStore';
+import { useActiveBundledCameras } from './cameraSourceState';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { createPortal } from 'react-dom';
@@ -19,7 +20,6 @@ import {
 
 import {
   useSurveillance,
-  bandungCameras,
   cameraAvailability,
   type SurveillanceSource,
 } from './osintSurveillanceStore';
@@ -27,6 +27,7 @@ import {
 import { GRADUATED_SCALE_MAX_WIDTH } from '../../modules/maps/GraduatedScaleControl';
 
 import OsintCameraVideo from './OsintCameraVideo';
+import { createCameraMapLayer } from './cameraMapLayer';
 
 export function closeCameraScale(map: MapLibreMap) {
   const { width, height } = map.getCanvas().getBoundingClientRect();
@@ -52,6 +53,7 @@ export default function OsintSurveillanceLayer({
   onSelect?: (id: string | null) => void;
 }) {
   const routeResult = useRoute((state) => (state.filter ? state.result : null));
+  const bandungCameras = useActiveBundledCameras();
   const manual = useSurveillance((s) => s.sources),
     bandung = useSurveillance((s) => s.bandung);
 
@@ -63,7 +65,7 @@ export default function OsintSurveillanceLayer({
           source.kind !== 'camera' ||
           routeResult.cameras.some((camera) => camera.id === source.id),
       ),
-    [bandung, manual, routeResult],
+    [bandung, manual, routeResult, bandungCameras],
   );
 
   const cameras = useSurveillance((s) => s.cameras),
@@ -207,77 +209,28 @@ export default function OsintSurveillanceLayer({
 
     const list = sources.filter((s) => (s.kind === 'camera' ? cameras : news));
 
-    const plotted = list.filter(
-      (s, i) =>
-        list.findIndex(
-          (other) => other.latitude === s.latitude && other.longitude === s.longitude,
-        ) === i,
+    const layer = createCameraMapLayer(
+      map,
+      () =>
+        list.filter(
+          (source) =>
+            previewSettings.current.showOffline || cameraAvailability(source).status !== 'offline',
+        ),
+      () => previewSettings.current.selected,
+      setSelected,
     );
-
-    const entries = plotted.map((source) => {
-      const element = document.createElement('div');
-      element.className = 'osint-camera-marker';
-
-      const button = document.createElement('button');
-      button.className = 'osint-camera-dot';
-      button.title = source.name;
-      button.setAttribute('aria-label', source.name);
-
-      const label = document.createElement('span');
-      label.className = 'osint-camera-label';
-      label.textContent = source.locationName || source.name;
-
-      const group = list.filter(
-        (s) => s.latitude === source.latitude && s.longitude === source.longitude,
-      );
-
-      const refreshStatus = () => {
-        const health = group.map((s) => cameraAvailability(s));
-        const status = health.some((h) => h.status === 'online')
-          ? 'online'
-          : health.every((h) => h.status === 'offline')
-            ? 'offline'
-            : 'unknown';
-        button.dataset.status = status;
-        button.title =
-          source.name +
-          ' | ' +
-          (status === 'online'
-            ? 'ONLINE'
-            : status === 'offline'
-              ? 'OFFLINE / STREAM BELUM TERSEDIA'
-              : 'BELUM TERVERIFIKASI') +
-          (group.length > 1 ? ' | ' + group.length + ' kamera' : '');
-      };
-
-      refreshStatus();
-
-      button.append(label);
-      button.onclick = () => setSelected(source.id);
-      element.append(button);
-
-      const host = document.createElement('div');
-      host.className = 'osint-camera-preview-host';
-      element.append(host);
-
-      const marker = new Marker({ element })
-        .setLngLat([source.longitude, source.latitude])
-        .addTo(map);
-
-      return { source, host, marker, refreshStatus, button, group };
-    });
+    const entries = new Map<
+      string,
+      { source: SurveillanceSource; host: HTMLElement; marker: Marker }
+    >();
 
     const update = () => {
       const { hidden, previews, selected, showOffline } = previewSettings.current;
-      entries.forEach(({ button, group }) => {
-        const active = group.some((source) => source.id === selected);
-        button.closest<HTMLElement>('.osint-camera-marker')!.hidden =
-          !showOffline && group.every((source) => cameraAvailability(source).status === 'offline');
-        button.dataset.selected = String(active);
-        button.setAttribute('aria-pressed', String(active));
-      });
+      layer.select(selected);
 
       if (hidden || !previews || !cameras || !closeCameraScale(map)) {
+        entries.forEach((entry) => entry.marker.remove());
+        entries.clear();
         setVisiblePreviews([]);
         return;
       }
@@ -287,29 +240,51 @@ export default function OsintSurveillanceLayer({
 
       // One preview per junction avoids stacking identical-position cameras. Others remain selectable.
 
-      const next = entries
+      const candidates = list
         .filter(
-          (e) =>
-            e.source.kind === 'camera' &&
-            (showOffline || cameraAvailability(e.source).status !== 'offline') &&
-            !e.group.some((camera) => camera.id === selected) &&
-            (e.source.streamUrl || e.source.previewUrl) &&
-            map.getBounds().contains([e.source.longitude, e.source.latitude]),
+          (source) =>
+            source.kind === 'camera' &&
+            (showOffline || cameraAvailability(source).status !== 'offline') &&
+            !list.some(
+              (other) =>
+                other.id === selected &&
+                other.latitude === source.latitude &&
+                other.longitude === source.longitude,
+            ) &&
+            (source.streamUrl || source.previewUrl) &&
+            map.getBounds().contains([source.longitude, source.latitude]),
         )
-
         .sort(
           (a, b) =>
-            center.distanceTo(new LngLat(a.source.longitude, a.source.latitude)) -
-            center.distanceTo(new LngLat(b.source.longitude, b.source.latitude)),
+            center.distanceTo(new LngLat(a.longitude, a.latitude)) -
+            center.distanceTo(new LngLat(b.longitude, b.latitude)),
         )
-
-        .filter((e) => {
-          const key = e.source.latitude + ',' + e.source.longitude;
+        .filter((source) => {
+          const key = source.latitude + ',' + source.longitude;
           if (locations.has(key)) return false;
           locations.add(key);
           return true;
         })
         .slice(0, 4);
+      for (const [id, entry] of entries) {
+        if (!candidates.some((source) => source.id === id)) {
+          entry.marker.remove();
+          entries.delete(id);
+        }
+      }
+      const next = candidates.map((source) => {
+        let entry = entries.get(source.id);
+        if (!entry) {
+          const host = document.createElement('div');
+          host.className = 'osint-camera-preview-host';
+          const marker = new Marker({ element: host })
+            .setLngLat([source.longitude, source.latitude])
+            .addTo(map);
+          entry = { source, host, marker };
+          entries.set(source.id, entry);
+        }
+        return entry;
+      });
 
       setVisiblePreviews((previous) =>
         previous.length === next.length && previous.every((e, i) => e.host === next[i].host)
@@ -318,7 +293,7 @@ export default function OsintSurveillanceLayer({
       );
     };
 
-    const refreshStatus = () => entries.forEach((e) => e.refreshStatus());
+    const refreshStatus = () => layer.refresh();
 
     const unsubscribe = useSurveillance.subscribe((s, p) => {
       if (s.health !== p.health) {
@@ -332,7 +307,14 @@ export default function OsintSurveillanceLayer({
       update();
     }, 60000);
 
-    updatePreviews.current = update;
+    let previousOfflineFilter = previewSettings.current.showOffline;
+    updatePreviews.current = () => {
+      if (previousOfflineFilter !== previewSettings.current.showOffline) {
+        previousOfflineFilter = previewSettings.current.showOffline;
+        layer.refresh();
+      }
+      update();
+    };
 
     update();
     map.on('moveend', update);
@@ -345,6 +327,7 @@ export default function OsintSurveillanceLayer({
       map.off('moveend', update);
       map.off('resize', update);
       entries.forEach((e) => e.marker.remove());
+      layer.destroy();
     };
   }, [map, sources, cameras, news]);
 
@@ -472,6 +455,7 @@ export default function OsintSurveillanceLayer({
           )}
 
           {fullscreenError && <p role="status">{fullscreenError}</p>}
+          <div className="osint-camera-scan" aria-hidden="true" />
           <footer>
             <div className="osint-feed-detail">
               <small>FEED TYPE</small>
@@ -491,10 +475,6 @@ export default function OsintSurveillanceLayer({
               SUMBER
             </a>
           </footer>
-
-          {!hidden && (playbackStatus === 'MEMUAT' || playbackStatus === 'BUFFERING') && (
-            <div className="osint-camera-scan" aria-hidden="true" />
-          )}
         </section>
       )}
     </>

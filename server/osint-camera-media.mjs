@@ -1,28 +1,24 @@
 import { Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { readFileSync } from 'node:fs';
-const catalogue = JSON.parse(
-  readFileSync(
-    new URL('../src/features/surveillance/data/bandungCameras.json', import.meta.url),
-    'utf8',
-  ),
-);
-const publicCatalogue = JSON.parse(
-  readFileSync(
-    new URL('../src/features/surveillance/data/bandungPublicCameras.json', import.meta.url),
-    'utf8',
-  ),
-);
+import { publicCameras } from './camera-catalog.mjs';
 export const cameras = new Map(
-  [...catalogue.cameras, ...publicCatalogue.cameras]
-    .filter((c) => c.streamUrl)
-    .map((c) => [c.id, new URL(c.streamUrl)]),
+  publicCameras.filter((c) => c.streamUrl).map((c) => [c.id, new URL(c.streamUrl)]),
 );
 const origins = new Set([
   'https://atcs-dishub.bandung.go.id:1990',
   'https://pelindung.bandung.go.id:3443',
   'https://atcs-dishubkbb.urbanaccess.net',
   'https://cctv.bandungkab.go.id',
+  'https://cctv.garutkab.go.id',
+  'https://atcs.banjarkota.go.id:5443',
+  'https://atcs.cianjurkab.go.id:5443',
+  'https://atcs.tasikmalayakota.go.id',
+  'https://cctv-dishub.sukabumikab.go.id',
+  'https://cctv.cirebonkota.go.id',
+  'https://cctv.indramayukab.go.id',
+  'https://cctv.tasikmalayakab.go.id',
+  'https://dishub.depok.go.id',
+  'https://ruas-ciranjang.jaring.host',
 ]);
 const prefix = '/api/osint/camera-media/';
 export function mediaResourcePath(id, name) {

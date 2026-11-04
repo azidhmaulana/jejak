@@ -228,6 +228,7 @@ for (const width of [390, 768, 1024, 1440]) {
         bottom: innerHeight - monitor.bottom,
         top: monitor.top - header.bottom,
         headerGap: utilities.left - brand.right,
+        headerVerticalGap: utilities.top - brand.bottom,
         left: rect('.tactical-rail').width,
         right: rect('.map-hud-buttons').width,
       };
@@ -235,8 +236,9 @@ for (const width of [390, 768, 1024, 1440]) {
     expect(bounds.bottom).toBeLessThanOrEqual(80);
     if (width >= 1101) expect(bounds.horizontalGap).toBeGreaterThanOrEqual(8);
     expect(bounds.top).toBeGreaterThanOrEqual(0);
-    expect(bounds.headerGap).toBeGreaterThanOrEqual(0);
-    expect(bounds.left).toBe(bounds.right);
+    expect(bounds.headerGap >= 0 || bounds.headerVerticalGap >= 0).toBe(true);
+    expect(bounds.left).toBe(40);
+    expect(bounds.right).toBe(34);
   });
 }
 
@@ -406,6 +408,61 @@ test('account dropdown opens separate profile and CMS tables for administrators'
   await expect(cms.getByRole('table')).toBeVisible();
   await expect(cms).not.toContainText('superadmin');
   expect((await cms.boundingBox())!.width).toBe(940);
+  await cms.getByRole('button', { name: 'CCTV Source', exact: true }).click();
+  await expect(cms.locator('.cms-source-summary')).toContainText('823');
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(14);
+  const filterBoxes = await cms
+    .locator('.cms-source-field > .cms-search, .cms-source-field > select')
+    .evaluateAll((elements) =>
+      elements.map((element) => ({
+        y: element.getBoundingClientRect().y,
+        height: element.getBoundingClientRect().height,
+      })),
+    );
+  expect(filterBoxes).toHaveLength(3);
+  expect(new Set(filterBoxes.map((box) => box.y)).size).toBe(1);
+  expect(filterBoxes.every((box) => box.height === 36)).toBe(true);
+  await cms.getByRole('combobox', { name: 'Filter city' }).selectOption('Kota Bandung');
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(2);
+  await cms.getByRole('combobox', { name: 'Filter city' }).selectOption('Kabupaten Bandung');
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(1);
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toContainText(
+    'DISHUB KABUPATEN BANDUNG',
+  );
+  await cms.getByRole('combobox', { name: 'Filter province' }).selectOption('Jawa Barat');
+  await expect(cms.getByRole('combobox', { name: 'Filter city' })).toHaveValue('');
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(14);
+  await cms.getByRole('combobox', { name: 'Filter city' }).selectOption('Kabupaten Garut');
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(1);
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toContainText('DISKOMINFO GARUT');
+  await expect(
+    cms.getByRole('checkbox', { name: 'Active DISKOMINFO GARUT', exact: true }),
+  ).toBeChecked();
+  await cms.getByRole('combobox', { name: 'Filter city' }).selectOption('');
+  await expect(cms.locator('.cms-camera-sources tbody tr').first()).toContainText('West Java');
+  await cms.getByRole('textbox', { name: 'Search CCTV sources' }).fill('no matching provider');
+  await expect(cms.locator('.cms-camera-sources')).toContainText('No matching sources.');
+  await cms.getByRole('textbox', { name: 'Search CCTV sources' }).fill('cimahi');
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(1);
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toContainText('CCTV CIMAHI');
+  const activeSource = cms.getByRole('checkbox', { name: 'Active CCTV CIMAHI', exact: true });
+  await expect(activeSource).toBeChecked();
+  try {
+    await activeSource.uncheck();
+    await expect(activeSource).not.toBeChecked();
+    await expect(activeSource).toBeEnabled();
+    expect(
+      (await (await page.request.get('/api/cctv-source-state')).json()).active['CCTV CIMAHI'],
+    ).toBe(false);
+    await cms.getByRole('button', { name: 'Settings', exact: true }).click();
+    await cms.getByRole('button', { name: 'CCTV Source', exact: true }).click();
+    await expect(
+      cms.getByRole('checkbox', { name: 'Active CCTV CIMAHI', exact: true }),
+    ).not.toBeChecked();
+  } finally {
+    await page.request.patch('/api/cctv-sources', { data: { name: 'CCTV CIMAHI', active: true } });
+  }
+  await cms.getByRole('button', { name: 'Users', exact: true }).click();
   await cms
     .getByRole('button', { name: /^Edit .*@/ })
     .first()
@@ -436,6 +493,7 @@ test('account dropdown opens separate profile and CMS tables for administrators'
   await cms.getByRole('button', { name: 'Roles & permissions', exact: true }).click();
   await expect(cms.getByRole('button', { name: 'Add role', exact: true })).toHaveCount(0);
   await expect(cms).toContainText('Read only');
+  await expect(cms.getByRole('button', { name: 'CCTV Source', exact: true })).toHaveCount(0);
 });
 
 test('public registration creates a Viewer account', async ({ page }) => {

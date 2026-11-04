@@ -1,8 +1,21 @@
-export default function JejakLogo() {
-  return (
-    <svg viewBox="0 0 40 40" aria-hidden="true">
-      <path d="M14 4h22L25 31l-8 5H3l-3-5 6-8h8l-4 6h8l7-18H13z" fill="currentColor" />
-      <path d="m10 7 7 5-5 7-7-5z" fill="currentColor" />
-    </svg>
+import './JejakLogo.css';
+export default function JejakLogo({ full = false }: { full?: boolean }) {
+  const icon = (
+    <img className="jejak-logo-icon" src="/jejak-logo.svg" alt="" width="40" height="40" />
   );
+  if (full)
+    return (
+      <span
+        className="jejak-brand-art"
+        aria-label="JEJAK — Geospatial Intelligence Platform"
+        role="img"
+      >
+        {icon}
+        <span className="jejak-brand-type">
+          <strong>JEJAK</strong>
+          <small>Geospatial Intelligence Platform</small>
+        </span>
+      </span>
+    );
+  return icon;
 }

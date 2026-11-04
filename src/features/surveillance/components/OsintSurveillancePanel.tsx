@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useActiveBundledCameras } from '../cameraSourceState';
 import { ArrowLeft, Plus, Trash2, Save } from 'lucide-react';
 import {
   useSurveillance,
   cameraAvailability,
   saveSurveillance,
-  bandungCameras,
-  bandungFeedCameras,
+  hasCameraFeed,
   bandungSource,
   bandungRetrievedAt,
   setBandung,
@@ -19,6 +19,8 @@ export default function OsintSurveillancePanel({
   onBack: () => void;
 }) {
   const state = useSurveillance();
+  const bandungCameras = useActiveBundledCameras();
+  const bandungFeedCameras = bandungCameras.filter(hasCameraFeed);
   const [draft, setDraft] = useState(() => state.sources.map((s) => ({ ...s }))),
     [message, setMessage] = useState('');
   const manualCameras = state.sources.filter((s) => s.kind === 'camera').length,
@@ -62,7 +64,7 @@ export default function OsintSurveillancePanel({
               }}
             />
             <span>
-              Bandung / {bandungFeedCameras.length} feed /{' '}
+              CCTV / {bandungFeedCameras.length} feed /{' '}
               {bandungCameras.length - bandungFeedCameras.length} titik belum memiliki feed
               terverifikasi
             </span>

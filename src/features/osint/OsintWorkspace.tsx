@@ -1,4 +1,5 @@
 import ToastHost from '../../shared/components/Toast';
+import { useCameraSourceSync } from '../surveillance/cameraSourceState';
 import CmsPanel from '../auth/CmsPanel';
 import AccountPanel from '../auth/AccountPanel';
 import AccountCameraPreferences from '../auth/AccountCameraPreferences';
@@ -31,8 +32,10 @@ import './components/WorkspaceTicker.css';
 import './CompactNavbar.css';
 import './components/CameraInspector.css';
 import './components/CameraDock.css';
+import './UiRefinement.css';
 
 export default function OsintWorkspace() {
+  useCameraSourceSync();
   const appearance = useAppearance();
   const drawing = useMapTools((state) => state.mode !== 'render');
   const panel = useWorkspace((state) => state.panel);

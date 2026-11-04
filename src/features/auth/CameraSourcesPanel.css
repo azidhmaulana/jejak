@@ -1,0 +1,110 @@
+.cms-camera-sources {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.cms-camera-sources input.cms-source-active {
+  width: 15px;
+  height: 15px;
+  accent-color: #95ee60;
+  cursor: pointer;
+}
+.cms-camera-sources input.cms-source-active:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.cms-source-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  color: #a6c3ae;
+  font-size: 12px;
+}
+.cms-source-summary strong {
+  color: #9bef68;
+  font-size: 18px;
+  margin-right: 4px;
+}
+.cms-source-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 12px;
+  align-items: end;
+}
+.account-panel.cms-panel .cms-source-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  color: #a6c3ae;
+  font-size: 11px;
+}
+.account-panel.cms-panel .cms-source-field > select,
+.account-panel.cms-panel .cms-source-field > .cms-search {
+  box-sizing: border-box;
+  width: 100%;
+  height: 36px;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  border: 1px solid #355739;
+  border-radius: 6px;
+  background: #0b2117;
+}
+.account-panel.cms-panel .cms-source-field > select {
+  padding: 0 9px;
+  font-size: 11px;
+  text-overflow: ellipsis;
+}
+.account-panel.cms-panel .cms-source-field > .cms-search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 9px;
+}
+.cms-source-field .cms-search svg {
+  flex-shrink: 0;
+}
+.account-panel.cms-panel .cms-source-field .cms-search input {
+  height: 100%;
+  min-width: 0;
+  padding: 0;
+}
+@media (max-width: 700px) {
+  .cms-source-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .cms-source-search-field {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 420px) {
+  .cms-source-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.cms-camera-sources .cms-table-wrap {
+  overflow-x: auto;
+}
+.cms-camera-sources table {
+  min-width: 700px;
+}
+.cms-camera-sources td strong {
+  display: block;
+  font-size: 11px;
+}
+.cms-camera-sources td a {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  width: fit-content;
+  color: #95bd9f;
+  font-size: 10px;
+  margin-top: 5px;
+}
+.cms-camera-sources .cms-source-note {
+  color: #96ad9f;
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 0;
+}

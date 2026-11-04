@@ -1,3 +1,4 @@
+import { cameraPlaybackUrl, startCameraPlayback } from './cameraPlayback';
 import { useEffect, useRef, useState } from 'react';
 import { reportCameraHealth, type SurveillanceSource } from './osintSurveillanceStore';
 export default function OsintCameraVideo({
@@ -14,96 +15,34 @@ export default function OsintCameraVideo({
       source.streamUrl || source.previewUrl ? 'MEMUAT' : 'BELUM TERVERIFIKASI',
     ),
     [retry, setRetry] = useState(0);
+  const [hasFrame, setHasFrame] = useState(false);
   useEffect(() => {
     onStatus?.(status);
   }, [status, onStatus]);
   useEffect(() => {
     const element = video.current;
+    setHasFrame(false);
+    setStatus(source.streamUrl || source.previewUrl ? 'MEMUAT' : 'BELUM TERVERIFIKASI');
     if (!element || !source.streamUrl) return;
-    let disposed = false,
-      cleanup = () => {};
-    setStatus('MEMUAT');
-    const url =
-      source.id.startsWith('bandung-atcs-') || source.id.startsWith('bandung-public-')
-        ? '/api/osint/camera-media/' +
-          source.id +
-          '/~' +
-          btoa(
-            new URL(source.streamUrl).pathname.split('/').pop()! + new URL(source.streamUrl).search,
-          )
-            .replace(/=+$/, '')
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-        : source.streamUrl;
-    const playing = () => {
-        if (disposed) return;
-        setStatus('LIVE');
-        reportCameraHealth(source.id, 'online', 'Video berhasil diputar');
+    let reported = false;
+    return startCameraPlayback(
+      element,
+      cameraPlaybackUrl({ id: source.id, streamUrl: source.streamUrl }),
+      {
+        status: setStatus,
+        frame: () => {
+          setHasFrame(true);
+          if (!reported) {
+            reported = true;
+            reportCameraHealth(source.id, 'online', 'Video berhasil diputar');
+          }
+        },
       },
-      waiting = () => setStatus('BUFFERING'),
-      failed = () => {
-        if (!disposed) setStatus('STREAM TIDAK TERSEDIA');
-      };
-    const play = () => {
-      void element.play().catch(() => {
-        if (!disposed) setStatus('TEKAN PLAY');
-      });
-    };
-    element.addEventListener('playing', playing);
-    element.addEventListener('waiting', waiting);
-    element.addEventListener('error', failed);
-    void import('hls.js')
-      .then(({ default: Hls }) => {
-        if (disposed) return;
-        if (Hls.isSupported()) {
-          const hls = new Hls({
-            maxBufferLength: 12,
-            backBufferLength: 4,
-            maxMaxBufferLength: 24,
-            capLevelToPlayerSize: true,
-            lowLatencyMode: true,
-            liveSyncDurationCount: 3,
-            liveMaxLatencyDurationCount: 6,
-            maxLiveSyncPlaybackRate: 1.05,
-          });
-          cleanup = () => hls.destroy();
-          hls.on(Hls.Events.MANIFEST_PARSED, play);
-          hls.on(Hls.Events.ERROR, (_, data) => {
-            if (data.fatal) {
-              failed();
-              if (data.type === Hls.ErrorTypes.NETWORK_ERROR && !disposed)
-                reportCameraHealth(
-                  source.id,
-                  data.response?.code === 503 ? 'unknown' : 'offline',
-                  data.response?.code === 503
-                    ? 'Proxy sedang sibuk; belum dapat memastikan status kamera'
-                    : 'Stream gagal diakses dari aplikasi',
-                );
-              hls.destroy();
-            }
-          });
-          hls.loadSource(url);
-          hls.attachMedia(element);
-        } else if (element.canPlayType('application/vnd.apple.mpegurl')) {
-          element.src = url;
-          play();
-        } else setStatus('HLS TIDAK DIDUKUNG');
-      })
-      .catch(failed);
-    return () => {
-      disposed = true;
-      cleanup();
-      element.removeEventListener('playing', playing);
-      element.removeEventListener('waiting', waiting);
-      element.removeEventListener('error', failed);
-      element.pause();
-      element.removeAttribute('src');
-      element.load();
-    };
-  }, [source.streamUrl, source.id, compact, retry]);
-  const pending = status === 'MEMUAT' || status === 'BUFFERING';
+    );
+  }, [source.streamUrl, source.previewUrl, source.id, retry]);
+  const pending = status === 'MEMUAT' || status === 'BUFFERING' || status === 'MENGHUBUNGKAN ULANG';
   const unavailable = status === 'STREAM TIDAK TERSEDIA' || status === 'PREVIEW TIDAK TERSEDIA';
-  const showPlaceholder = status !== 'LIVE' && status !== 'SNAPSHOT';
+  const showPlaceholder = !hasFrame && status !== 'LIVE' && status !== 'SNAPSHOT';
   return (
     <div className="osint-camera-video" data-compact={compact}>
       {source.streamUrl ? (
@@ -123,12 +62,23 @@ export default function OsintCameraVideo({
           onError={() => setStatus('PREVIEW TIDAK TERSEDIA')}
         />
       ) : null}
-      {compact && !showPlaceholder && (source.streamUrl || source.previewUrl) && (
-        <span className="osint-stream-status" data-live={status === 'LIVE'}>
-          {status === 'LIVE' && <i className="osint-live-dot" aria-hidden="true" />}
-          {status}
-        </span>
+      {hasFrame && status !== 'LIVE' && (
+        <div className="osint-stream-recovery" role="status">
+          <span>{status}</span>
+          {!compact && (
+            <button onClick={() => setRetry((value) => value + 1)}>Hubungkan ulang</button>
+          )}
+        </div>
       )}
+      {compact &&
+        status === 'LIVE' &&
+        !showPlaceholder &&
+        (source.streamUrl || source.previewUrl) && (
+          <span className="osint-stream-status" data-live={status === 'LIVE'}>
+            {status === 'LIVE' && <i className="osint-live-dot" aria-hidden="true" />}
+            {status}
+          </span>
+        )}
       {showPlaceholder && (
         <div
           className="osint-stream-placeholder"

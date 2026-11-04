@@ -81,6 +81,11 @@ export default function AccountPanel() {
                 : register
                   ? tx('Buat akun JEJAK', 'Create JEJAK account')
                   : tx('Akun JEJAK', 'JEJAK account')}
+              {!user && (
+                <small className="auth-brand-tagline" translate="no">
+                  Geospatial Intelligence Platform
+                </small>
+              )}
             </strong>
           )}
           <button aria-label="Close account" onClick={() => useAuth.setState({ open: false })}>

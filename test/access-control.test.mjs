@@ -76,6 +76,49 @@ test('all roles enforce API boundaries, hidden superadmin, private account data 
     const deny = role === 'guest' ? 401 : 403;
     const editor = ['operator', 'admin', 'superadmin'].includes(role);
     const manager = ['admin', 'superadmin'].includes(role);
+    const sources = await request('/api/cctv-sources', cookie);
+    if (role !== 'superadmin')
+      assert.equal(
+        (await request('/api/cctv-sources', cookie, 'PATCH', { name: 'ATCS KBB', active: false }))
+          .status,
+        deny,
+      );
+    assert.equal(sources.status, role === 'superadmin' ? 200 : deny);
+    if (role === 'superadmin') {
+      const catalog = await sources.json();
+      assert.equal(catalog.sourceCount, 14);
+      assert.equal(catalog.cameraCount, 823);
+      assert.equal(catalog.feedCount, 806);
+      const garut = catalog.sources.find((source) => source.name === 'DISKOMINFO GARUT');
+      assert.equal(garut.cameraCount, 16);
+      assert.equal(garut.province, 'Jawa Barat');
+      assert.equal(garut.city, 'Kabupaten Garut');
+      assert.ok(catalog.sources.every((source) => source.active));
+      assert.equal(
+        (await request('/api/cctv-sources', cookie, 'PATCH', { name: 'ATCS KBB', active: 'false' }))
+          .status,
+        400,
+      );
+      assert.equal(
+        (await request('/api/cctv-sources', cookie, 'PATCH', { name: 'missing', active: false }))
+          .status,
+        404,
+      );
+      assert.equal(
+        (await request('/api/cctv-sources', cookie, 'PATCH', { name: 'ATCS KBB', active: false }))
+          .status,
+        200,
+      );
+      assert.equal(
+        (await (await request('/api/cctv-source-state')).json()).active['ATCS KBB'],
+        false,
+      );
+      await request('/api/cctv-sources', cookie, 'PATCH', { name: 'ATCS KBB', active: true });
+      assert.equal(
+        catalog.sources.find((source) => source.name === 'CCTV CIMAHI').linkOnlyCount,
+        17,
+      );
+    }
     for (const url of ['/api/bms/projects/osint', '/api/osint/map-overlays']) {
       for (const method of ['GET', 'HEAD'])
         assert.equal(
