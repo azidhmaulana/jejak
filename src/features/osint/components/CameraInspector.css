@@ -1,4 +1,18 @@
 /* Compact camera monitor: identity, controls, feed and a single status row. */
+.monitor-location-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 7px 12px;
+  color: #b5d4a4;
+  background: #112316;
+  border-bottom: 1px solid #36593c;
+  font-size: 11px;
+}
+.monitor-location-notice svg {
+  flex-shrink: 0;
+}
 .command-workspace .camera-inspector.compact-monitor {
   width: 430px;
   right: 70px;
@@ -28,16 +42,30 @@
   display: block;
   width: 45%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, #a6f34e 20%, #d4ff94 50%, #a6f34e 80%, transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #a6f34e 20%,
+    #d4ff94 50%,
+    #a6f34e 80%,
+    transparent
+  );
   box-shadow: 0 0 6px #a6f34e;
   animation: monitor-border-loading 1.5s ease-in-out infinite alternate;
 }
 @keyframes monitor-border-loading {
-  from { transform: translateX(0); }
-  to { transform: translateX(123%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(123%);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .monitor-loading-border::after { animation: none; margin: auto; }
+  .monitor-loading-border::after {
+    animation: none;
+    margin: auto;
+  }
 }
 .monitor-identity {
   display: flex;

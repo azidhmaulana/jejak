@@ -34,7 +34,13 @@ export function createCameraMapLayer(
         type: 'Feature',
         id: camera.id,
         geometry: { type: 'Point', coordinates: [camera.longitude, camera.latitude] },
-        properties: { id: camera.id, name: camera.name, status: cameraAvailability(camera).status },
+        properties: {
+          id: camera.id,
+          name: camera.name,
+          status: cameraAvailability(camera).status,
+          approximate: camera.coordinateAccuracy === 'approximate',
+          coordinateKind: camera.coordinateKind || '',
+        },
       })),
   });
   const select = (id: string | null) => {
@@ -99,7 +105,19 @@ export function createCameraMapLayer(
           : getLanguage() === 'en'
             ? 'Unverified'
             : 'Belum terverifikasi';
-    popup.setLngLat(event.lngLat).setText(`${properties.name} - ${status}`).addTo(map);
+    const reference = ['road-reference', 'locality-reference', 'junction-reference'].includes(
+      properties.coordinateKind,
+    );
+    const position = properties.approximate
+      ? getLanguage() === 'en'
+        ? reference
+          ? ' · Area reference, not camera position'
+          : ' · Estimated position'
+        : reference
+          ? ' · Referensi wilayah, bukan posisi kamera'
+          : ' · Posisi perkiraan'
+      : '';
+    popup.setLngLat(event.lngLat).setText(`${properties.name} - ${status}${position}`).addTo(map);
   };
   const leave = () => {
     popup.remove();

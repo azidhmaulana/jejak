@@ -2,6 +2,7 @@ import publicCameras from './data/bandungPublicCameras.json';
 import garut from './data/garutCameras.json';
 import jabar from './data/jabarCameras.json';
 import regional from './data/regionalCameras.json';
+import binamarga from './data/binamargaCameras.json';
 import mudik from './data/mudikCameras.json';
 import bandung from './data/bandungCameras.json';
 import { create } from 'zustand';
@@ -18,6 +19,12 @@ export interface SurveillanceSource {
   provider?: string;
   discoveryUrl?: string;
   coordinateAccuracy?: 'approximate';
+  coordinateKind?:
+    | 'chainage-estimate'
+    | 'road-reference'
+    | 'locality-reference'
+    | 'source-location'
+    | 'junction-reference';
 }
 export function hasSourceCoordinates(
   source: SurveillanceSource,
@@ -43,6 +50,7 @@ export const bandungCameras = [
   ...jabar.cameras,
   ...regional.cameras,
   ...mudik.cameras,
+  ...binamarga.cameras,
 ] as SurveillanceSource[];
 export function hasCameraFeed(source: SurveillanceSource) {
   return Boolean(

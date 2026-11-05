@@ -5,8 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/jejak-logo.svg" />
     <meta name="application-name" content="JEJAK" />
-    <meta name="description" content="JEJAK ? Geospatial Intelligence Platform" />
+    <meta
+      name="description"
+      content="Jelajahi CCTV publik dan CCTV tol Indonesia di peta JEJAK. Cari kamera berdasarkan lokasi dan temukan CCTV di sepanjang rute perjalanan Anda."
+    />
+    <link rel="canonical" href="https://jejak.kecoalabs.com/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:site_name" content="JEJAK" />
+    <meta property="og:url" content="https://jejak.kecoalabs.com/" />
+    <meta property="og:title" content="JEJAK — Peta CCTV Publik &amp; CCTV Tol Indonesia" />
+    <meta
+      property="og:description"
+      content="Temukan CCTV publik, pantau lokasi pada peta, dan cari kamera di sepanjang rute perjalanan."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="JEJAK — Peta CCTV Publik &amp; CCTV Tol Indonesia" />
+    <meta
+      name="twitter:description"
+      content="Jelajahi kamera publik dan CCTV tol pada peta interaktif JEJAK."
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "JEJAK",
+        "alternateName": "JEJAK Geospatial Intelligence Platform",
+        "url": "https://jejak.kecoalabs.com/",
+        "inLanguage": ["id", "en"],
+        "description": "Peta interaktif CCTV publik dan CCTV tol Indonesia."
+      }
+    </script>
     <meta name="theme-color" content="#030c09" />
+    <link rel="stylesheet" href="/boot.css" />
     <style>
       html,
       body,
@@ -16,10 +48,62 @@
         background: #030c09;
       }
     </style>
-    <title>JEJAK | Geospatial Intelligence Platform</title>
+    <title>JEJAK — Peta CCTV Publik &amp; CCTV Tol Indonesia</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="jejak-boot" role="status" aria-label="Loading JEJAK" translate="no">
+      <div class="boot-content">
+        <div class="boot-radar" aria-hidden="true">
+          <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="boot-sweep-fill"><stop stop-color="#54ff36" stop-opacity=".05"/><stop offset="1" stop-color="#54ff36" stop-opacity=".42"/></radialGradient>
+              <radialGradient id="boot-center-glow"><stop stop-color="#8cff65" stop-opacity=".5"/><stop offset="1" stop-color="#8cff65" stop-opacity="0"/></radialGradient>
+            </defs>
+            <circle cx="200" cy="200" r="182" stroke="#38b932" stroke-opacity=".5" stroke-dasharray="2 8"/>
+            <circle cx="200" cy="200" r="168" stroke="#69dc42" stroke-opacity=".8"/>
+            <circle cx="200" cy="200" r="140" fill="#07340c" fill-opacity=".25" stroke="#6ce446"/>
+            <g stroke="#44b735" stroke-opacity=".23"><circle cx="200" cy="200" r="46"/><circle cx="200" cy="200" r="93"/></g>
+            <path d="M16 200H384M200 16V384" stroke="#58cf3d" stroke-opacity=".3"/>
+            <g class="boot-sweep">
+              <path d="M200 200L200 60A140 140 0 0 1 321.244 130Z" fill="url(#boot-sweep-fill)"/>
+              <path d="M200 200L321.244 130" stroke="#a2ff76" stroke-width="1.3"/>
+            </g>
+            <g stroke="#88f85c" stroke-width="2"><path d="M200 24V46M200 354V376M24 200H46M354 200H376"/></g>
+            <g stroke="#76f64b" stroke-width="5" stroke-linecap="round"><path d="M43 109A182 182 0 0 1 109 43"/><path d="M357 291A182 182 0 0 1 291 357"/></g>
+            <g fill="#a3ff72"><circle class="boot-dot" cx="111" cy="133" r="4"/><circle class="boot-dot" cx="279" cy="119" r="4"/><circle class="boot-dot" cx="284" cy="280" r="4"/></g>
+            <circle cx="200" cy="200" r="28" fill="url(#boot-center-glow)"/>
+            <circle cx="200" cy="200" r="5" fill="#b2ff84"/>
+          </svg>
+        </div>
+        <div class="boot-brand">
+          <img src="/jejak-logo.svg" alt="" width="60" height="60" />
+          <h1>JEJAK</h1>
+        </div>
+        <p class="boot-subtitle">Geospatial Intelligence Platform</p>
+        <div class="boot-label">V1.0.0</div>
+        <div class="boot-progress" aria-hidden="true"><span></span></div>
+        <p class="boot-status">INITIALIZING GEOSPATIAL LAYERS...</p>
+      </div>
+      <noscript
+        ><p class="boot-help">
+          Aktifkan JavaScript untuk membuka peta. <a href="/tentang.html">Tentang JEJAK</a>
+        </p></noscript
+      >
+    </div>
+    <div id="root">
+      <main style="padding: 24px; color: #dcebdc; font-family: system-ui">
+        <h1>JEJAK — Peta CCTV Publik dan CCTV Tol Indonesia</h1>
+        <p>Jelajahi kamera publik pada peta dan temukan CCTV di sepanjang rute perjalanan Anda.</p>
+        <p>Memuat peta interaktif…</p>
+        <a href="/tentang.html" style="color: #a4ed65">Tentang JEJAK dan panduan CCTV</a>
+      </main>
+    </div>
+    <noscript
+      ><p style="color: white">
+        Aktifkan JavaScript untuk membuka peta dan stream CCTV.
+        <a href="/tentang.html">Baca panduan JEJAK</a>.
+      </p></noscript
+    >
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

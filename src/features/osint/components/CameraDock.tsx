@@ -23,10 +23,12 @@ import {
 } from '../../surveillance/osintSurveillanceStore';
 import OsintCameraVideo from '../../surveillance/OsintCameraVideo';
 
-export function selectCamera(source: SurveillanceSource) {
+export function selectCamera(source: SurveillanceSource, options?: { zoom: number }) {
   useWorkspace.getState().selectCamera(source.id);
   useSurveillance.setState({ cameras: true });
-  window.dispatchEvent(new CustomEvent('osint-select-camera', { detail: { id: source.id } }));
+  window.dispatchEvent(
+    new CustomEvent('osint-select-camera', { detail: { id: source.id, zoom: options?.zoom } }),
+  );
 }
 export function CameraThumbnail({
   source,
@@ -82,6 +84,9 @@ export default function CameraDock() {
   }
   const cameras = useCameraCatalog();
   const { cameraTab, favorites, recent, coordinates, selectedId, query } = useWorkspace();
+  useEffect(() => {
+    if (query.trim()) setExpanded(true);
+  }, [query]);
   useSurveillance((state) => state.health);
   const previews = useSurveillance((state) => state.previews);
   const track = useRef<HTMLDivElement>(null);

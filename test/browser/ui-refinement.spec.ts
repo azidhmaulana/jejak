@@ -21,6 +21,98 @@ async function captureMap(page: Page) {
   });
 }
 
+test('searching a mapped Bina Marga camera selects its rendered marker', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('bms-language', 'en');
+    localStorage.setItem('osint-surveillance-bandung-v1', 'false');
+  });
+  await page.goto('/');
+  await captureMap(page);
+  const camera = await page.evaluate(async () => {
+    const { bandungCameras, useSurveillance } = await import(
+      '/src/features/surveillance/osintSurveillanceStore.ts' as string
+    );
+    const camera = bandungCameras.find(
+      (c: any) => c.id.startsWith('public-camera-binamarga-') && typeof c.latitude === 'number',
+    );
+    useSurveillance.setState({
+      showOffline: false,
+      health: { [camera.id]: { status: 'offline', checkedAt: Date.now(), reason: 'test' } },
+    });
+    return { id: camera.id, name: camera.name };
+  });
+  await page.getByRole('button', { name: 'Search cameras', exact: true }).click();
+  await page.getByLabel('Search camera catalog', { exact: true }).fill(camera.name);
+  await page
+    .locator('#navbar-camera-results [role=option]')
+    .filter({ hasText: 'BINA MARGA' })
+    .first()
+    .click();
+  await expect
+    .poll(() => page.evaluate(() => (window as any).auditMap.getFilter('jejak-cameras-selected')))
+    .toEqual(['==', ['get', 'id'], camera.id]);
+  await expect
+    .poll(() =>
+      page.evaluate((id) => {
+        const map = (window as any).auditMap;
+        return map
+          .queryRenderedFeatures({ layers: ['jejak-cameras-selected'] })
+          .some((f: any) => f.properties.id === id);
+      }, camera.id),
+    )
+    .toBe(true);
+});
+
+test('reported toll sources all select a visible marker from search', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('bms-language', 'en'));
+  await page.goto('/');
+  await captureMap(page);
+  const cameras = await page.evaluate(async () => {
+    const { bandungCameras } = await import(
+      '/src/features/surveillance/osintSurveillanceStore.ts' as string
+    );
+    return [
+      'bayung-lencir',
+      'pekanbaru-dumai',
+      'pekanbaru-bangkinang',
+      'indrapura',
+      'kuala-tanjung',
+      'binjai-langsa',
+      'medan-binjai',
+      'sigli',
+      'jogja',
+      'pasuruan-probolinggo',
+      'ujung-pandang',
+    ].map((road) => {
+      const c = bandungCameras.find(
+        (c: any) => c.id.startsWith('public-camera-binamarga-') && c.id.includes(road),
+      );
+      return { id: c.id, name: c.name, provider: c.provider };
+    });
+  });
+  for (const camera of cameras) {
+    await page.getByRole('button', { name: 'Search cameras', exact: true }).click();
+    await page.getByLabel('Search camera catalog', { exact: true }).fill(camera.name);
+    await page
+      .locator('#navbar-camera-results [role=option]')
+      .filter({ hasText: camera.provider })
+      .first()
+      .click();
+    await expect
+      .poll(
+        () =>
+          page.evaluate((id) => {
+            const map = (window as any).auditMap;
+            return map
+              .queryRenderedFeatures({ layers: ['jejak-cameras-selected'] })
+              .some((f: any) => f.properties.id === id);
+          }, camera.id),
+        { message: camera.provider },
+      )
+      .toBe(true);
+  }
+});
+
 test('camera dots have no clusters or icons, select and survive filters/style changes', async ({
   page,
 }) => {

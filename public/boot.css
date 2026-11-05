@@ -1,0 +1,23 @@
+#jejak-boot{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:#001008;color:#eef8ed;font-family:Arial,sans-serif;transition:opacity .4s ease;isolation:isolate}
+#jejak-boot::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at center,transparent 20%,#000b 100%),linear-gradient(#38b9520a 1px,transparent 1px),linear-gradient(90deg,#38b9520a 1px,transparent 1px);background-size:auto,80px 80px,80px 80px}
+#jejak-boot.boot-complete{opacity:0;pointer-events:none}
+.boot-content{text-align:center;width:min(540px,80vw);padding:20px 0}
+ .boot-radar{width:min(370px,48vh,72vw);aspect-ratio:1;margin:0 auto 24px}
+.boot-radar svg{display:block;width:100%;height:100%;overflow:visible}
+.boot-sweep{transform-origin:200px 200px;animation:boot-scan 4s linear infinite}
+.boot-dot{filter:drop-shadow(0 0 5px #6aff38);animation:boot-pulse 3s ease-in-out infinite}
+.boot-dot:nth-child(2){animation-delay:1s}.boot-dot:nth-child(3){animation-delay:2s}
+.boot-brand{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 12px}
+.boot-brand img{display:block;width:clamp(40px,6vw,60px);height:clamp(40px,6vw,60px);object-fit:contain}
+#jejak-boot h1{font-family:Arial,sans-serif;font-size:clamp(32px,5vw,54px);font-weight:900;font-style:italic;letter-spacing:1px;line-height:1;color:#f8fbfa;margin:0;padding:0}
+.boot-subtitle{font-size:clamp(10px,1.3vw,14px);letter-spacing:.2em;color:#bdc9bd;margin:0 0 42px}
+.boot-label{text-align:left;letter-spacing:.3em;font:11px monospace;color:#c4d2c2;margin-bottom:14px}
+.boot-progress{height:8px;border:1px solid #36e838;border-radius:10px;overflow:hidden;background:#001405}
+.boot-progress span{display:block;width:40%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#098d16,#94ff65);box-shadow:0 0 14px #45ff20;animation:boot-progress 2s ease-in-out infinite}
+.boot-status{margin:22px 0 0;font:10px monospace;letter-spacing:.22em;color:#c6d6c4}
+.boot-help{position:absolute;bottom:18px;left:16px;right:16px;text-align:center;font-size:12px;color:#b7c9b4}.boot-help a{color:#99ed72}
+@keyframes boot-scan{to{transform:rotate(360deg)}}
+@keyframes boot-pulse{50%{opacity:.35}}
+@keyframes boot-progress{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+@media(prefers-reduced-motion:reduce){.boot-sweep,.boot-dot,.boot-progress span{animation:none}#jejak-boot{transition:none}}
+@media(max-height:560px){.boot-radar{width:150px;margin-bottom:16px}.boot-subtitle{margin-bottom:20px}#jejak-boot h1{font-size:28px}.boot-status{margin-top:12px}}

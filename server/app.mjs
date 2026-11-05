@@ -1,4 +1,5 @@
 import express from 'express';
+import { rateLimit, concurrencyLimit, securityHeaders } from './request-protection.mjs';
 import { createCameraSources } from './camera-sources.mjs';
 import { publicMapCatalog } from './public-map-catalog.mjs';
 import { createAuth } from './auth/service.mjs';
@@ -14,6 +15,21 @@ import { createApp as createOfflineApp } from '../services/offline-maps/server.m
 export async function createApp({ directory = '.runtime', serveDist = false } = {}) {
   const app = express();
   app.disable('x-powered-by');
+  // Only explicitly configured proxy addresses may supply forwarded client IPs.
+  if (process.env.JEJAK_TRUST_PROXY)
+    app.set(
+      'trust proxy',
+      process.env.JEJAK_TRUST_PROXY.split(',')
+        .map((v) => v.trim())
+        .filter(Boolean),
+    );
+  app.use(securityHeaders);
+  const mediaLimit = rateLimit({ limit: 1800 });
+  const apiLimit = rateLimit({ limit: 300 });
+  app.use('/api', (req, res, next) =>
+    (req.path.startsWith('/osint/camera-media/') ? mediaLimit : apiLimit)(req, res, next),
+  );
+  app.use('/api', concurrencyLimit(128));
   app.use((req, res, next) => {
     let foreignOrigin = false;
     try {
@@ -105,12 +121,20 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
   app.use(offline);
   app.use('/api', (_req, res) => res.status(404).json({ error: 'API route not found.' }));
   if (serveDist) {
+    app.use(
+      '/assets',
+      express.static(path.resolve('dist/assets'), { immutable: true, maxAge: '1y' }),
+    );
     app.use(express.static(path.resolve('dist')));
     app.get(['/', '/workspaces/osint'], (_req, res) =>
       res.sendFile(path.resolve('dist/index.html')),
     );
   }
   app.use((error, _req, res, _next) => {
+    if (error.type === 'entity.parse.failed')
+      return res.status(400).json({ error: 'Invalid JSON request body.' });
+    if (error.type === 'entity.too.large')
+      return res.status(413).json({ error: 'Request body is too large.' });
     res
       .status(error.status || 500)
       .json({ error: error.status ? error.message : 'Unable to process request.' });

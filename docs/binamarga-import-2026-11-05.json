@@ -1,0 +1,66 @@
+{
+  "candidateCount": 1427,
+  "imported": 1413,
+  "duplicateFeeds": [
+    {
+      "candidateId": "candidate-binamarga-6-tol-dalam-kota-kelapa-gading-pulo-gebang-2",
+      "existingId": "public-camera-mudik-bujt-868"
+    },
+    {
+      "candidateId": "candidate-binamarga-6-tol-dalam-kota-kelapa-gading-pulo-gebang-4",
+      "existingId": "public-camera-mudik-bujt-859"
+    },
+    {
+      "candidateId": "candidate-binamarga-6-tol-dalam-kota-kelapa-gading-pulo-gebang-8",
+      "existingId": "public-camera-binamarga-6-tol-dalam-kota-kelapa-gading-pulo-gebang-3"
+    },
+    {
+      "candidateId": "candidate-binamarga-bakaheuni-terbanggi-besar-8",
+      "existingId": "public-camera-binamarga-bakaheuni-terbanggi-besar-3"
+    },
+    {
+      "candidateId": "candidate-binamarga-cimanggis-cibitung-5",
+      "existingId": "public-camera-binamarga-cimanggis-cibitung-4"
+    },
+    {
+      "candidateId": "candidate-binamarga-cimanggis-cibitung-10",
+      "existingId": "public-camera-binamarga-cimanggis-cibitung-9"
+    },
+    {
+      "candidateId": "candidate-binamarga-cimanggis-cibitung-13",
+      "existingId": "public-camera-binamarga-cimanggis-cibitung-1"
+    },
+    {
+      "candidateId": "candidate-binamarga-cimanggis-cibitung-23",
+      "existingId": "public-camera-binamarga-cimanggis-cibitung-22"
+    },
+    {
+      "candidateId": "candidate-binamarga-pondok-aren-serpong-10",
+      "existingId": "public-camera-binamarga-pondok-aren-serpong-8"
+    },
+    {
+      "candidateId": "candidate-binamarga-serpong-balaraja-seksi-1-2",
+      "existingId": "public-camera-mudik-bujt-2483"
+    },
+    {
+      "candidateId": "candidate-binamarga-serpong-balaraja-seksi-1-3",
+      "existingId": "public-camera-mudik-bujt-2471"
+    },
+    {
+      "candidateId": "candidate-binamarga-serpong-balaraja-seksi-1-6",
+      "existingId": "public-camera-mudik-bujt-2474"
+    },
+    {
+      "candidateId": "candidate-binamarga-serpong-balaraja-seksi-1-52",
+      "existingId": "public-camera-mudik-bujt-2467"
+    },
+    {
+      "candidateId": "candidate-binamarga-ujung-pandang-seksi-1-3-21",
+      "existingId": "public-camera-binamarga-ujung-pandang-seksi-1-3-12"
+    }
+  ],
+  "hls": 1154,
+  "snapshots": 13,
+  "linkOnly": 246,
+  "coordinateNote": "All 1413 cameras have display coordinates: 495 chainage estimates, 885 road references, 5 locality references, 8 junction references, 20 source-linked locations. Camera pole positions remain unverified; see binamarga-coordinate-method.md."
+}

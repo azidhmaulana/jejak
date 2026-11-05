@@ -10,6 +10,8 @@ import {
 } from 'node:crypto';
 import { promisify } from 'node:util';
 import express from 'express';
+import { jsonObjectBody, validText, optionalBoolean, optionalRole } from '../validation.mjs';
+import { rateLimit, concurrencyLimit } from '../request-protection.mjs';
 
 const scrypt = promisify(scryptCallback);
 export const permissions = [
@@ -101,21 +103,19 @@ export function createAuth(directory) {
           .status(req.user ? 403 : 401)
           .json({ error: req.user ? 'Permission denied.' : 'Please sign in.' });
   const router = express.Router();
+  const mutationLimit = concurrencyLimit(4);
+  router.use((req, res, next) =>
+    ['GET', 'HEAD'].includes(req.method) ? next() : mutationLimit(req, res, next),
+  );
   router.use(express.json({ limit: '32kb' }));
+  router.use((req, res, next) =>
+    req.path === '/logout' ? next() : jsonObjectBody(req, res, next),
+  );
   router.use((_req, res, next) => {
     res.set('Cache-Control', 'no-store');
     next();
   });
-  const attempts = new Map();
-  router.use(['/login', '/setup', '/register'], (req, res, next) => {
-    const now = Date.now();
-    for (const [key, entry] of attempts) if (entry.until < now) attempts.delete(key);
-    const entry = attempts.get(req.ip) || { count: 0, until: now + 900000 };
-    attempts.set(req.ip, entry);
-    if (++entry.count > 15)
-      return res.status(429).json({ error: 'Too many attempts. Try again in 15 minutes.' });
-    next();
-  });
+  router.use(['/login', '/setup', '/register'], rateLimit({ limit: 15, windowMs: 900000 }));
   const count = () => db.prepare('SELECT COUNT(*) AS n FROM users').get().n;
   router.get('/session', (req, res) => res.json({ user: req.user, setupRequired: count() === 0 }));
   function startSession(req, res, user) {
@@ -140,8 +140,12 @@ export function createAuth(directory) {
   }
   async function createUser(body, role) {
     const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
-    const name = typeof body.name === 'string' ? body.name.trim().slice(0, 80) : '';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || !name)
+    const name = typeof body.name === 'string' ? body.name.trim() : '';
+    if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      !validText(email, 254) ||
+      !validText(body.name, 80)
+    )
       throw fail('Enter a valid name and email.');
     if (!db.prepare('SELECT id FROM roles WHERE id=?').get(role)) throw fail('Invalid role.');
     const password = await hash(body.password);
@@ -176,10 +180,11 @@ export function createAuth(directory) {
     startSession(req, res, user);
   });
   router.post('/login', async (req, res) => {
+    optionalBoolean(req.body, 'remember');
     if (
       typeof req.body.email !== 'string' ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email.trim()) ||
-      req.body.email.length > 254
+      !validText(req.body.email, 254)
     )
       throw fail('Enter a valid name and email.');
     if (
@@ -217,7 +222,7 @@ export function createAuth(directory) {
       favorites.length > 1000 ||
       !Array.isArray(recent) ||
       recent.length > 30 ||
-      [...favorites, ...recent].some((id) => typeof id !== 'string' || id.length > 200)
+      [...favorites, ...recent].some((id) => !validText(id, 200) || id !== id.trim())
     )
       throw fail('Invalid camera preferences.');
     db.prepare(
@@ -258,7 +263,11 @@ export function createAuth(directory) {
     if (req.params.id === 'superadmin' || !/^[a-z][a-z0-9_-]{1,30}$/.test(req.params.id))
       throw fail('Invalid role name.');
     const list = req.body.permissions;
-    if (!Array.isArray(list) || list.some((p) => !permissions.includes(p)))
+    if (
+      !Array.isArray(list) ||
+      list.length > permissions.length ||
+      list.some((p) => !permissions.includes(p))
+    )
       throw fail('Invalid permissions.');
     const existing = db.prepare('SELECT permissions FROM roles WHERE id=?').get(req.params.id);
     if (
@@ -283,6 +292,7 @@ export function createAuth(directory) {
     }),
   );
   router.post('/users', requirePermission('users.manage'), async (req, res) => {
+    optionalRole(req.body);
     const role = req.body.role || 'viewer';
     if (role === 'superadmin') throw fail('Invalid role.');
     const target = db.prepare('SELECT permissions FROM roles WHERE id=?').get(role);
@@ -298,6 +308,10 @@ export function createAuth(directory) {
     res.status(201).json({ user: publicUser(user) });
   });
   router.patch('/users/:id', requirePermission('users.manage'), async (req, res) => {
+    optionalRole(req.body);
+    optionalBoolean(req.body, 'active');
+    if (req.body.password !== undefined && typeof req.body.password !== 'string')
+      throw fail('Invalid password.');
     const user = db.prepare('SELECT * FROM users WHERE id=?').get(req.params.id);
     if (!user || user.role === 'superadmin') throw fail('User not found.', 404);
     if (user.id === req.user.id) throw fail('This account cannot be changed here.', 403);

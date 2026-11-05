@@ -188,23 +188,33 @@ export default function OsintSurveillanceLayer({
   }, [selectedSource]);
   useEffect(() => {
     const select = (event: Event) => {
-      const id = (event as CustomEvent<{ id: string }>).detail?.id;
-      const source = sources.find((item) => item.id === id && item.kind === 'camera');
+      const { id, zoom } = (event as CustomEvent<{ id: string; zoom?: number }>).detail || {};
+      const source = [...bandungCameras, ...manual].find(
+        (item) => item.id === id && item.kind === 'camera',
+      );
       if (!source) return;
       useSurveillance.setState({
         cameras: true,
         ...(cameraAvailability(source).status === 'offline' ? { showOffline: true } : {}),
       });
       setSelected(source.id);
-      if (hasSourceCoordinates(source))
-        map?.easeTo({
-          center: [source.longitude, source.latitude],
-          zoom: Math.max(map.getZoom(), 15),
-        });
+      if (map && hasSourceCoordinates(source)) {
+        if (zoom !== undefined && Number.isFinite(zoom))
+          map.flyTo({
+            center: [source.longitude, source.latitude],
+            zoom: Math.max(0, Math.min(22, zoom)),
+            duration: 1200,
+          });
+        else
+          map.easeTo({
+            center: [source.longitude, source.latitude],
+            zoom: Math.max(map.getZoom(), 15),
+          });
+      }
     };
     window.addEventListener('osint-select-camera', select);
     return () => window.removeEventListener('osint-select-camera', select);
-  }, [map, sources]);
+  }, [map, bandungCameras, manual]);
 
   useEffect(() => {
     if (!map) return;

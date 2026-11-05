@@ -6,6 +6,7 @@ export const cameraCatalogs = [
   'garutCameras.json',
   'jabarCameras.json',
   'mudikCameras.json',
+  'binamargaCameras.json',
   'regionalCameras.json',
 ].map((file) =>
   JSON.parse(

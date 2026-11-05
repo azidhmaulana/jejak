@@ -12,7 +12,10 @@ const port = Number(process.env.PORT || 4174);
 const server = app.listen(port, host, () =>
   console.log(`JEJAK ${production ? 'app' : 'API'}: http://${host}:${server.address().port}`),
 );
-server.requestTimeout = 60 * 60 * 1000;
+server.requestTimeout = 120000;
+server.headersTimeout = 15000;
+server.keepAliveTimeout = 5000;
+server.maxRequestsPerSocket = 1000;
 async function shutdown() {
   await app.locals.close();
   server.close(() => process.exit(0));

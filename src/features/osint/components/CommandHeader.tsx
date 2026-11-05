@@ -1,9 +1,11 @@
+import NavbarCameraSearch from './NavbarCameraSearch';
 import JejakLogo from '../../../shared/components/JejakLogo';
 import AccountMenu from '../../auth/AccountMenu';
 import { useAuth } from '../../auth/authStore';
 import { useRoute } from '../../routes/routeStore';
 import { Route } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
+import { useLanguage } from '../../../shared/i18n/useLanguage';
 import { useState } from 'react';
 import {
   Bell,
@@ -18,9 +20,11 @@ import {
 import { openWorkspacePanel, useWorkspace } from '../workspaceStore';
 
 export default function CommandHeader() {
+  const language = useLanguage();
+  const mapLabel = language === 'en' ? 'Map' : 'Peta';
   const user = useAuth((state) => state.user);
   const routeOpen = useRoute((state) => state.open);
-  const { panel, camerasOpen, query } = useWorkspace();
+  const { panel, camerasOpen } = useWorkspace();
   const [search, setSearch] = useState(false);
   const showCameras = () => useWorkspace.setState({ camerasOpen: !camerasOpen, panel: null });
   return (
@@ -29,15 +33,16 @@ export default function CommandHeader() {
         <div className="navbar-capsule">
           <nav className="tactical-nav tactical-nav-left" aria-label="Primary navigation">
             <button
-              aria-label="Peta"
-              title="Peta"
-              aria-pressed={!panel && !camerasOpen}
+              aria-label={mapLabel}
+              title={mapLabel}
+              translate="no"
+              aria-pressed={true}
               onClick={() =>
                 useWorkspace.setState({ panel: null, camerasOpen: false, selectedId: null })
               }
             >
               <Map />
-              <span>Peta</span>
+              <span>{mapLabel}</span>
             </button>
             <button aria-label="CCTV" title="CCTV" aria-pressed={camerasOpen} onClick={showCameras}>
               <Camera />
@@ -120,7 +125,7 @@ export default function CommandHeader() {
               aria-expanded={search}
               onClick={() => {
                 setSearch(!search);
-                useWorkspace.setState({ camerasOpen: true, panel: null });
+                useWorkspace.setState({ camerasOpen: false, cameraTab: 'all', panel: null });
               }}
             >
               <Search />
@@ -132,18 +137,7 @@ export default function CommandHeader() {
           </div>
         </div>
       </header>
-      {search && (
-        <label className="tactical-search">
-          <Search size={16} />
-          <input
-            autoFocus
-            aria-label="Search camera catalog"
-            placeholder="Cari kamera atau lokasi..."
-            value={query}
-            onChange={(e) => useWorkspace.setState({ query: e.target.value })}
-          />
-        </label>
-      )}
+      {search && <NavbarCameraSearch onClose={() => setSearch(false)} />}
     </>
   );
 }

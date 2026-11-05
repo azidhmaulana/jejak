@@ -15,9 +15,11 @@ import {
 import { useCameraCatalog } from '../hooks/useCameraCatalog';
 import { useWorkspace } from '../workspaceStore';
 import OsintCameraVideo from '../../surveillance/OsintCameraVideo';
+import { useLanguage } from '../../../shared/i18n/useLanguage';
 import { selectCamera } from './CameraDock';
 
 export default function CameraInspector() {
+  const en = useLanguage() === 'en';
   const cameras = useCameraCatalog();
   const { selectedId, selectionAttempt, favorites, toggleFavorite } = useWorkspace();
   const source = cameras.find((camera) => camera.id === selectedId);
@@ -165,6 +167,24 @@ export default function CameraInspector() {
               ))}
             </select>
           </div>
+        )}
+        {(source.coordinateAccuracy === 'approximate' || !hasSourceCoordinates(source)) && (
+          <p className="monitor-location-notice" role="status" data-i18n-skip>
+            <MapPin size={13} aria-hidden="true" />
+            {source.coordinateAccuracy === 'approximate'
+              ? source.coordinateKind === 'road-reference' ||
+                source.coordinateKind === 'locality-reference' ||
+                source.coordinateKind === 'junction-reference'
+                ? en
+                  ? 'Area reference only — not the camera position.'
+                  : 'Titik referensi ruas/wilayah — bukan posisi kamera.'
+                : en
+                  ? 'Estimated position — camera location is not verified.'
+                  : 'Posisi perkiraan — lokasi kamera belum terverifikasi.'
+              : en
+                ? 'No map marker yet: camera coordinates are unavailable.'
+                : 'Belum ada marker peta: koordinat kamera belum tersedia.'}
+          </p>
         )}
         <div className="inspector-video monitor-feed">
           <OsintCameraVideo

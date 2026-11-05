@@ -1,9 +1,11 @@
 import express from 'express';
+import { jsonObjectBody, requireObject, validText } from '../validation.mjs';
 import { publicCameras } from '../camera-catalog.mjs';
 import { randomUUID } from 'node:crypto';
 
 const invalid = (message, status = 400) => Object.assign(new Error(message), { status });
-export function validatePoints({ start, end, tolerance = 50, mode = 'car' }) {
+export function validatePoints(body) {
+  const { start, end, tolerance = 50, mode = 'car' } = requireObject(body);
   for (const point of [start, end])
     if (
       !Array.isArray(point) ||
@@ -64,6 +66,7 @@ export function createRouteRouter(
   const router = express.Router();
   router.use(express.json({ limit: '4mb' }));
   router.use(auth.requirePermission('routes.use'));
+  router.use(jsonObjectBody);
   router.use((_req, res, next) => {
     res.set('Cache-Control', 'no-store');
     next();
@@ -149,7 +152,7 @@ export function createRouteRouter(
   router.post('/', auth.requirePermission('routes.save'), (req, res) => {
     const points = validatePoints(req.body);
     const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
-    if (!name || name.length > 80) throw invalid('Enter a route name (maximum 80 characters).');
+    if (!validText(req.body.name, 80)) throw invalid('Enter a route name (maximum 80 characters).');
     if (
       auth.db.prepare('SELECT COUNT(*) AS n FROM routes WHERE user_id=?').get(req.user.id).n >= 100
     )

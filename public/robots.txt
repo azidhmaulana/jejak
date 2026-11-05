@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /workspaces/
+Disallow: /offline-maps/
+
+Sitemap: https://jejak.kecoalabs.com/sitemap.xml

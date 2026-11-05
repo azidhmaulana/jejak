@@ -39,7 +39,11 @@ export default function WorkspaceStatus() {
       <span className="tactical-sync">
         SYNC <b>{syncStatus.toUpperCase()}</b>
       </span>
-      <span className="tactical-version">V1.0</span>
+      <span className="tactical-version">
+        <a href="/tentang.html" style={{ color: 'inherit' }}>
+          JEJAK V1.0
+        </a>
+      </span>
       <div className="tactical-status-accent" aria-hidden="true">
         <svg viewBox="0 0 300 32" preserveAspectRatio="none">
           <path d="M0 1 H12 Q20 1 26 8 L42 24 Q46 28 55 28 H245 Q254 28 258 24 L274 8 Q280 1 288 1 H300" />

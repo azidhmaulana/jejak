@@ -1,0 +1,13 @@
+{
+  "source": "https://data.pu.go.id/sites/default/files/geojson/ast_bpjt_tol_operasi.geojson",
+  "checkedAt": "2026-11-05",
+  "cameraCount": 1413,
+  "kinds": {
+    "chainage-estimate": 495,
+    "road-reference": 885,
+    "junction-reference": 8,
+    "locality-reference": 5,
+    "source-location": 20
+  },
+  "policy": "Approximate display positions only: chainage interpolation where usable; otherwise shared road/locality reference, never a verified camera pole position. Excluded from precise route matching."
+}

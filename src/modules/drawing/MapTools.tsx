@@ -68,8 +68,8 @@ export type MapSearchResult = {
   id: string;
   title: string;
   detail: string;
-  longitude: number;
-  latitude: number;
+  longitude: number | null;
+  latitude: number | null;
   drawingId?: string | number;
   folderId?: string;
   onSelect?: () => void;
@@ -201,7 +201,7 @@ export default function MapTools({
     if (result.onSelect) result.onSelect();
     else if (result.drawingId !== undefined) state.controller?.focusDrawing(result.drawingId);
     else if (result.folderId) state.controller?.focusFolder(result.folderId);
-    else {
+    else if (result.longitude !== null && result.latitude !== null) {
       state.controller?.mode('render');
       state.controller?.focus(result.longitude, result.latitude);
     }

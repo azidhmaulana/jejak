@@ -25,6 +25,7 @@ export default function RoutePanel() {
     [name, setName] = useState(''),
     [message, setMessage] = useState(''),
     [saving, setSaving] = useState(false);
+  const [inputReset, setInputReset] = useState(0);
   const [expanded, setExpanded] = useState(false);
   useEffect(() => {
     setExpanded(Boolean(s.result));
@@ -99,11 +100,13 @@ export default function RoutePanel() {
             </button>
           </div>
           <PlaceSearch
+            key={`start-${inputReset}`}
             label={tx('A · Titik awal', 'A · Start')}
             point={s.start}
             onChange={(p) => change('start', p)}
           />
           <PlaceSearch
+            key={`end-${inputReset}`}
             label={tx('B · Tujuan', 'B · Destination')}
             point={s.end}
             onChange={(p) => change('end', p)}
@@ -145,7 +148,13 @@ export default function RoutePanel() {
               <MapPin size={13} />
               {tx('Isi A & B', 'Fill A & B')}
             </button>
-            <button className="route-clear" onClick={s.clear}>
+            <button
+              className="route-clear"
+              onClick={() => {
+                s.clear();
+                setInputReset((value) => value + 1);
+              }}
+            >
               {tx('Bersihkan', 'Clear')}
             </button>
           </div>

@@ -421,7 +421,12 @@ test('guest signs in as Viewer, filters CCTV by route and saves a private route'
   await panel.getByLabel('Route name', { exact: true }).fill('My test route');
   await panel.getByRole('button', { name: 'Save route', exact: true }).click();
   await expect(panel.getByRole('button', { name: 'My test route', exact: true })).toBeVisible();
+  await startInput.fill('Unselected start text');
+  await panel.getByRole('combobox', { name: /Destination/ }).fill('Unselected destination text');
   await panel.getByRole('button', { name: 'Clear', exact: true }).click();
+  await expect(startInput).toHaveValue('');
+  await expect(panel.getByRole('combobox', { name: /Destination/ })).toHaveValue('');
+
   await expect(page.locator('.camera-card')).toHaveCount(5);
   await page.getByRole('button', { name: 'Account', exact: true }).click();
   await expect(page.getByRole('button', { name: 'CMS', exact: true })).toHaveCount(0);
@@ -485,8 +490,8 @@ test('account dropdown opens separate profile and CMS tables for administrators'
   await expect(cms).not.toContainText('superadmin');
   expect((await cms.boundingBox())!.width).toBe(940);
   await cms.getByRole('button', { name: 'CCTV Source', exact: true }).click();
-  await expect(cms.locator('.cms-source-summary')).toContainText('841');
-  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(18);
+  await expect(cms.locator('.cms-source-summary')).toContainText('2254');
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(99);
   const filterBoxes = await cms
     .locator('.cms-source-field > .cms-search, .cms-source-field > select')
     .evaluateAll((elements) =>
@@ -600,4 +605,78 @@ test('public registration creates a Viewer account', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'CCTV route', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Account', exact: true }).click();
   await expect(page.getByRole('button', { name: 'CMS', exact: true })).toHaveCount(0);
+});
+
+test('keyboard camera search stays valid when available sources change', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.getByRole('button', { name: 'Search cameras', exact: true }).click();
+  const input = page.getByLabel('Search camera catalog', { exact: true });
+  await input.fill('Audit Camera');
+  for (let i = 0; i < 5; i++) await input.press('ArrowDown');
+  await page.evaluate(async () => {
+    const { useSurveillance } = await import(
+      '/src/features/surveillance/osintSurveillanceStore.ts' as string
+    );
+    useSurveillance.setState({ sources: useSurveillance.getState().sources.slice(0, 1) });
+  });
+  await expect(page.locator('#navbar-camera-results [role=option]')).toHaveCount(1);
+  await input.press('Enter');
+  await expect(page.locator('.camera-inspector h2')).toHaveText('Audit Camera 1');
+  expect(errors).toEqual([]);
+});
+
+test('toll camera catalog search opens streams and flies to mapped results', async ({ page }) => {
+  await page.evaluate(async () => {
+    const { useSurveillance } = await import(
+      '/src/features/surveillance/osintSurveillanceStore.ts' as string
+    );
+    const { useWorkspace } = await import('/src/features/osint/workspaceStore.ts' as string);
+    useSurveillance.setState({ bandung: false });
+    useWorkspace.setState({ cameraTab: 'nearby' });
+  });
+  await page.getByRole('button', { name: 'Search cameras', exact: true }).click();
+  await page.getByLabel('Search camera catalog', { exact: true }).fill('BINA MARGA');
+  await expect(page.locator('#navbar-camera-results [role=option]').first()).toBeVisible();
+  await page.getByRole('button', { name: /Show more/ }).click();
+  await expect(page.locator('#navbar-camera-results [role=option]')).toHaveCount(40);
+  await expect(page.locator('.camera-card')).toHaveCount(0);
+  await expect
+    .poll(() =>
+      page.evaluate(async () => {
+        const { useWorkspace } = await import('/src/features/osint/workspaceStore.ts' as string);
+        return useWorkspace.getState().cameraTab;
+      }),
+    )
+    .toBe('all');
+  await page.locator('#navbar-camera-results [role=option]').first().click();
+  await expect(page.locator('.navbar-camera-search')).toHaveCount(0);
+  await expect(page.locator('.camera-inspector')).toBeVisible();
+  await expect(page.locator('.camera-card')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Search cameras', exact: true }).click();
+  await page.getByLabel('Search camera catalog', { exact: true }).fill('Audit Camera 1');
+  await page.locator('#navbar-camera-results [role=option]').first().click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const element = document.querySelector('.maplibregl-map') as any;
+        let fiber = element?.[Object.keys(element).find((key) => key.startsWith('__reactFiber'))!];
+        while (fiber) {
+          let hook = fiber.memoizedState;
+          while (hook) {
+            const map = hook.memoizedState?.current;
+            if (map?.getZoom && map?.getCenter)
+              return (
+                Math.abs(map.getZoom() - 14) < 0.01 &&
+                Math.abs(map.getCenter().lng - 107.6191) < 0.001
+              );
+            hook = hook.next;
+          }
+          fiber = fiber.return;
+        }
+        return false;
+      }),
+    )
+    .toBe(true);
 });

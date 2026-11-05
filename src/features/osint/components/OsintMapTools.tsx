@@ -1,5 +1,4 @@
 import { selectCamera } from './CameraDock';
-import { hasSourceCoordinates } from '../../surveillance/osintSurveillanceStore';
 import MapTools, { type MapSearchResult } from '../../../modules/drawing/MapTools';
 import { useActiveBundledCameras } from '../../surveillance/cameraSourceState';
 import { cameraAvailability, useSurveillance } from '../../surveillance/osintSurveillanceStore';
@@ -11,7 +10,6 @@ export default function OsintMapTools() {
     ...(surveillance.bandung ? bandungCameras : []),
     ...surveillance.sources,
   ]
-    .filter(hasSourceCoordinates)
     .filter((source) => source.kind === 'camera')
     .map((source) => ({
       id: `camera-${source.id}`,

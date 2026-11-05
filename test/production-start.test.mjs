@@ -43,6 +43,14 @@ test(
         });
       });
       assert.equal((await fetch(base + '/api/health')).status, 200);
+      const home = await fetch(base + '/');
+      assert.equal(home.headers.get('x-frame-options'), 'DENY');
+      assert.match(await home.text(), /https:\/\/jejak\.kecoalabs\.com\//);
+      const sitemap = await fetch(base + '/sitemap.xml');
+      assert.equal(sitemap.status, 200);
+      assert.match(await sitemap.text(), /tentang\.html/);
+      assert.match(await (await fetch(base + '/robots.txt')).text(), /Disallow: \/api\//);
+      assert.equal((await fetch(base + '/tentang.html')).status, 200);
       for (const file of ['/.runtime/setup-token.txt', '/server/auth/service.mjs', '/.env'])
         assert.equal((await fetch(base + file)).status, 404);
       const token = (await readFile(path.join(directory, 'setup-token.txt'), 'utf8')).trim();
@@ -61,6 +69,18 @@ test(
       assert.match(cookie, /; Secure/i);
       assert.match(cookie, /; HttpOnly/i);
       assert.match(cookie, /; SameSite=Strict/i);
+      // Forging forwarded IPs cannot bypass the default (untrusted proxy) limiter.
+      const statuses = [];
+      for (let i = 0; i < 310; i++) {
+        const result = await fetch(base + '/api/health', {
+          headers: { 'X-Forwarded-For': `192.0.2.${i % 250}` },
+        });
+        statuses.push(result.status);
+        await result.text();
+        if (result.status === 429) assert.ok(Number(result.headers.get('retry-after')) > 0);
+      }
+      assert.ok(statuses.includes(200));
+      assert.ok(statuses.includes(429));
     } finally {
       if (child.exitCode === null) {
         const exited = once(child, 'exit');
