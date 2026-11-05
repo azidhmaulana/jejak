@@ -63,47 +63,49 @@ export default function NavbarCameraSearch({ onClose }: { onClose: () => void })
   return (
     <div ref={root} className="tactical-search navbar-camera-search" data-i18n-skip>
       <div className="navbar-camera-search-field">
-        <Search size={16} />
-        <input
-          autoFocus
-          aria-label="Search camera catalog"
-          role="combobox"
-          autoComplete="off"
-          aria-expanded={results.length > 0}
-          aria-controls="navbar-camera-results"
-          aria-autocomplete="list"
-          aria-activedescendant={
-            activeIndex >= 0 ? `navbar-camera-result-${activeIndex}` : undefined
-          }
-          placeholder={
-            en ? 'Search cameras, toll roads, places...' : 'Cari kamera, ruas tol, lokasi...'
-          }
-          value={query}
-          onChange={(event) => useWorkspace.setState({ query: event.target.value })}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              event.stopPropagation();
-              onClose();
+        <div className="navbar-camera-search-control">
+          <Search size={16} />
+          <input
+            autoFocus
+            aria-label="Search camera catalog"
+            role="combobox"
+            autoComplete="off"
+            aria-expanded={results.length > 0}
+            aria-controls="navbar-camera-results"
+            aria-autocomplete="list"
+            aria-activedescendant={
+              activeIndex >= 0 ? `navbar-camera-result-${activeIndex}` : undefined
             }
-            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-              event.preventDefault();
-              const step = event.key === 'ArrowDown' ? 1 : -1;
-              setActive(
-                results.length
-                  ? activeIndex < 0
-                    ? step === 1
-                      ? 0
-                      : results.length - 1
-                    : (activeIndex + step + results.length) % results.length
-                  : -1,
-              );
+            placeholder={
+              en ? 'Search cameras, toll roads, places...' : 'Cari kamera, ruas tol, lokasi...'
             }
-            if (event.key === 'Enter' && results.length) {
-              event.preventDefault();
-              choose(results[Math.max(0, activeIndex)]);
-            }
-          }}
-        />
+            value={query}
+            onChange={(event) => useWorkspace.setState({ query: event.target.value })}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                event.stopPropagation();
+                onClose();
+              }
+              if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                const step = event.key === 'ArrowDown' ? 1 : -1;
+                setActive(
+                  results.length
+                    ? activeIndex < 0
+                      ? step === 1
+                        ? 0
+                        : results.length - 1
+                      : (activeIndex + step + results.length) % results.length
+                    : -1,
+                );
+              }
+              if (event.key === 'Enter' && results.length) {
+                event.preventDefault();
+                choose(results[Math.max(0, activeIndex)]);
+              }
+            }}
+          />
+        </div>
         <button
           aria-label={en ? 'Close camera search' : 'Tutup pencarian kamera'}
           onClick={onClose}

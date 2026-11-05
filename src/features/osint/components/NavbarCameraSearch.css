@@ -1,8 +1,15 @@
-.command-workspace .navbar-camera-search {
+.command-workspace .tactical-search.navbar-camera-search {
   display: grid;
-  width: min(360px, calc(100vw - 32px));
+  width: min(420px, calc(100vw - 16px));
   box-sizing: border-box;
-  right: 16px;
+  top: 56px;
+  right: 8px;
+  left: auto;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid #46b876;
+  border-radius: 12px;
+  background: rgb(4 23 15 / 96%);
   gap: 9px;
   z-index: 50;
 }
@@ -14,8 +21,47 @@
 .navbar-camera-search-field input {
   width: 100%;
 }
+.navbar-camera-search-control {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  min-height: 38px;
+  border: 1px solid #365b47;
+  border-radius: 7px;
+  background: #0b2118;
+}
+.navbar-camera-search-control > svg {
+  box-sizing: content-box;
+  flex-shrink: 0;
+  margin-left: 10px;
+  padding-right: 10px;
+  border-right: 1px solid #365b47;
+  color: #e2eee7;
+}
+.command-workspace .navbar-camera-search-control input,
+.command-workspace .navbar-camera-search-control input:focus,
+.command-workspace .navbar-camera-search-control input:focus-visible {
+  padding: 8px 10px;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+}
+.navbar-camera-search-control:focus-within {
+  border-color: #365b47;
+}
 .navbar-camera-search-field > button {
   padding: 4px;
+  color: #fb616a;
+  border: 0;
+  background: transparent;
+  flex-shrink: 0;
+  width: 28px;
+  height: 32px;
+}
+.navbar-camera-search-field > button svg {
+  width: 20px;
+  height: 20px;
 }
 .navbar-camera-search > small {
   color: #9bb6a4;
