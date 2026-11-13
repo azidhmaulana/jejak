@@ -7,6 +7,7 @@ import {
 } from 'maplibre-gl';
 import { cameraAvailability, type SurveillanceSource } from './osintSurveillanceStore';
 import { getLanguage } from '../../shared/i18n/runtime.js';
+import { dismissMarkerPopup } from '../../shared/dismissMarkerPopup';
 
 const SOURCE = 'jejak-cameras';
 const POINTS = `${SOURCE}-points`;
@@ -26,6 +27,7 @@ export function createCameraMapLayer(
     offset: 10,
     className: 'camera-map-tooltip',
   });
+  const removeDismiss = dismissMarkerPopup(() => popup.isOpen() ? popup.getElement() : null, () => popup.remove());
   const data = (): GeoJSON.FeatureCollection<GeoJSON.Point> => ({
     type: 'FeatureCollection',
     features: cameras()
@@ -147,6 +149,7 @@ export function createCameraMapLayer(
     select,
     destroy: () => {
       disposed = true;
+      removeDismiss();
       leave();
       map.off('styledata', keepAboveRoads);
       map.off('style.load', install);

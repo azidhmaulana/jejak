@@ -1,39 +1,30 @@
 import { useLanguage } from '../../../shared/i18n/useLanguage';
-import { useAuth } from '../../auth/authStore';
 import SurveillanceSettingsPopover from './SurveillanceSettingsPopover';
-import { CloudSun, SlidersHorizontal, PencilRuler, MapPin, Satellite } from 'lucide-react';
-import { openWorkspacePanel, useWorkspace } from '../workspaceStore';
-import { useMapTools } from '../../../modules/drawing/mapToolsStore';
+import { Activity, CloudSun, SlidersHorizontal, MapPin, Satellite } from 'lucide-react';
+import { hoverWorkspacePanel, openWorkspacePanel, useWorkspace } from '../workspaceStore';
 export default function TacticalRail() {
   const english = useLanguage() === 'en';
-  const editable = useAuth((state) => Boolean(state.user?.permissions.includes('objects.write')));
   const { panel, camerasOpen, cameraTab, mapSettingsOpen } = useWorkspace();
-  const { controller, bms } = useMapTools();
   return (
     <nav className="tactical-rail" aria-label="Workspace tools">
       <SurveillanceSettingsPopover />
+      <button data-earthquake-trigger aria-label={english ? 'Earthquakes' : 'Gempa bumi'} aria-pressed={panel === 'earthquakes'} aria-expanded={panel === 'earthquakes'}
+        onPointerEnter={event => { if (event.pointerType !== 'touch') hoverWorkspacePanel('earthquakes'); }}
+        onClick={() => openWorkspacePanel('earthquakes')}>
+        <Activity /><span className="rail-tooltip" role="tooltip">{english ? 'Earthquakes' : 'Gempa bumi'}</span>
+      </button>
       <button
         data-space-trigger
         aria-label={english ? 'Space' : 'Antariksa'}
         aria-pressed={panel === 'space'}
         aria-expanded={panel === 'space'}
         aria-controls="space-stream-panel"
+        onPointerEnter={event => { if (event.pointerType !== 'touch') hoverWorkspacePanel('space'); }}
         onClick={() => openWorkspacePanel('space')}
       >
         <Satellite />
         <span className="rail-tooltip" role="tooltip">
           {english ? 'Live from space' : 'Siaran antariksa'}
-        </span>
-      </button>
-      <button
-        aria-label="Drawing workspace"
-        aria-pressed={bms}
-        disabled={!controller || !editable}
-        onClick={() => { controller?.mode(bms ? 'render' : 'select'); useWorkspace.setState({ panel: bms ? null : 'objects' }); }}
-      >
-        <PencilRuler />
-        <span className="rail-tooltip" role="tooltip">
-          {english ? 'Drawing workspace' : 'Ruang kerja gambar'}
         </span>
       </button>
       <button
@@ -51,6 +42,7 @@ export default function TacticalRail() {
       <button
         aria-label="Weather"
         aria-pressed={panel === 'weather'}
+        onPointerEnter={event => { if (event.pointerType !== 'touch') hoverWorkspacePanel('weather'); }}
         onClick={() => openWorkspacePanel('weather')}
       >
         <CloudSun />
@@ -60,8 +52,9 @@ export default function TacticalRail() {
       </button>
       <button
         aria-label="Map provider settings"
+        onPointerEnter={event => { if (event.pointerType !== 'touch' && panel) useWorkspace.setState({ panel: null, mapSettingsOpen: true }); }}
         aria-pressed={mapSettingsOpen}
-        onClick={() => useWorkspace.setState((s) => ({ mapSettingsOpen: !s.mapSettingsOpen }))}
+        onClick={() => useWorkspace.setState((s) => ({ mapSettingsOpen: !s.mapSettingsOpen, panel: null }))}
       >
         <SlidersHorizontal />
         <span className="rail-tooltip" role="tooltip">

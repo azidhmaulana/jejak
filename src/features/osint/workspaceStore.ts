@@ -2,6 +2,8 @@ import { useAuth } from '../auth/authStore';
 import { create } from 'zustand';
 
 export type WorkspacePanel =
+  | 'surveillance'
+  | 'earthquakes'
   | 'layers'
   | 'objects'
   | 'weather'
@@ -76,9 +78,15 @@ export const useWorkspace = create<{
 }));
 export function openWorkspacePanel(panel: WorkspacePanel) {
   if (['objects', 'regions', 'alerts', 'analytics'].includes(panel || '') && !useAuth.getState().user) return;
-  useWorkspace.setState((state) => ({ panel: state.panel === panel ? null : panel }));
+  useWorkspace.setState((state) => ({ panel: state.panel === panel ? null : panel, mapSettingsOpen: false }));
 }
 useAuth.subscribe((state) => {
   if (!state.user && ['objects', 'regions', 'alerts', 'analytics'].includes(useWorkspace.getState().panel || ''))
     useWorkspace.setState({ panel: null });
 });
+
+export function hoverWorkspacePanel(panel: WorkspacePanel) {
+  const state = useWorkspace.getState();
+  if ((!state.panel && !state.mapSettingsOpen) || state.panel === panel) return;
+  openWorkspacePanel(panel);
+}

@@ -1,4 +1,5 @@
 import express from 'express';
+import { createEarthquakes } from './earthquakes.mjs';
 import { createAnalytics } from './analytics.mjs';
 import { rateLimit, concurrencyLimit, securityHeaders } from './request-protection.mjs';
 import { createCameraSources } from './camera-sources.mjs';
@@ -56,6 +57,8 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
   const cameraSources = createCameraSources(auth.db);
   const cameraChecks = await createCameraChecks(auth.db);
   app.use(auth.middleware);
+  const earthquakes = createEarthquakes();
+  app.use('/api/earthquakes', earthquakes.router);
   app.use('/api/analytics', createAnalytics(auth, cameraSources.predicate));
   app.get('/api/cctv-source-state', async (_req, res) =>
     res.set('Cache-Control', 'no-store').json({ active: await cameraSources.state() }),
@@ -168,6 +171,7 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
       .json({ error: error.status ? error.message : 'Unable to process request.' });
   });
   app.locals.close = async () => {
+    await earthquakes.close();
     await cameraChecks.close();
     await auth.close();
     await manager.close();

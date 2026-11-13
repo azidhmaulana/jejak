@@ -1,0 +1,7 @@
+.quick-measure, .map-location-error { position: absolute; right: 45px; top: 0; width: min(270px, calc(100vw - 100px)); padding: 12px; background: #07130ef5; border: 1px solid #36593c; border-radius: 5px; color: #e3eee5; font-size: 11px; box-shadow: 0 8px 24px #0005; }
+.quick-measure p { line-height: 1.5; color: #a8b9ae; }
+.quick-measure output { color: #a5ef75; }
+.quick-measure > div { display: flex; gap: 6px; margin-top: 10px; }
+.command-workspace .quick-measure button, .map-location-error button { width: auto; height: auto; padding: 6px; background: #10251c; border: 1px solid #36593c; color: #e3eee5; border-radius: 3px; cursor: pointer; }
+.quick-measure button:disabled { opacity: .45; }
+.map-hud button[aria-pressed="true"] { color: #a5ef75; background: #17351c; }

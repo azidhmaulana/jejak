@@ -1,8 +1,9 @@
-import { Settings } from 'lucide-react';
+import { Settings, X, Cctv } from 'lucide-react';
+import './SurveillanceSettings.css';
 import { useCameraCatalog } from '../hooks/useCameraCatalog';
 import { cameraAvailability, useSurveillance } from '../../surveillance/osintSurveillanceStore';
 
-export default function SurveillanceSettings() {
+export default function SurveillanceSettings({ onClose }: { onClose?: () => void }) {
   const state = useSurveillance();
   const cameras = useCameraCatalog();
   const offline = cameras.filter(
@@ -32,18 +33,19 @@ export default function SurveillanceSettings() {
     );
   }
   return (
-    <section className="surveillance-settings" aria-label="Surveillance settings">
-      <header>
+    <section className="surveillance-settings public-analytics" aria-label="Surveillance settings">
+      <header className="public-analytics-heading">
+        <Cctv size={18} />
         <div>
-          <h2>CAMERA SURVEILLANCE</h2>
+          <h2>Camera surveillance</h2>
         </div>
         <span className="surveillance-active" data-active={state.cameras || state.news}>
           <i />
           {state.cameras || state.news ? 'ACTIVE' : 'INACTIVE'}
         </span>
-        <Settings size={12} />
+        {onClose ? <button type="button" className="surveillance-close analytics-close" aria-label="Close camera surveillance" onClick={onClose}><X size={12} /></button> : <Settings size={12} />}
       </header>
-      <div className="surveillance-settings-body">
+      <div className="surveillance-settings-body public-analytics-body">
         {row('cameras', 'CCTV CAMERAS', cameras.length)}
         <div className="surveillance-children">
           {row('previews', 'LIVE PREVIEWS')}

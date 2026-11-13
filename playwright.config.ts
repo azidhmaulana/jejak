@@ -15,6 +15,7 @@ export default defineConfig({
     reuseExistingServer: false,
     env: {
       NODE_ENV: 'test',
+      JEJAK_REDIS_URL: '',
       JEJAK_TRUST_PROXY: '127.0.0.1,::1',
       JEJAK_DATA_DIR: '.runtime/browser-tests',
       PORT: '4176',

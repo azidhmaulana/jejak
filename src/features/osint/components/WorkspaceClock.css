@@ -1,0 +1,17 @@
+.workspace-clock { display: flex; align-items: center; gap: 6px; min-width: max-content; }
+.clock-part { position: relative; display: flex; align-items: center; gap: 6px; }
+.workspace-clock .clock-part > button { border: 0; background: transparent; color: #e3eee5; padding: 4px 0; font: inherit; cursor: pointer; white-space: nowrap; }
+.workspace-clock .clock-part:first-child > button { color: #81ed59; font-weight: 700; }
+.clock-part > i { font-style: normal; color: #80a48a; }
+.workspace-clock .clock-dropdown { position: absolute; bottom: calc(100% + 12px); left: 0; width: max-content; min-width: 170px; max-width: min(300px, 85vw); max-height: min(300px, 60vh); overflow-y: auto; padding: 8px; background: #07130ff5; border: 1px solid #36593c; border-radius: 5px; box-shadow: 0 8px 24px #0008; opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity 160ms ease, transform 160ms ease, visibility 160ms; z-index: 50; }
+.workspace-clock .clock-dropdown[data-open="true"] { opacity: 1; visibility: visible; transform: translateY(0); }
+.workspace-clock .clock-part:last-child .clock-dropdown { left: auto; right: 0; }
+.workspace-clock .clock-dropdown strong { display: block; padding: 5px 7px 8px; color: #9cbd9f; }
+.workspace-clock .clock-dropdown button { display: block; width: 100%; padding: 8px; border: 0; border-radius: 3px; color: #e3eee5; background: transparent; font: inherit; text-align: left; cursor: pointer; transition: background 120ms ease; }
+.workspace-clock .clock-dropdown button:hover, .workspace-clock .clock-dropdown button[aria-pressed="true"] { background: #25462c; color: #a4f679; }
+.workspace-clock button:focus-visible { outline: 1px solid #a4f679; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .workspace-clock .clock-dropdown, .workspace-clock .clock-dropdown button { transition: none; } }
+
+.command-workspace footer.workspace-status.tactical-status { padding-left: var(--footer-text-inset, 8px); }
+.workspace-clock .clock-separator { display: block; width: 1px; height: 14px; background: #29452f; margin: 0 4px; }
+.workspace-clock .clock-trailing { color: #a8b9ae; font-style: normal; margin-left: 4px; }

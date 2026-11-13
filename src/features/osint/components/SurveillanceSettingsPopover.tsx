@@ -1,28 +1,17 @@
 import { useLanguage } from '../../../shared/i18n/useLanguage';
-import { useWorkspace } from '../workspaceStore';
-import { useState } from 'react';
-import { Camera } from 'lucide-react';
+import { useWorkspace, hoverWorkspacePanel, openWorkspacePanel } from '../workspaceStore';
+import { Cctv } from 'lucide-react';
 import SurveillanceSettings from './SurveillanceSettings';
 
 export default function SurveillanceSettingsPopover() {
   const english = useLanguage() === 'en';
-  const [open, setOpen] = useState(false);
+  const open = useWorkspace(state => state.panel === 'surveillance');
   return (
     <div
       className="surveillance-popover-anchor"
-      onPointerEnter={(event) => {
-        if (event.pointerType !== 'touch') setOpen(true);
-      }}
-      onPointerLeave={(event) => {
-        if (event.pointerType !== 'touch') setOpen(false);
-      }}
-      onFocus={() => setOpen(true)}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false);
-      }}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {
-          setOpen(false);
+          useWorkspace.setState({ panel: null });
           event.stopPropagation();
         }
       }}
@@ -32,20 +21,17 @@ export default function SurveillanceSettingsPopover() {
         title="Surveillance settings"
         aria-expanded={open}
         aria-controls="surveillance-hover-settings"
-        onClick={() => {
-          setOpen(true);
-          if (matchMedia('(hover: hover)').matches)
-            useWorkspace.setState((state) => ({ camerasOpen: !state.camerasOpen, panel: null }));
-        }}
+        onPointerEnter={event => { if (event.pointerType !== 'touch') hoverWorkspacePanel('surveillance'); }}
+        onClick={() => openWorkspacePanel('surveillance')}
       >
-        <Camera />
+        <Cctv />
         <span className="rail-tooltip" role="tooltip">
           {english ? 'Camera surveillance' : 'Pengawasan kamera'}
         </span>
       </button>
       {open && (
         <div id="surveillance-hover-settings" className="surveillance-popover">
-          <SurveillanceSettings />
+          <SurveillanceSettings onClose={() => useWorkspace.setState({ panel: null })} />
         </div>
       )}
     </div>

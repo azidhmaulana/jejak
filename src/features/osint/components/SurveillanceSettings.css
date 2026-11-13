@@ -1,0 +1,19 @@
+.command-workspace .surveillance-popover { width: min(350px, calc(100vw - 50px)); top: 0; bottom: auto; }
+.command-workspace .surveillance-popover > .surveillance-settings.public-analytics {
+  position: relative; inset: auto; width: 100%; max-height: 60dvh; box-sizing: border-box;
+  border: 1px solid #36593c; border-radius: 5px; background: #06100dee;
+  color: #edf6ee; box-shadow: 0 8px 24px #0005; backdrop-filter: none; overflow: hidden;
+}
+.command-workspace .surveillance-settings.public-analytics > .public-analytics-heading {
+  padding: 9px 12px; gap: 10px; background: #07130e; border-bottom: 1px solid #29412c;
+}
+.command-workspace .surveillance-settings.public-analytics h2 { margin: 0; color: #edf6ee; font-size: 17px; font-weight: 650; letter-spacing: normal; }
+.command-workspace .surveillance-settings.public-analytics .public-analytics-heading > svg { width: 19px; height: 19px; color: #93ef6c; }
+.command-workspace .surveillance-settings.public-analytics .public-analytics-body {
+  padding: 10px; background-color: #041009;
+  background-image: linear-gradient(#65ef6b16 1px, transparent 1px), linear-gradient(90deg, #65ef6b16 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.command-workspace .surveillance-settings.public-analytics .surveillance-setting > span:last-of-type { font-size: 11px; font-weight: 400; letter-spacing: normal; }
+.command-workspace .surveillance-settings.public-analytics .surveillance-setting small { font-size: 10px; color: #a8b9ae; }
+.command-workspace .surveillance-settings.public-analytics .surveillance-close { background: #2b100e; border-color: #63302d; color: #f27373; width: 25px; height: 25px; }

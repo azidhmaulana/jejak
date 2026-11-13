@@ -1,0 +1,12 @@
+.jejak-about { width: min(420px, calc(100vw - 32px)); max-height: 80dvh; padding: 0; border: 1px solid #36593c; border-radius: 5px; color: #edf6ee; background: #07130e; box-shadow: 0 12px 50px #0008; font: 12px/1.6 system-ui; }
+.jejak-about[open] { animation: about-enter 160ms ease-out; }
+.jejak-about::backdrop { background: #0008; backdrop-filter: blur(3px); }
+.jejak-about header { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid #29412c; }
+.jejak-about h2 { flex: 1; margin: 0; font-size: 17px; }
+.jejak-about header button { display: grid; place-items: center; width: 25px; height: 25px; padding: 0; background: #2b100e; border: 1px solid #63302d; border-radius: 3px; color: #f27373; cursor: pointer; }
+.jejak-about-body { padding: 16px; background: linear-gradient(#65ef6b16 1px, transparent 1px), linear-gradient(90deg, #65ef6b16 1px, transparent 1px), #041009; background-size: 24px 24px; }
+.jejak-about-body p { color: #b4c4b8; }
+.jejak-about a { color: #a5ef75; }
+.jejak-about :focus-visible { outline: 2px solid #a5ef75; outline-offset: 3px; }
+@keyframes about-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .jejak-about[open] { animation: none; } }

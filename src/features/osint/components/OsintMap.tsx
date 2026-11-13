@@ -1,3 +1,4 @@
+import EarthquakeLayer from '../../earthquakes/EarthquakeLayer';
 import ProvinceLayer from '../../regions/ProvinceLayer';
 import RouteLayer from '../../routes/RouteLayer';
 import MapCanvas from '../../../modules/maps/MapCanvas';
@@ -25,6 +26,7 @@ export default function OsintMap() {
           />
           <RouteLayer map={map} />
           <ProvinceLayer map={map} />
+          <EarthquakeLayer map={map} />
           <MapHud map={map} />
         </>
       )}

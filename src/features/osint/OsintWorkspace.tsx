@@ -1,3 +1,4 @@
+import { useEarthquakePolling } from '../earthquakes/earthquakeStore';
 import ToastHost from '../../shared/components/Toast';
 import { useCameraCheckNotifications } from '../auth/cameraCheckStore';
 import { useCameraSourceSync } from '../surveillance/cameraSourceState';
@@ -39,6 +40,7 @@ import '../analytics/PublicAnalyticsPanel.css';
 
 export default function OsintWorkspace() {
   useCameraCheckNotifications();
+  useEarthquakePolling();
   useCameraSourceSync();
   const appearance = useAppearance();
   const drawing = useMapTools((state) => state.mode !== 'render');

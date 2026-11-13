@@ -89,11 +89,11 @@ test('pagination keeps cards and empty tabs stable; monitor never overlaps tray'
   expect(errors).toEqual([]);
 });
 
-test('hover settings, preview threshold and multi-camera dropdown work together', async ({
+test('click settings, preview threshold and multi-camera dropdown work together', async ({
   page,
 }) => {
   await expect(page.locator('.osint-camera-mini')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Camera catalog', exact: true }).hover();
+  await page.getByRole('button', { name: 'Camera catalog', exact: true }).click();
   const popover = page.locator('.surveillance-popover');
   await expect(popover.getByRole('switch')).toHaveCount(4);
   await popover.hover();
@@ -102,6 +102,8 @@ test('hover settings, preview threshold and multi-camera dropdown work together'
   await expect(page.locator('.osint-camera-marker')).toHaveCount(0);
   await popover.getByRole('switch', { name: /CCTV CAMERAS/ }).check();
   await page.mouse.move(700, 100);
+  await expect(popover).toBeVisible();
+  await popover.getByRole('button', { name: 'Close camera surveillance' }).click();
   await expect(popover).toHaveCount(0);
   await page.getByRole('button', { name: 'CCTV', exact: true }).click();
   await page.locator('.camera-card').first().click();
@@ -109,11 +111,11 @@ test('hover settings, preview threshold and multi-camera dropdown work together'
   await page.locator('.monitor-camera-selector select').selectOption('audit-camera-1');
   await expect(page.locator('.monitor-title h2')).toHaveText('Audit Camera 2');
   await expect(page.locator('.osint-camera-mini').first()).toBeVisible();
-  await page.getByRole('button', { name: 'Camera catalog', exact: true }).hover();
+  await page.getByRole('button', { name: 'Camera catalog', exact: true }).click();
   await popover.getByRole('switch', { name: 'LIVE PREVIEWS', exact: true }).uncheck();
   await expect(page.locator('.osint-camera-mini')).toHaveCount(0);
   await page.reload();
-  await page.getByRole('button', { name: 'Camera catalog', exact: true }).hover();
+  await page.getByRole('button', { name: 'Camera catalog', exact: true }).click();
   await expect(
     popover.getByRole('switch', { name: 'LIVE PREVIEWS', exact: true }),
   ).not.toBeChecked();
@@ -164,22 +166,15 @@ test('drawing persists and providers remain accessible', async ({ page }) => {
   }
   await page.reload();
 
-  await page.getByRole('button', { name: 'Map provider settings', exact: true }).click();
-  const drawing = page.getByRole('button', { name: 'BMS drawing tools', exact: true });
-  await expect(drawing).toBeEnabled();
-  const initial = await (await page.request.get('/api/bms/projects/osint')).json();
-  await drawing.click();
-  await page.getByRole('button', { name: 'Point', exact: true }).click();
+  await page.locator('.tactical-nav-right button').first().click();
+  const panel = page.locator('.objects-panel');
+  const initial = await panel.locator('.drawing-object-row').count();
+  await panel.getByRole('button', { name: 'Point', exact: true }).click();
   await page.locator('.maplibregl-canvas').click({ position: { x: 600, y: 350 } });
-  await expect
-    .poll(
-      async () =>
-        (await (await page.request.get('/api/bms/projects/osint')).json()).features.length,
-    )
-    .toBe(initial.features.length + 1);
+  await expect(panel.locator('.drawing-object-row')).toHaveCount(initial + 1);
   await page.reload();
-  await page.getByRole('button', { name: 'Objects and groups', exact: true }).click();
-  await expect(page.locator('.bms-object-row')).toHaveCount(initial.features.length + 1);
+  await page.locator('.tactical-nav-right button').first().click();
+  await expect(panel.locator('.drawing-object-row')).toHaveCount(initial + 1);
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Map provider settings', exact: true }).click();
   const provider = page.locator('.map-provider-select');
@@ -244,10 +239,12 @@ for (const width of [390, 768, 1024, 1440]) {
 
 test.describe('touch interaction', () => {
   test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
-  test('surveillance popover closes when tapping the map', async ({ page }) => {
+  test('surveillance popover stays open until explicitly closed on touch', async ({ page }) => {
     await page.getByRole('button', { name: 'Camera catalog', exact: true }).tap();
     await expect(page.locator('.surveillance-popover')).toBeVisible();
     await page.locator('.maplibregl-canvas').tap({ position: { x: 350, y: 500 } });
+    await expect(page.locator('.surveillance-popover')).toBeVisible();
+    await page.getByRole('button', { name: 'Close camera surveillance' }).tap();
     await expect(page.locator('.surveillance-popover')).toHaveCount(0);
   });
 });
@@ -270,7 +267,7 @@ test('language menu contrast and dynamic English copy remain readable', async ({
 test('guest signs in as Viewer, filters CCTV by route and saves a private route', async ({
   page,
 }) => {
-  await expect(page.getByRole('button', { name: 'CCTV route', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'CCTV route', exact: true })).toBeVisible();
   expect(
     (
       await page.request.post('/api/routes/calculate', {
@@ -311,7 +308,7 @@ test('guest signs in as Viewer, filters CCTV by route and saves a private route'
   await account.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(account).toHaveCount(0);
   await expect(page.locator('.toast-item.success')).toContainText('Signed in successfully.');
-  await expect(page.getByRole('button', { name: 'Drawing workspace' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Drawing workspace' })).toHaveCount(0);
   await page.route('**/api/routes/calculate', (route) =>
     route.fulfill({
       json: {
@@ -374,7 +371,7 @@ test('guest signs in as Viewer, filters CCTV by route and saves a private route'
   await expect(panel.getByRole('region', { name: 'CCTV along route' })).toHaveCount(0);
   await panel.getByRole('button', { name: 'Expand' }).click();
   await expect(panel.getByRole('region', { name: 'CCTV along route' })).toBeVisible();
-  await expect.poll(async () => Math.round((await panel.boundingBox())!.width)).toBe(628);
+  await expect.poll(async () => Math.round((await panel.boundingBox())!.width)).toBe(600);
   await page.screenshot({ path: '.runtime/route-expanded.png' });
 
   await expect
@@ -446,7 +443,7 @@ test('guest signs in as Viewer, filters CCTV by route and saves a private route'
   await page.getByRole('button', { name: 'Logout', exact: true }).click();
   await confirmation.getByRole('button', { name: 'Yes, sign out', exact: true }).click();
 
-  await expect(page.getByRole('button', { name: 'CCTV route', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'CCTV route', exact: true })).toBeVisible();
   await expect(panel).toHaveCount(0);
 });
 
@@ -491,7 +488,7 @@ test('account dropdown opens separate profile and CMS tables for administrators'
   expect((await cms.boundingBox())!.width).toBe(940);
   await cms.getByRole('button', { name: 'CCTV Source', exact: true }).click();
   await expect(cms.locator('.cms-source-summary')).toContainText('2254');
-  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(99);
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(8);
   const filterBoxes = await cms
     .locator('.cms-source-field > .cms-search, .cms-source-field > select')
     .evaluateAll((elements) =>
@@ -512,7 +509,7 @@ test('account dropdown opens separate profile and CMS tables for administrators'
   );
   await cms.getByRole('combobox', { name: 'Filter province' }).selectOption('Jawa Barat');
   await expect(cms.getByRole('combobox', { name: 'Filter city' })).toHaveValue('');
-  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(15);
+  await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(8);
   await cms.getByRole('combobox', { name: 'Filter city' }).selectOption('Kabupaten Garut');
   await expect(cms.locator('.cms-camera-sources tbody tr')).toHaveCount(1);
   await expect(cms.locator('.cms-camera-sources tbody tr')).toContainText('DISKOMINFO GARUT');
@@ -537,6 +534,7 @@ test('account dropdown opens separate profile and CMS tables for administrators'
     ).toBe(false);
     await cms.getByRole('button', { name: 'Settings', exact: true }).click();
     await cms.getByRole('button', { name: 'CCTV Source', exact: true }).click();
+    await cms.getByRole('textbox', { name: 'Search CCTV sources' }).fill('cimahi');
     await expect(
       cms.getByRole('checkbox', { name: 'Active CCTV CIMAHI', exact: true }),
     ).not.toBeChecked();

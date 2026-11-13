@@ -1,3 +1,4 @@
+import EarthquakePanel from '../../earthquakes/EarthquakePanel';
 import ProvincePanel from '../../regions/ProvincePanel';
 import PublicAnalyticsPanel from '../../analytics/PublicAnalyticsPanel';
 import {
@@ -89,8 +90,9 @@ export default function LayerPanel() {
     window.addEventListener('keydown', close);
     return () => window.removeEventListener('keydown', close);
   }, []);
-  if (!panel) return null;
+  if (!panel || panel === 'surveillance') return null;
   if (panel === 'regions' || panel === 'alerts') return <ProvincePanel />;
+  if (panel === 'earthquakes') return <EarthquakePanel />;
   if (panel === 'space') return <SpacePanel />;
   if (panel === 'analytics') return <PublicAnalyticsPanel />;
   if (panel === 'objects') return <ObjectsPanel />;

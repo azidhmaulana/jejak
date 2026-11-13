@@ -1,6 +1,10 @@
 .command-workspace {
+  --footer-text-inset: 8px;
   --ticker-height: 24px;
   --tactical-footer-height: 34px;
+}
+.command-workspace .workspace-ticker > :is(.ticker-label, .quake-ticker-trigger) {
+  padding-left: var(--footer-text-inset);
 }
 .command-workspace .workspace-status.tactical-status {
   bottom: var(--ticker-height);
@@ -87,3 +91,6 @@
     bottom: 58px;
   }
 }
+
+.command-workspace .workspace-ticker .ticker-version { align-self: stretch; flex-shrink: 0; padding: 0 10px; border: 0; border-left: 1px solid #29452f; background: #07130e; color: #a5ef75; font: inherit; cursor: pointer; }
+.ticker-version:focus-visible { outline: 1px solid #a5ef75; outline-offset: -2px; }
