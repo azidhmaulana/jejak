@@ -1,0 +1,11 @@
+# CCTV source checks
+
+Superadmin can check the entire server catalog using the single Check button at the right of the feed summary in CMS → CCTV Source. Filters only affect the source table; Check includes inactive sources. The table shows eight providers per page and the terminal shows the latest three results. Notifications remain active while the workspace is open, even after closing CMS.
+
+`POST /api/cctv-sources/check` accepts `{}` or `{ "provider": "exact catalog name" }`. `GET` on the same path returns the latest job, counters, and up to 60 recent log entries. Both require a current superadmin session. Arbitrary URLs are rejected. A PostgreSQL lock and unique running-job index prevent duplicate jobs. There is a 30-second cooldown between jobs and at most two workers. Jobs survive closing the browser; a server interruption is reported as interrupted after the 60-second lease expires. Interrupted jobs can be restarted, not resumed.
+
+HLS validation reads a playlist and a sample media segment. Image feeds are checked for an image response with nonempty content; embed/link-only entries are skipped. Available does not guarantee fresh/live imagery. A failed check means unreachable or unsupported, not proof that the physical camera is offline. Checks use bounded timeouts and do not continuously retry failed streams.
+
+Automatic URL discovery currently supports Jasa Marga through the official Bina Marga directory. Exact camera name, original host and road path must match, and the replacement must pass the HLS media probe. Other providers are checked but require manual review if their URL changes. No AI or third-party inference service is involved.
+
+Migration 002 stores jobs, validated overrides and URL-change history in PostgreSQL. Overrides are loaded on API startup and applied to the media proxy; bundled catalog source files are not rewritten. History is available to operators through the database; a rollback UI is not included. Run `npm run db:migrate` before production startup. Deploy one API worker for now: runtime health and proxy URL caches are process-local, so multiple instances would need shared invalidation before rollout. Terminal logs intentionally omit stream URLs and credentials.

@@ -1,3 +1,4 @@
+import ProvinceLayer from '../../regions/ProvinceLayer';
 import RouteLayer from '../../routes/RouteLayer';
 import MapCanvas from '../../../modules/maps/MapCanvas';
 import OsintWeatherLayer from '../../weather/OsintWeatherLayer';
@@ -23,6 +24,7 @@ export default function OsintMap() {
             onSelect={useWorkspace.getState().selectCamera}
           />
           <RouteLayer map={map} />
+          <ProvinceLayer map={map} />
           <MapHud map={map} />
         </>
       )}

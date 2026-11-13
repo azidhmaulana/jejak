@@ -1,9 +1,11 @@
 import { selectCamera } from './CameraDock';
+import { useWorkspace } from '../workspaceStore';
 import MapTools, { type MapSearchResult } from '../../../modules/drawing/MapTools';
 import { useActiveBundledCameras } from '../../surveillance/cameraSourceState';
 import { cameraAvailability, useSurveillance } from '../../surveillance/osintSurveillanceStore';
 
 export default function OsintMapTools() {
+  const objectsOpen = useWorkspace((state) => state.panel === 'objects');
   const bandungCameras = useActiveBundledCameras();
   const surveillance = useSurveillance();
   const searchItems: MapSearchResult[] = [
@@ -21,5 +23,5 @@ export default function OsintMapTools() {
         selectCamera(source);
       },
     }));
-  return <MapTools visible searchItems={searchItems} />;
+  return <MapTools visible={!objectsOpen} searchItems={searchItems} />;
 }

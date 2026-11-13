@@ -1,4 +1,4 @@
-import type { Map as LibreMap, GeoJSONSource, LayerSpecification } from 'maplibre-gl';
+import type { Map as LibreMap, GeoJSONSource, LayerSpecification, MapMouseEvent } from 'maplibre-gl';
 import type { Drawing, DrawingStyle } from './mapToolsStore';
 import { drawingStyle, lineStyles, styleProperties } from './drawingStyle';
 import { hatchLines } from './drawingHatch';
@@ -13,7 +13,12 @@ export function createDrawingRenderer(map: LibreMap) {
   let current: Drawing[] = [],
     pendingFrame = 0;
   const labels = createDrawingLabels(map);
+  let pointer: number[] | null = null;
   const layers: LayerSpecification[] = [
+    {
+      id: 'bms-drawing-vertices', type: 'circle', source: sourceId + '-vertices',
+      paint: { 'circle-radius': 4, 'circle-color': ['get', 'drawColor'], 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff' },
+    },
     {
       id: 'bms-drawing-hit',
       type: 'fill',
@@ -81,13 +86,38 @@ export function createDrawingRenderer(map: LibreMap) {
         'circle-stroke-width': ['case', ['get', 'bmsSelected'], 2, 1],
       },
     },
+    {
+      id: 'bms-drawing-preview-edge', type: 'line', source: sourceId + '-preview-edge',
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': ['get', 'drawColor'], 'line-width': ['get', 'drawWidth'] },
+    },
   ];
   map.addSource(sourceId, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  map.addSource(sourceId + '-vertices', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  map.addSource(sourceId + '-preview-edge', { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, tolerance: 0 });
   map.addSource(sourceId + '-hatch', {
     type: 'geojson',
     data: { type: 'FeatureCollection', features: [] },
   });
   layers.forEach((layer) => map.addLayer(layer));
+  // Render the moving edge independently: a two-point polygon can be simplified
+  // away and the polygon mode snaps its preview near the first corner.
+  const updatePreviewEdge = () => {
+    const active = current.find(f => f.properties.currentlyDrawing && f.properties.mode === 'polygon');
+    const count = Number(active?.properties.committedCoordinateCount || 0);
+    const start = active?.geometry.type === 'Polygon' ? active.geometry.coordinates[0][count - 1] : null;
+    (map.getSource(sourceId + '-preview-edge') as GeoJSONSource)?.setData({
+      type: 'FeatureCollection',
+      features: active && start && pointer ? [{ type: 'Feature', properties: active.properties, geometry: { type: 'LineString', coordinates: [start, pointer] } }] : [],
+    });
+  };
+  const movePointer = (event: MapMouseEvent) => {
+    pointer = [event.lngLat.lng, event.lngLat.lat];
+    updatePreviewEdge();
+  };
+  const leavePointer = () => { pointer = null; updatePreviewEdge(); };
+  map.on('mousemove', movePointer);
+  map.getCanvas().addEventListener('mouseleave', leavePointer);
   const updateHatch = () => {
     pendingFrame = 0;
     const features = current
@@ -126,14 +156,21 @@ export function createDrawingRenderer(map: LibreMap) {
             properties: {
               ...feature.properties,
               ...styleProperties(style),
+              currentlyDrawing: Boolean(feature.properties.currentlyDrawing),
               bmsId: feature.id ?? null,
               bmsSelected: feature.id === selectedId && !objectLocked(feature),
             },
           };
         });
       (map.getSource(sourceId) as GeoJSONSource).setData({ type: 'FeatureCollection', features });
+      const vertices = features.filter((f) => f.properties.currentlyDrawing).flatMap((f) => {
+        const coordinates = f.geometry.type === 'Polygon' ? f.geometry.coordinates[0] : f.geometry.type === 'LineString' ? f.geometry.coordinates : [];
+        return coordinates.map((point) => ({ type: 'Feature' as const, properties: f.properties, geometry: { type: 'Point' as const, coordinates: point } }));
+      });
+      (map.getSource(sourceId + '-vertices') as GeoJSONSource).setData({ type: 'FeatureCollection', features: vertices });
       labels.update(features);
       current = features;
+      updatePreviewEdge();
       scheduleHatch();
     },
     destroy() {
@@ -141,10 +178,14 @@ export function createDrawingRenderer(map: LibreMap) {
       cancelAnimationFrame(pendingFrame);
       map.off('move', scheduleHatch);
       map.off('resize', scheduleHatch);
+      map.off('mousemove', movePointer);
+      map.getCanvas().removeEventListener('mouseleave', leavePointer);
       [...layers].reverse().forEach((layer) => {
         if (map.getLayer(layer.id)) map.removeLayer(layer.id);
       });
       if (map.getSource(sourceId)) map.removeSource(sourceId);
+      if (map.getSource(sourceId + '-vertices')) map.removeSource(sourceId + '-vertices');
+      if (map.getSource(sourceId + '-preview-edge')) map.removeSource(sourceId + '-preview-edge');
       if (map.getSource(sourceId + '-hatch')) map.removeSource(sourceId + '-hatch');
     },
   };

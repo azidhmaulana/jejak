@@ -1,14 +1,13 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useState } from 'react';
 import type { Map } from 'maplibre-gl';
-import { Maximize, Minus, Navigation2, Plus } from 'lucide-react';
+import { Minus, Navigation2, Plus } from 'lucide-react';
 import { useWorkspace } from '../workspaceStore';
 
 export default function MapHud({ map }: { map: Map | null }) {
   const [compassHost, setCompassHost] = useState<HTMLElement | null>(null);
   useEffect(() => setCompassHost(document.getElementById('map-corner-compass')), []);
   const [bearing, setBearing] = useState(0);
-  const [error, setError] = useState('');
   useEffect(() => {
     if (!map) return;
     const update = () => {
@@ -55,19 +54,8 @@ export default function MapHud({ map }: { map: Map | null }) {
         <button aria-label="Zoom out" onClick={() => map?.zoomOut()}>
           <Minus />
         </button>
-        <button
-          aria-label="Fullscreen workspace"
-          onClick={() => {
-            const operation = document.fullscreenElement
-              ? document.exitFullscreen()
-              : document.documentElement.requestFullscreen();
-            void operation.catch(() => setError('Fullscreen tidak tersedia.'));
-          }}
-        >
-          <Maximize size={18} />
-        </button>
+
       </div>
-      {error && <small role="status">{error}</small>}
     </div>
   );
 }

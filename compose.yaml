@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    env_file: .runtime/postgres.env
+    ports:
+      - "127.0.0.1:${JEJAK_DB_PORT:-55432}:5432"
+    volumes:
+      - jejak_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jejak_bootstrap -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+volumes:
+  jejak_postgres:

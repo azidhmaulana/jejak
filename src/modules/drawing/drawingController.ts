@@ -1,4 +1,5 @@
-import { projectCache } from './projectCache';
+import { useAuth } from '../../features/auth/authStore';
+import { localDrawingStorage } from './localDrawingStorage';
 import { mapStorageKey } from '../maps/mapWorkspace';
 import { Marker, type Map as LibreMap, type MapMouseEvent } from 'maplibre-gl';
 import {
@@ -35,7 +36,7 @@ import {
 } from './drawingObjects';
 import { createDrawingHistory } from './drawingHistory';
 import { editDrawingGeometry, drawingPoints } from './drawingGeometry';
-import { createSharedDrawingProject, type DrawingProject } from './sharedDrawingProject';
+import type { DrawingProject } from './sharedDrawingProject';
 
 const storageKey = mapStorageKey('bms-map-project-v2');
 const modes = new Set(['point', 'linestring', 'polygon', 'rectangle', 'circle']);
@@ -45,16 +46,18 @@ const hasHoles = (feature: Drawing) =>
   feature.geometry.type === 'Polygon' && feature.geometry.coordinates.length > 1;
 
 export function createDrawingController(map: LibreMap) {
+  const projectCache = localDrawingStorage(useAuth.getState().user?.id || 'guest');
   const renderer = createDrawingRenderer(map);
   const cursor = createDrawingCursor(map);
   const polygonStyle = { fillOpacity: 0, outlineOpacity: 0 };
   const polygonMode = new TerraDrawPolygonMode({ styles: polygonStyle });
+  const lineMode = new TerraDrawLineStringMode({ styles: { lineStringOpacity: 0 } });
   const draw = new TerraDraw({
     adapter: new TerraDrawMapLibreGLAdapter({ map, coordinatePrecision: 9 }),
     modes: [
       new TerraDrawRenderMode({ modeName: 'render', styles: {} }),
       new TerraDrawPointMode({ styles: { pointOpacity: 0, pointOutlineOpacity: 0 } }),
-      new TerraDrawLineStringMode({ styles: { lineStringOpacity: 0 } }),
+      lineMode,
       polygonMode,
       new TerraDrawRectangleMode({ styles: polygonStyle }),
       new TerraDrawCircleMode({ styles: polygonStyle }),
@@ -90,7 +93,7 @@ export function createDrawingController(map: LibreMap) {
   let disposed = false,
     pendingFrame = 0,
     saveTimer = 0;
-  let shared: ReturnType<typeof createSharedDrawingProject> | undefined;
+
   let history: ReturnType<typeof createDrawingHistory> | undefined;
   let pointerDown = false;
   let folders: DrawingFolder[] = [];
@@ -146,13 +149,16 @@ export function createDrawingController(map: LibreMap) {
         storageKey,
         JSON.stringify({ version: 2, folders, features: snapshot() }),
       );
+      useMapTools.setState({ syncStatus: 'synced', syncMessage: 'Disimpan di browser ini' });
     } catch {
       useMapTools.setState({
+        syncStatus: 'error',
+        syncMessage: 'Penyimpanan browser tidak tersedia atau penuh.',
         notice:
-          'Penyimpanan browser penuh. Periksa status sinkronisasi server sebelum menutup halaman.',
+          'Penyimpanan browser tidak tersedia atau penuh. Ekspor GeoJSON untuk menyimpan salinan.',
       });
     }
-    shared?.save();
+
   };
   const sync = () => {
     if (disposed || pendingFrame) return;
@@ -221,6 +227,7 @@ export function createDrawingController(map: LibreMap) {
   draw.on('finish', (id) => {
     const state = useMapTools.getState();
     const feature = draw.getSnapshotFeature(id);
+    const isNew = feature && !feature.properties.bmsName;
     if (feature && !feature.properties.drawColor)
       draw.updateFeatureProperties(id, styleProperties(state));
     if (feature && !feature.properties.bmsName) {
@@ -240,6 +247,12 @@ export function createDrawingController(map: LibreMap) {
     }
     sync();
     persist();
+    if (isNew) queueMicrotask(() => {
+      if (disposed) return;
+      setMode('select');
+      useMapTools.setState({ selectedId: id, completedId: id, inspectorOpen: false });
+      sync();
+    });
   });
   draw.on('select', (id) => {
     const feature = draw.getSnapshotFeature(id);
@@ -260,9 +273,17 @@ export function createDrawingController(map: LibreMap) {
   const setMode = (mode: DrawMode) => {
     if (!draw.enabled) return;
     if (mode !== 'render') useMapTools.setState({ drawingsVisible: true });
+    if (modes.has(mode)) {
+      const palette = ['#39d9db', '#ff638b', '#f2d84a', '#94e85b', '#b297f5', '#ff9e54'];
+      const existing = snapshot();
+      const last = existing[existing.length - 1]?.properties.drawColor;
+      let index = snapshot().length % palette.length;
+      if (palette[index] === last) index = (index + 1) % palette.length;
+      useMapTools.setState({ color: palette[index], lineStyle: 'dashed' });
+    }
     cursor.update(null);
     draw.setMode(mode);
-    useMapTools.setState({ mode, selectedId: null, notice: '', bms: mode !== 'render' });
+    useMapTools.setState({ mode, selectedId: null, completedId: null, notice: '', bms: mode !== 'render' });
     sync();
   };
   const applyVisibility = () => {
@@ -393,6 +414,28 @@ export function createDrawingController(map: LibreMap) {
       persist();
     },
     mode: setMode,
+    save: persist,
+    undoPoint() {
+      const { mode, preview } = useMapTools.getState();
+      if (!preview || !['polygon', 'linestring'].includes(mode)) return;
+      const points = preview.geometry.type === 'Polygon' ? preview.geometry.coordinates[0] : preview.geometry.type === 'LineString' ? preview.geometry.coordinates : [];
+      const count = Number(preview.properties.committedCoordinateCount || 0);
+      const remaining = points.slice(0, Math.max(0, count - 1));
+      draw.setMode('render');
+      draw.setMode(mode);
+      const active = mode === 'polygon' ? polygonMode : lineMode;
+      remaining.forEach(([lng, lat]) => {
+        const pixel = map.project([lng, lat]);
+        active.onClick({ lng, lat, containerX: pixel.x, containerY: pixel.y, button: 'left', heldKeys: [], isContextMenu: false });
+      });
+      sync();
+    },
+    finish() {
+      const mode = useMapTools.getState().mode;
+      const event = { key: 'Enter', heldKeys: [], preventDefault() {} };
+      if (mode === 'polygon') polygonMode.onKeyUp(event);
+      if (mode === 'linestring') lineMode.onKeyUp(event);
+    },
     style(patch) {
       const selected = useMapTools.getState().selectedId;
       if (selected !== null && objectLocked(getObject(selected))) {
@@ -812,12 +855,12 @@ export function createDrawingController(map: LibreMap) {
   window.addEventListener('pointerup', release);
   window.addEventListener('pointercancel', release);
   window.addEventListener('blur', release);
-  shared = createSharedDrawingProject(project, replaceProject, () => !disposed && idle());
+  useMapTools.setState({ syncStatus: 'synced', syncMessage: 'Disimpan di browser ini', reloadShared: null });
   return {
     draw,
     destroy() {
       persist();
-      shared?.destroy();
+
       disposed = true;
       cancelAnimationFrame(pendingFrame);
       clearTimeout(saveTimer);

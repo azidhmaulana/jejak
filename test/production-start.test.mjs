@@ -1,3 +1,4 @@
+import { createDatabase } from '../server/database/index.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -11,10 +12,16 @@ test(
   { timeout: 20000 },
   async () => {
     const directory = await mkdtemp(path.join(tmpdir(), 'jejak-production-'));
+    const db = await createDatabase(directory);
+    const schema = db.schema;
+    await db.close();
     const child = spawn(process.execPath, ['server/index.mjs', '--production'], {
       env: {
         ...process.env,
         NODE_ENV: 'development',
+        DATABASE_URL: process.env.JEJAK_TEST_DATABASE_URL,
+        JEJAK_DB_SCHEMA: schema,
+        JEJAK_DB_SSL: 'disable',
         HOST: '127.0.0.1',
         PORT: '0',
         JEJAK_DATA_DIR: directory,

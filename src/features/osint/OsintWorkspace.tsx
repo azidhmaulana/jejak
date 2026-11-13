@@ -1,4 +1,5 @@
 import ToastHost from '../../shared/components/Toast';
+import { useCameraCheckNotifications } from '../auth/cameraCheckStore';
 import { useCameraSourceSync } from '../surveillance/cameraSourceState';
 import CmsPanel from '../auth/CmsPanel';
 import AccountPanel from '../auth/AccountPanel';
@@ -11,6 +12,7 @@ import OsintMap from './components/OsintMap';
 import OsintMapTools from './components/OsintMapTools';
 import CommandHeader from './components/CommandHeader';
 import LayerPanel from './components/LayerPanel';
+import DrawingActivity from '../objects/DrawingActivity';
 import CameraDock from './components/CameraDock';
 import CameraInspector from './components/CameraInspector';
 import WorkspaceStatus from './components/WorkspaceStatus';
@@ -33,8 +35,10 @@ import './CompactNavbar.css';
 import './components/CameraInspector.css';
 import './components/CameraDock.css';
 import './UiRefinement.css';
+import '../analytics/PublicAnalyticsPanel.css';
 
 export default function OsintWorkspace() {
+  useCameraCheckNotifications();
   useCameraSourceSync();
   const appearance = useAppearance();
   const drawing = useMapTools((state) => state.mode !== 'render');
@@ -61,6 +65,7 @@ export default function OsintWorkspace() {
       }
     >
       <CommandHeader />
+      <DrawingActivity />
       <ToastHost />
       <AccountPanel />
       <CmsPanel />

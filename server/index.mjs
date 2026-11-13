@@ -16,9 +16,14 @@ server.requestTimeout = 120000;
 server.headersTimeout = 15000;
 server.keepAliveTimeout = 5000;
 server.maxRequestsPerSocket = 1000;
-async function shutdown() {
-  await app.locals.close();
-  server.close(() => process.exit(0));
+let closing = false;
+function shutdown() {
+  if (closing) return;
+  closing = true;
+  server.close(async () => {
+    await app.locals.close();
+    process.exit(0);
+  });
 }
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);

@@ -1,7 +1,7 @@
 import { useLanguage } from '../../../shared/i18n/useLanguage';
 import { useAuth } from '../../auth/authStore';
 import SurveillanceSettingsPopover from './SurveillanceSettingsPopover';
-import { Network, CloudSun, SlidersHorizontal, PencilRuler, MapPin, Satellite } from 'lucide-react';
+import { CloudSun, SlidersHorizontal, PencilRuler, MapPin, Satellite } from 'lucide-react';
 import { openWorkspacePanel, useWorkspace } from '../workspaceStore';
 import { useMapTools } from '../../../modules/drawing/mapToolsStore';
 export default function TacticalRail() {
@@ -11,16 +11,6 @@ export default function TacticalRail() {
   const { controller, bms } = useMapTools();
   return (
     <nav className="tactical-rail" aria-label="Workspace tools">
-      <button
-        aria-label="Objects and groups"
-        aria-pressed={panel === 'objects'}
-        onClick={() => openWorkspacePanel('objects')}
-      >
-        <Network />
-        <span className="rail-tooltip" role="tooltip">
-          {english ? 'Objects and groups' : 'Objek dan grup'}
-        </span>
-      </button>
       <SurveillanceSettingsPopover />
       <button
         data-space-trigger
@@ -39,7 +29,7 @@ export default function TacticalRail() {
         aria-label="Drawing workspace"
         aria-pressed={bms}
         disabled={!controller || !editable}
-        onClick={() => controller?.mode(bms ? 'render' : 'select')}
+        onClick={() => { controller?.mode(bms ? 'render' : 'select'); useWorkspace.setState({ panel: bms ? null : 'objects' }); }}
       >
         <PencilRuler />
         <span className="rail-tooltip" role="tooltip">

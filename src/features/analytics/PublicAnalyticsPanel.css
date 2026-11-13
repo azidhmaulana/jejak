@@ -1,0 +1,397 @@
+.command-workspace .public-analytics {
+  position: absolute;
+  top: 64px;
+  left: 48px;
+  right: auto;
+  z-index: 35;
+  width: min(440px, calc(100% - 96px));
+  max-height: min(60dvh, calc(100% - 130px));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #edf6ee;
+  background: #06100dee;
+  border: 1px solid #36593c;
+  border-radius: 5px;
+  box-shadow: 0 8px 24px #0005;
+  font-size: 12px;
+}
+.public-analytics-heading {
+  background: #07130e;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid #29412c;
+  flex-shrink: 0;
+}
+.public-analytics-heading > svg {
+  color: #93ef6c;
+}
+.public-analytics-heading h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+}
+.command-workspace .public-analytics button,
+.public-analytics select {
+  border: 1px solid #324336;
+  background: #0a160f;
+  color: #b4c4b8;
+  border-radius: 3px;
+  min-height: 25px;
+}
+.command-workspace .public-analytics button {
+  width: 25px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+}
+.command-workspace .public-analytics .analytics-close {
+  color: #f27373;
+  border-color: #63302d;
+  background: #2b100e;
+}
+.public-analytics button:focus-visible,
+.public-analytics select:focus-visible {
+  outline: 2px solid #afff7b;
+  outline-offset: 2px;
+}
+.public-analytics button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.public-analytics-body {
+  background-color: #041009;
+  background-image:
+    linear-gradient(#65ef6b16 1px, transparent 1px),
+    linear-gradient(90deg, #65ef6b16 1px, transparent 1px);
+  background-size: 24px 24px;
+  padding: 10px;
+  overflow: auto;
+  min-height: 0;
+}
+.public-analytics-body[hidden] {
+  display: none;
+}
+.public-analytics-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.public-analytics-controls select {
+  width: 120px;
+  padding: 6px 10px;
+}
+.public-analytics-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.public-analytics-metrics > div {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid #36593c;
+  border-radius: 5px;
+  padding: 9px 8px;
+  background: #07130ee6;
+}
+.public-analytics-metrics b {
+  display: block;
+  font-size: 20px;
+  line-height: 1.2;
+}
+.public-analytics-metrics small {
+  display: block;
+  color: #c3d5ca;
+  margin-top: 3px;
+}
+.public-analytics-metrics .online {
+  color: #91f35a;
+}
+.public-analytics-metrics .offline {
+  color: #ff7874;
+}
+.analytics-availability-note {
+  color: #adbfaf;
+  font-size: 10px;
+  line-height: 1.6;
+  margin: 10px 0;
+}
+.public-analytics-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0;
+}
+.public-analytics section {
+  border: 1px solid #36593c;
+  border-radius: 5px;
+  overflow: hidden;
+  min-width: 0;
+}
+.public-analytics h3 {
+  font-size: 13px;
+  margin: 0;
+  padding: 8px;
+  border-bottom: 1px solid #29412c;
+}
+.analytics-section-content {
+  padding: 7px 8px;
+}
+.public-analytics table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.public-analytics th {
+  color: #b5ccbe;
+  font-weight: 400;
+  text-align: left;
+}
+.public-analytics td,
+.public-analytics th {
+  padding: 6px 0;
+  border-bottom: 1px solid #294735;
+}
+.public-analytics td:first-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.public-analytics td:last-child,
+.public-analytics th:last-child {
+  width: 42px;
+  text-align: right;
+}
+.public-analytics-chart {
+  display: flex;
+  gap: 6px;
+  height: 120px;
+  overflow-x: auto;
+  align-items: stretch;
+}
+.public-analytics-chart > div {
+  min-width: 25px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  font-size: 9px;
+}
+.analytics-bar-track {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 1px solid #689371;
+  margin: 5px 0;
+  background: repeating-linear-gradient(to top, transparent 0, transparent 39px, #294735 40px);
+}
+.analytics-bar-track i {
+  display: block;
+  width: 100%;
+  background: linear-gradient(#8ef85f, #358f27);
+}
+.public-analytics-regions .analytics-section-content > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(40px, 1.4fr) 25px;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid #294735;
+}
+.public-analytics-regions span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.public-analytics-regions progress {
+  width: 100%;
+  height: 12px;
+  accent-color: #8bf45c;
+}
+.public-analytics-regions b {
+  text-align: right;
+}
+.is-loading {
+  animation: analytics-spin 1s linear infinite;
+}
+@keyframes analytics-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.command-workspace .tactical-rail {
+  left: 0;
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+}
+.command-workspace .map-hud {
+  right: 0;
+}
+.command-workspace .map-hud-buttons {
+  border-right: 0;
+  border-radius: 10px 0 0 10px;
+}
+@media (max-width: 600px) {
+  .command-workspace .public-analytics {
+    top: 96px;
+    left: 46px;
+    right: auto;
+    width: calc(100% - 92px);
+    max-height: min(60dvh, calc(100% - 160px));
+  }
+  .public-analytics-body {
+    padding: 10px;
+  }
+  .public-analytics-columns {
+    grid-template-columns: 1fr;
+  }
+  .public-analytics-metrics {
+    gap: 6px;
+  }
+  .public-analytics-metrics > div {
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px 4px;
+    text-align: center;
+  }
+  .public-analytics-metrics b {
+    font-size: 17px;
+  }
+  .public-analytics-heading {
+    background: #07130e;
+    padding: 10px;
+    gap: 6px;
+  }
+  .public-analytics-heading h2 {
+    font-size: 16px;
+  }
+  .command-workspace .public-analytics button {
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-loading {
+    animation: none;
+  }
+}
+
+.public-analytics-chart:empty {
+  display: none;
+}
+
+.public-analytics-metrics > div > svg {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+}
+.public-analytics-heading > svg {
+  width: 19px;
+  height: 19px;
+}
+
+.command-workspace .public-analytics button svg {
+  width: 12px;
+  height: 12px;
+}
+.command-workspace .public-analytics button:hover:not(:disabled) {
+  border-color: #5e853c;
+  background: #122619;
+}
+.command-workspace .public-analytics .analytics-close:hover {
+  border-color: #a34c46;
+  background: #3a1714;
+}
+.public-analytics h3 {
+  background: #07130e;
+}
+.public-analytics section {
+  background: #06100d9e;
+}
+
+.command-workspace .public-analytics-heading .analytics-close {
+  width: 25px;
+  height: 25px;
+  min-width: 25px;
+  min-height: 25px;
+  border: 1px solid #63302d;
+  border-radius: 3px;
+  background: #2b100e;
+  color: #f27373;
+}
+.public-analytics-controls {
+  gap: 6px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+.public-analytics-controls select {
+  width: 100px;
+  height: 25px;
+  min-height: 25px;
+  padding: 2px 6px;
+  font-size: 10px;
+}
+.command-workspace .public-analytics-controls button {
+  width: 25px;
+  height: 25px;
+  min-width: 25px;
+  min-height: 25px;
+}
+.public-analytics-metrics {
+  gap: 6px;
+}
+.public-analytics-metrics > div {
+  padding: 6px 8px;
+  gap: 7px;
+}
+.public-analytics-metrics b {
+  font-size: 16px;
+}
+.public-analytics-metrics small {
+  font-size: 9px;
+  margin-top: 1px;
+}
+.public-analytics-metrics > div > svg {
+  width: 16px;
+  height: 16px;
+}
+.camera-opening-plot {
+  display: flex;
+  gap: 5px;
+  background: #06170d;
+  padding: 8px 0 0;
+}
+.camera-opening-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 108px;
+  padding-top: 3px;
+  min-width: 22px;
+  font-size: 9px;
+  text-align: right;
+  color: #b5ccbe;
+}
+.camera-opening-scroll {
+  overflow-x: auto;
+  min-width: 0;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: #36593c #06100d;
+}
+.camera-opening-scroll svg {
+  display: block;
+}
+.camera-opening-scroll text {
+  fill: #b5ccbe;
+  font-size: 7px;
+}
+.camera-opening-scroll:focus-visible {
+  outline: 1px solid #93e867;
+  outline-offset: 2px;
+}

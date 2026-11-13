@@ -1,3 +1,5 @@
+import ProvincePanel from '../../regions/ProvincePanel';
+import PublicAnalyticsPanel from '../../analytics/PublicAnalyticsPanel';
 import {
   Camera,
   ChevronUp,
@@ -19,13 +21,12 @@ import { useSurveillance } from '../../surveillance/osintSurveillanceStore';
 import { useOsintWeather, toggleWeather } from '../../weather/osintWeatherStore';
 import { useMapTools } from '../../../modules/drawing/mapToolsStore';
 import { useOverlays } from '../../../modules/overlays/imageOverlayStore';
-import BmsObjectsPanel from '../../../modules/drawing/BmsObjectsPanel';
+import ObjectsPanel from '../../objects/ObjectsPanel';
 import OsintWeatherPanel from '../../weather/components/OsintWeatherPanel';
 import SurveillanceSettings from './SurveillanceSettings';
 import DrawingStyleFields from '../../../modules/drawing/DrawingStyleFields';
 import { useWorkspace } from '../workspaceStore';
 import { useCameraCatalog } from '../hooks/useCameraCatalog';
-import { cameraAvailability } from '../../surveillance/osintSurveillanceStore';
 import WorkspaceAppearance from './WorkspaceAppearance';
 import SpacePanel from '../../space/SpacePanel';
 
@@ -66,7 +67,7 @@ const titles = {
   weather: 'Weather Layers',
   sources: 'Camera Sources',
   settings: 'Workspace Settings',
-  analytics: 'Coverage Overview',
+  analytics: 'Analytics',
   alerts: 'Feed Alerts',
 };
 export default function LayerPanel() {
@@ -89,7 +90,10 @@ export default function LayerPanel() {
     return () => window.removeEventListener('keydown', close);
   }, []);
   if (!panel) return null;
+  if (panel === 'regions' || panel === 'alerts') return <ProvincePanel />;
   if (panel === 'space') return <SpacePanel />;
+  if (panel === 'analytics') return <PublicAnalyticsPanel />;
+  if (panel === 'objects') return <ObjectsPanel />;
   return (
     <aside className="command-panel layer-panel" data-panel={panel} aria-label={titles[panel]}>
       {panel !== 'sources' && (
@@ -192,11 +196,6 @@ export default function LayerPanel() {
             )}
           </>
         )}
-        {panel === 'objects' && (
-          <div className="osint-map-objects">
-            <BmsObjectsPanel />
-          </div>
-        )}
         {panel === 'weather' && <OsintWeatherPanel />}
         {panel === 'sources' && <SurveillanceSettings />}
         {panel === 'settings' && (
@@ -215,60 +214,6 @@ export default function LayerPanel() {
             >
               Configure camera sources
             </button>
-          </>
-        )}
-        {panel === 'analytics' && (
-          <>
-            <div className="coverage-total">
-              <strong>{cameras.length}</strong>
-              <span>REGISTERED CAMERAS</span>
-            </div>
-            {(['online', 'offline', 'unknown'] as const).map((status) => {
-              const count = cameras.filter(
-                (camera) => cameraAvailability(camera).status === status,
-              ).length;
-              return (
-                <div className="coverage-row" key={status}>
-                  <span>{status === 'unknown' ? 'Unverified' : status}</span>
-                  <b>{count}</b>
-                  <progress value={count} max={Math.max(cameras.length, 1)} />
-                </div>
-              );
-            })}
-            <p className="panel-note">
-              Status berasal dari health check stream. Kamera tanpa verifikasi tidak dihitung
-              sebagai online.
-            </p>
-          </>
-        )}
-        {panel === 'alerts' && (
-          <>
-            <div className="panel-section-label">CAMERA AVAILABILITY</div>
-            {cameras
-              .filter((camera) => cameraAvailability(camera).status === 'offline')
-              .slice(0, 20)
-              .map((camera) => (
-                <button
-                  className="feed-alert-row"
-                  key={camera.id}
-                  onClick={() =>
-                    window.dispatchEvent(
-                      new CustomEvent('osint-select-camera', { detail: { id: camera.id } }),
-                    )
-                  }
-                >
-                  <Camera size={17} />
-                  <span>
-                    {camera.name}
-                    <small>{cameraAvailability(camera).reason}</small>
-                  </span>
-                </button>
-              ))}
-            {!cameras.some((camera) => cameraAvailability(camera).status === 'offline') && (
-              <p className="panel-note">
-                Belum ada gangguan feed terkonfirmasi. Pemeriksaan berjalan saat layer CCTV aktif.
-              </p>
-            )}
           </>
         )}
       </div>

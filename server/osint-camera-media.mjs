@@ -1,6 +1,7 @@
 import { Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { publicCameras } from './camera-catalog.mjs';
+import { resolveTollStream } from './toll-streams.mjs';
 export const cameras = new Map(
   publicCameras.filter((c) => c.streamUrl).map((c) => [c.id, new URL(c.streamUrl)]),
 );
@@ -52,6 +53,43 @@ const origins = new Set([
   'https://ruas-ciranjang.jaring.host',
 ]);
 const prefix = '/api/osint/camera-media/';
+// Refresh only a failed root playlist, once per request. Segments remain scoped to its folder.
+export async function fetchCameraManifest(
+  id,
+  initial,
+  options = {},
+  fetcher = fetch,
+  resolve = resolveTollStream,
+) {
+  let url = initial;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await fetchCameraMedia(url, options, fetcher);
+      if (!response.ok) {
+        await response.body?.cancel();
+        throw new Error(`Playlist HTTP ${response.status}`);
+      }
+      let text = '',
+        size = 0;
+      const decoder = new TextDecoder();
+      for await (const chunk of response.body) {
+        size += chunk.length;
+        if (size > 262144) throw new Error('Manifest too large');
+        text += decoder.decode(chunk, { stream: true });
+      }
+      text += decoder.decode();
+      if (!text.trimStart().startsWith('#EXTM3U'))
+        throw new Error(text.length ? 'Invalid manifest' : 'Empty manifest');
+      return { url, text };
+    } catch (error) {
+      if (attempt || options.signal?.aborted || url.href !== cameras.get(id)?.href) throw error;
+      const next = await resolve(id, url);
+      if (!next || options.signal?.aborted) throw error;
+      cameras.set(id, next);
+      url = next;
+    }
+  }
+}
 // Indramayu's public server first redirects to the same resource with a cookie check.
 // Follow only this exact redirect, never an arbitrary upstream destination.
 export async function fetchCameraMedia(url, options = {}, fetcher = fetch) {
@@ -68,8 +106,7 @@ export async function fetchCameraMedia(url, options = {}, fetcher = fetch) {
 export function mediaResourcePath(id, name) {
   return prefix + id + '/~' + Buffer.from(name).toString('base64url');
 }
-export function cameraMediaUrl(id, resource) {
-  const base = cameras.get(id);
+export function cameraMediaUrl(id, resource, base = cameras.get(id)) {
   if (
     !base ||
     !origins.has(base.origin) ||
@@ -175,6 +212,25 @@ export async function serveOsintCameraMedia(req, res, fetchUpstream = fetch) {
   active++;
   try {
     const playlist = /\.m3u8?$/.test(url.pathname);
+    if (playlist) {
+      const manifest = await fetchCameraManifest(
+        parts[0],
+        url,
+        { signal: abort.signal },
+        fetchUpstream,
+      );
+      const data = rewriteCameraPlaylist(manifest.text, parts[0], manifest.url);
+      if (!res.destroyed) {
+        res.writeHead(200, {
+          'Content-Type': 'application/vnd.apple.mpegurl',
+          'Cache-Control': 'no-store',
+          'Content-Disposition': 'inline',
+          'X-Content-Type-Options': 'nosniff',
+        });
+        res.end(data);
+      }
+      return;
+    }
     const range = !playlist ? req.headers?.range : undefined;
     if (range && !/^bytes=\d+-\d*$/.test(range)) {
       res.writeHead(416);
@@ -207,40 +263,23 @@ export async function serveOsintCameraMedia(req, res, fetchUpstream = fetch) {
       'Cache-Control': 'no-store',
       'X-Content-Type-Options': 'nosniff',
     };
-    if (playlist) {
-      const chunks = [];
-      let size = 0;
-      for await (const chunk of response.body) {
+    // Pass chunks immediately, respecting downstream backpressure; never buffer a whole segment.
+    let size = 0;
+    const limit = new Transform({
+      transform(chunk, _encoding, done) {
         size += chunk.length;
-        if (size > 1024 * 1024) throw new Error('Manifest too large');
-        chunks.push(chunk);
-      }
-      const data = Buffer.from(
-        rewriteCameraPlaylist(Buffer.concat(chunks).toString('utf8'), parts[0], url),
-      );
-      if (!res.destroyed) {
-        res.writeHead(200, headers);
-        res.end(data);
-      }
-    } else {
-      // Pass chunks immediately, respecting downstream backpressure; never buffer a whole segment.
-      let size = 0;
-      const limit = new Transform({
-        transform(chunk, _encoding, done) {
-          size += chunk.length;
-          done(size > 16 * 1024 * 1024 ? new Error('Media too large') : null, chunk);
-        },
-      });
-      if (response.status === 206) {
-        const contentRange = response.headers.get('content-range');
-        if (!contentRange) throw new Error('Missing content range');
-        headers['Content-Range'] = contentRange;
-      }
-      const acceptRanges = response.headers.get('accept-ranges');
-      if (acceptRanges) headers['Accept-Ranges'] = acceptRanges;
-      res.writeHead(response.status === 206 ? 206 : 200, headers);
-      await pipeline(Readable.fromWeb(response.body), limit, res, { signal: abort.signal });
+        done(size > 16 * 1024 * 1024 ? new Error('Media too large') : null, chunk);
+      },
+    });
+    if (response.status === 206) {
+      const contentRange = response.headers.get('content-range');
+      if (!contentRange) throw new Error('Missing content range');
+      headers['Content-Range'] = contentRange;
     }
+    const acceptRanges = response.headers.get('accept-ranges');
+    if (acceptRanges) headers['Accept-Ranges'] = acceptRanges;
+    res.writeHead(response.status === 206 ? 206 : 200, headers);
+    await pipeline(Readable.fromWeb(response.body), limit, res, { signal: abort.signal });
   } catch {
     if (!res.destroyed && !res.headersSent) {
       res.writeHead(502, { 'Content-Type': 'application/json' });

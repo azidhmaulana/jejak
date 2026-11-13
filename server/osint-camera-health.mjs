@@ -1,33 +1,33 @@
-import { cameras, cameraMediaUrl, fetchCameraMedia } from './osint-camera-media.mjs';
+import {
+  cameras,
+  cameraMediaUrl,
+  fetchCameraMedia,
+  fetchCameraManifest,
+} from './osint-camera-media.mjs';
 
 // Only catalogue URLs are probed; this endpoint never accepts arbitrary destinations.
-export async function probeCamera(id, base, { fetcher = fetch, signal } = {}) {
+export async function probeCamera(id, base, { fetcher = fetch, signal, refresh = true } = {}) {
   const allowed = (value) => {
     const u = new URL(value, base),
       root = new URL('.', base);
     if (u.origin !== root.origin || !u.pathname.startsWith(root.pathname))
       throw Error('Unsupported reference');
-    const result = cameraMediaUrl(id, u.pathname.slice(root.pathname.length) + u.search);
+    const result = cameraMediaUrl(id, u.pathname.slice(root.pathname.length) + u.search, base);
     if (!result) throw Error('Unsupported reference');
     return result;
   };
   let url = base;
   for (let depth = 0; depth < 3; depth++) {
-    const response = await fetchCameraMedia(url, { signal }, fetcher);
-    if (!response.ok) {
-      await response.body?.cancel();
-      throw Error('Playlist unavailable');
-    }
-    let size = 0,
-      text = '';
-    const decoder = new TextDecoder();
-    for await (const chunk of response.body) {
-      size += chunk.length;
-      if (size > 262144) throw Error('Manifest too large');
-      text += decoder.decode(chunk, { stream: true });
-    }
-    text += decoder.decode();
-    if (!text.trimStart().startsWith('#EXTM3U')) throw Error('Invalid manifest');
+    const manifest = await fetchCameraManifest(
+      id,
+      url,
+      { signal },
+      fetcher,
+      refresh ? undefined : async () => null,
+    );
+    url = manifest.url;
+    if (refresh) base = cameras.get(id) || base;
+    const text = manifest.text;
     const lines = text
         .trimStart()
         .split(/\r?\n/)
@@ -146,6 +146,21 @@ export function createCameraHealthMonitor({
     }
   };
   return {
+    recordCheck(id, available) {
+      if (!catalogue.has(id)) return;
+      records.set(id, {
+        status: available
+          ? 'online'
+          : records.get(id)?.status === 'offline'
+            ? 'offline'
+            : 'unknown',
+        checkedAt: now(),
+        failures: available ? 0 : 1,
+        reason: available
+          ? 'Pemeriksaan manual: playlist dan segmen tersedia'
+          : 'Pemeriksaan manual gagal; perlu ditinjau',
+      });
+    },
     retry(id) {
       if (!catalogue.has(id)) return false;
       const last = manualRetries.get(id);
@@ -193,6 +208,7 @@ export function createCameraHealthMonitor({
   };
 }
 const monitor = createCameraHealthMonitor();
+export const recordCameraCheck = (id, available) => monitor.recordCheck(id, available);
 export function serveOsintCameraHealth(req, res) {
   if (req.method === 'POST') {
     const id = new URL(req.url, 'http://local').searchParams.get('id');

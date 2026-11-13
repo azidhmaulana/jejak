@@ -2,7 +2,15 @@ import { useAuth } from '../auth/authStore';
 import { create } from 'zustand';
 
 export type WorkspacePanel =
-  'layers' | 'objects' | 'weather' | 'sources' | 'settings' | 'analytics' | 'alerts' | 'space';
+  | 'layers'
+  | 'objects'
+  | 'weather'
+  | 'sources'
+  | 'settings'
+  | 'analytics'
+  | 'alerts'
+  | 'regions'
+  | 'space';
 function readIds(key: string): string[] {
   try {
     const value: unknown = JSON.parse(localStorage.getItem(key) || '[]');
@@ -67,5 +75,10 @@ export const useWorkspace = create<{
     }),
 }));
 export function openWorkspacePanel(panel: WorkspacePanel) {
+  if (['objects', 'regions', 'alerts', 'analytics'].includes(panel || '') && !useAuth.getState().user) return;
   useWorkspace.setState((state) => ({ panel: state.panel === panel ? null : panel }));
 }
+useAuth.subscribe((state) => {
+  if (!state.user && ['objects', 'regions', 'alerts', 'analytics'].includes(useWorkspace.getState().panel || ''))
+    useWorkspace.setState({ panel: null });
+});

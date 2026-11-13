@@ -45,7 +45,7 @@ test('route matching uses segment distance and sorts cameras along travel direct
 
 test('account sessions, role permissions, route ownership and revocation are enforced', async (t) => {
   const directory = await mkdtemp(path.join(tmpdir(), 'jejak-auth-'));
-  const auth = createAuth(directory),
+  const auth = await createAuth(directory),
     app = express();
   app.use(auth.middleware);
   app.use('/auth', auth.router);
@@ -80,7 +80,7 @@ test('account sessions, role permissions, route ownership and revocation are enf
   t.after(async () => {
     server.closeAllConnections();
     await new Promise((resolve) => server.close(resolve));
-    auth.close();
+    await auth.close();
     await rm(directory, { recursive: true, force: true });
   });
   const base = `http://127.0.0.1:${server.address().port}`;
@@ -276,8 +276,9 @@ test('motorcycle routing uses its own profile and persists vehicle choice', asyn
     },
     audit() {},
     db: {
+      transaction: (work) => work(),
       prepare: (sql) =>
-        sql.startsWith('SELECT COUNT')
+        sql.startsWith('SELECT')
           ? { get: () => ({ n: 0 }) }
           : {
               run: (_id, _user, _name, data) => {

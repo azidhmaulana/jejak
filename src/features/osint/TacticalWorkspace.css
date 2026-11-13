@@ -401,8 +401,7 @@
   background: #03110df5;
   z-index: 22;
 }
-.command-workspace[data-map-settings='true'] .workspace-map-toolbar,
-.command-workspace[data-drawing='true'] .workspace-map-toolbar {
+.command-workspace[data-map-settings='true'] .workspace-map-toolbar {
   display: flex;
 }
 .command-workspace .nearby-column,

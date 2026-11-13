@@ -43,38 +43,38 @@ export function cameraSourceCatalog() {
 }
 
 export function createCameraSources(db) {
-  db.exec(
-    'CREATE TABLE IF NOT EXISTS camera_sources (name TEXT PRIMARY KEY, active INTEGER NOT NULL)',
-  );
   const catalog = cameraSourceCatalog();
   const known = new Set(catalog.sources.map((source) => source.name));
-  const state = () =>
-    Object.fromEntries(
-      catalog.sources.map(({ name }) => [
-        name,
-        db.prepare('SELECT active FROM camera_sources WHERE name=?').get(name)?.active !== 0,
-      ]),
+  const state = async () => {
+    const rows = await db.prepare('SELECT name,active FROM camera_sources').all();
+    const active = new Map(rows.map((row) => [row.name, row.active !== 0]));
+    return Object.fromEntries(
+      catalog.sources.map(({ name }) => [name, active.get(name) !== false]),
     );
+  };
   return {
     state,
-    catalog: () => {
-      const active = state();
+    catalog: async () => {
+      const active = await state();
       return {
         ...catalog,
         sources: catalog.sources.map((source) => ({ ...source, active: active[source.name] })),
       };
     },
-    enabled: (camera) =>
-      db
-        .prepare('SELECT active FROM camera_sources WHERE name=?')
-        .get(camera.provider || 'ATCS DISHUB BANDUNG')?.active !== 0,
-    update(name, active) {
+    predicate: async () => {
+      const active = await state();
+      return (camera) => active[camera.provider || 'ATCS DISHUB BANDUNG'] !== false;
+    },
+    enabled: async (camera) => (await state())[camera.provider || 'ATCS DISHUB BANDUNG'] !== false,
+    async update(name, active) {
       if (!known.has(name)) throw Object.assign(new Error('Source not found.'), { status: 404 });
       if (typeof active !== 'boolean')
         throw Object.assign(new Error('Active must be a boolean.'), { status: 400 });
-      db.prepare(
-        'INSERT INTO camera_sources VALUES (?,?) ON CONFLICT(name) DO UPDATE SET active=excluded.active',
-      ).run(name, Number(active));
+      await db
+        .prepare(
+          'INSERT INTO camera_sources VALUES (?,?) ON CONFLICT(name) DO UPDATE SET active=excluded.active',
+        )
+        .run(name, Number(active));
       return this.catalog();
     },
   };

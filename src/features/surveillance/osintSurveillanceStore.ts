@@ -17,6 +17,7 @@ export interface SurveillanceSource {
   streamUrl?: string;
   locationName?: string;
   provider?: string;
+  province?: string;
   discoveryUrl?: string;
   coordinateAccuracy?: 'approximate';
   coordinateKind?:

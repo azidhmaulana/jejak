@@ -1,4 +1,5 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react';
+import { matchesProvince, useRegion } from '../../regions/regionStore';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, Search, X } from 'lucide-react';
 import { useLanguage } from '../../../shared/i18n/useLanguage';
 import { useActiveBundledCameras } from '../../surveillance/cameraSourceState';
@@ -14,6 +15,7 @@ import { selectCamera } from './CameraDock';
 import './NavbarCameraSearch.css';
 
 export default function NavbarCameraSearch({ onClose }: { onClose: () => void }) {
+  const { selected: province, provinces } = useRegion();
   const en = useLanguage() === 'en';
   const bundled = useActiveBundledCameras();
   const custom = useSurveillance((state) => state.sources);
@@ -27,13 +29,14 @@ export default function NavbarCameraSearch({ onClose }: { onClose: () => void })
     return [...bundled, ...custom].filter(
       (camera) =>
         camera.kind === 'camera' &&
+        matchesProvince(camera, province, provinces) &&
         terms.every((term) =>
           `${camera.name} ${camera.provider || ''} ${camera.locationName || ''}`
             .toLowerCase()
             .includes(term),
         ),
     );
-  }, [query, bundled, custom]);
+  }, [query, bundled, custom, province, provinces]);
   const results = matches.slice(0, limit);
   const activeIndex = active >= 0 && active < results.length ? active : -1;
   useEffect(() => {

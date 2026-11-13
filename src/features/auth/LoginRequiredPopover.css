@@ -1,0 +1,38 @@
+.login-required-popover {
+  position: fixed;
+  z-index: 500;
+  box-sizing: border-box;
+  width: min(340px, calc(100vw - 16px));
+  overflow: hidden;
+  border: 1px solid #36593c;
+  border-radius: 5px;
+  background-color: #041009;
+  background-image: linear-gradient(#65ef6b16 1px, transparent 1px), linear-gradient(90deg, #65ef6b16 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: #edf6ee;
+  box-shadow: 0 8px 24px #0005;
+  font: 12px var(--font-body, sans-serif);
+}
+.login-required-heading { display: flex; align-items: center; gap: 9px; padding: 12px; background: #07130e; border-bottom: 1px solid #29412c; }
+.login-required-heading > svg { flex-shrink: 0; color: #93ef6c; }
+.login-required-heading h2 { flex: 1; margin: 0; font-size: 15px; font-weight: 650; line-height: 1.4; }
+.login-required-popover p { margin: 0; padding: 16px 12px; line-height: 1.6; color: #bacabe; }
+.login-required-footer { display: flex; justify-content: flex-end; padding: 12px; border-top: 1px solid #29412c; }
+.login-required-popover button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 27px;
+  border: 1px solid #36593c;
+  border-radius: 3px;
+  background: #142d18;
+  color: #b5ff85;
+  cursor: pointer;
+  font: inherit;
+}
+.login-required-popover .login-required-close { flex-shrink: 0; width: 25px; min-height: 25px; color: #f27373; background: #2b100e; border-color: #63302d; }
+.login-required-popover .login-required-action { padding: 7px 16px; border-color: #639447; background: #0c2112; color: #93ef6c; font-weight: 650; }
+.login-required-popover .login-required-action:hover { background: #18371b; }
+.login-required-popover:focus-visible,
+.login-required-popover button:focus-visible { outline: 2px solid #93ef6c; outline-offset: 2px; }

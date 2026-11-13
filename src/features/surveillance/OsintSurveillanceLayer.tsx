@@ -1,3 +1,4 @@
+import { matchesProvince, useRegion } from '../regions/regionStore';
 import { hasSourceCoordinates, sourceCoordinates } from './osintSurveillanceStore';
 import { useRoute } from '../routes/routeStore';
 import { useActiveBundledCameras } from './cameraSourceState';
@@ -53,6 +54,7 @@ export default function OsintSurveillanceLayer({
   externalSelectedId?: string | null;
   onSelect?: (id: string | null) => void;
 }) {
+  const { selected: province, provinces } = useRegion();
   const routeResult = useRoute((state) => (state.filter ? state.result : null));
   const bandungCameras = useActiveBundledCameras();
   const manual = useSurveillance((s) => s.sources),
@@ -62,11 +64,11 @@ export default function OsintSurveillanceLayer({
     () =>
       (bandung ? [...bandungCameras, ...manual] : manual).filter(
         (source) =>
-          !routeResult ||
           source.kind !== 'camera' ||
-          routeResult.cameras.some((camera) => camera.id === source.id),
+          (matchesProvince(source, province, provinces) &&
+            (!routeResult || routeResult.cameras.some((camera) => camera.id === source.id))),
       ),
-    [bandung, manual, routeResult, bandungCameras],
+    [bandung, manual, routeResult, bandungCameras, province, provinces],
   );
 
   const cameras = useSurveillance((s) => s.cameras),

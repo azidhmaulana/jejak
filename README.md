@@ -4,21 +4,24 @@ Ekstraksi workspace OSINT dari working tree `bms_cueing` (HEAD saat migrasi: `94
 
 ## Menjalankan
 
-Gunakan Node.js 24 atau lebih baru; SQLite bawaan Node dipakai untuk membaca MBTiles/GMDB.
+Gunakan Node.js 24 atau lebih baru dan PostgreSQL. Akun, sesi, role, rute, dan statistik memakai PostgreSQL; SQLite bawaan Node hanya untuk paket peta MBTiles/GMDB dan migrasi data lama. Lihat [panduan PostgreSQL](docs/postgresql.md) untuk setup, import SQLite, backup, dan deploy.
 
 ```sh
 npm ci
+# Setup awal: ikuti docs/postgresql.md untuk kredensial dan provision database
+npm run db:up
+npm run db:migrate
 npm run dev
 ```
 
-Buka `http://127.0.0.1:5173`. Perintah ini menjalankan frontend dan API lokal sekaligus. `.env` opsional; contoh tersedia di `.env.example`.
+Buka `http://127.0.0.1:5173`. Perintah ini menjalankan frontend dan API lokal sekaligus. `DATABASE_URL` wajib dikonfigurasi pada backend; contoh tersedia di `.env.example`.
 
 ```sh
 npm run build
 npm start
 ```
 
-Build produksi dilayani di `http://127.0.0.1:4174`. `npm run preview` juga menjalankan server beserta API, sehingga penyimpanan tetap berfungsi. Default server adalah loopback untuk penggunaan lokal. Modul login, akun, dan role BMS tidak termasuk ekstraksi ini.
+Build produksi dilayani di `http://127.0.0.1:4174`. `npm run preview` juga menjalankan server beserta API, sehingga penyimpanan tetap berfungsi. Default server adalah loopback untuk penggunaan lokal. Login, registrasi, akun, role/permission, CMS, dan Analytics dikelola JEJAK secara mandiri.
 
 ## Fitur yang dibawa
 

@@ -1,3 +1,4 @@
+import VisitorCount from '../../analytics/VisitorCount';
 import { useEffect, useState } from 'react';
 import { useWorkspace } from '../workspaceStore';
 import { useMapTools } from '../../../modules/drawing/mapToolsStore';
@@ -53,7 +54,7 @@ export default function WorkspaceStatus() {
       <span className="status-coordinates">
         {coordinates[1].toFixed(4)}, {coordinates[0].toFixed(4)}
       </span>
-      <span className="tactical-region">INDONESIA</span>
+      <VisitorCount />
       <span className="tactical-local">
         <i />
         LOCAL WORKSPACE

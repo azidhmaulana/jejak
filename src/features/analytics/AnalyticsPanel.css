@@ -1,0 +1,123 @@
+.jejak-analytics {
+  color: #d9eadf;
+  font-size: 12px;
+  min-width: 0;
+}
+.jejak-analytics header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.jejak-analytics header strong {
+  flex: 1;
+}
+.account-panel .jejak-analytics header select {
+  width: auto;
+  min-width: 85px;
+  margin: 0;
+}
+.account-panel .jejak-analytics header button {
+  width: 30px;
+  height: 30px;
+  padding: 6px;
+}
+.jejak-analytics select,
+.jejak-analytics button {
+  background: #0b2117;
+  color: #c9f5b1;
+  border: 1px solid #345d40;
+  border-radius: 5px;
+  padding: 6px;
+}
+.jejak-analytics h3 {
+  font-size: 12px;
+  color: #a3e77c;
+  margin: 20px 0 10px;
+}
+.analytics-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.analytics-metrics > div {
+  border: 1px solid #294936;
+  border-radius: 8px;
+  padding: 12px;
+  background: #122a1c66;
+}
+.analytics-metrics strong {
+  display: block;
+  font-size: 23px;
+  margin-top: 6px;
+  color: #a5f777;
+}
+.analytics-metrics small,
+.analytics-note,
+.analytics-ranking small {
+  color: #8daa9a;
+}
+.analytics-ranking {
+  padding: 0;
+  list-style: none;
+}
+.analytics-ranking li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-bottom: 1px solid #244233;
+  padding: 10px 0;
+}
+.analytics-ranking li > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.analytics-ranking small {
+  display: block;
+}
+.analytics-trend {
+  max-height: 180px;
+  overflow: auto;
+}
+.analytics-trend > div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 6px 0;
+}
+.analytics-trend progress {
+  min-width: 20px;
+  flex: 1;
+  height: 7px;
+  accent-color: #85e550;
+}
+.analytics-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+}
+.analytics-breakdowns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.analytics-note {
+  font-size: 10px;
+  line-height: 1.6;
+  border-top: 1px solid #294936;
+  padding-top: 12px;
+  margin-top: 18px;
+}
+.analytics-empty {
+  padding: 20px 0;
+}
+@media (max-width: 600px) {
+  .analytics-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

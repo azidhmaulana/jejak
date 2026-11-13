@@ -1,4 +1,4 @@
-import { test, expect, type Route } from '@playwright/test';
+import { test, expect, type Route } from './fixtures';
 
 test('logout supports cancel, close, Escape, failure recovery and ignores a stale session response', async ({
   page,

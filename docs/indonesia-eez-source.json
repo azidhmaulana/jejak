@@ -1,0 +1,87 @@
+{
+  "source": "https://kspservices.big.go.id/satupeta/rest/services/PUBLIK/BATAS_WILAYAH/MapServer/10",
+  "retrievedAt": "2026-11-09",
+  "featureCount": 24,
+  "query": {
+    "where": "1=1",
+    "outFields": "*",
+    "outSR": 4326,
+    "f": "geojson"
+  },
+  "geometryModified": false,
+  "fields": [
+    {
+      "name": "objectid",
+      "type": "esriFieldTypeOID",
+      "alias": "objectid",
+      "domain": null
+    },
+    {
+      "name": "srs_id",
+      "type": "esriFieldTypeString",
+      "alias": "srs_id",
+      "length": 50,
+      "domain": null
+    },
+    {
+      "name": "lcode",
+      "type": "esriFieldTypeString",
+      "alias": "lcode",
+      "length": 50,
+      "domain": null
+    },
+    {
+      "name": "fcode",
+      "type": "esriFieldTypeString",
+      "alias": "fcode",
+      "length": 50,
+      "domain": null
+    },
+    {
+      "name": "stslat",
+      "type": "esriFieldTypeSmallInteger",
+      "alias": "stslat",
+      "domain": null
+    },
+    {
+      "name": "uupp",
+      "type": "esriFieldTypeString",
+      "alias": "uupp",
+      "length": 50,
+      "domain": null
+    },
+    {
+      "name": "btsngr",
+      "type": "esriFieldTypeSmallInteger",
+      "alias": "btsngr",
+      "domain": null
+    },
+    {
+      "name": "metadata",
+      "type": "esriFieldTypeString",
+      "alias": "metadata",
+      "length": 50,
+      "domain": null
+    },
+    {
+      "name": "pjgbts",
+      "type": "esriFieldTypeDouble",
+      "alias": "pjgbts",
+      "domain": null
+    },
+    {
+      "name": "remark",
+      "type": "esriFieldTypeString",
+      "alias": "remark",
+      "length": 75,
+      "domain": null
+    },
+    {
+      "name": "shape",
+      "type": "esriFieldTypeGeometry",
+      "alias": "shape",
+      "domain": null
+    }
+  ],
+  "note": "BIG Peta Batas ZEE reference lines. Preserve source status attributes; not a territorial sovereignty boundary or a claim that every segment is agreed."
+}

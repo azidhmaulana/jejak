@@ -115,17 +115,34 @@ export default function MapCanvas({
   useEffect(() => {
     setTileError(false);
     if (!mapInstance || mapMode !== 'online') return;
-    const error = () => setTileError(true);
-    const recovered = (event: maplibregl.MapSourceDataEvent) => {
-      if (event.sourceDataType === 'content' && event.isSourceLoaded) setTileError(false);
+    const baseSources = new Set(
+      typeof basemapStyle === 'object' ? Object.keys(basemapStyle.sources) : [],
+    );
+    const isBaseSource = (id?: string) => Boolean(id && baseSources.has(id));
+    const error = (event: maplibregl.ErrorEvent) => {
+      const sourceId = (event as maplibregl.ErrorEvent & { sourceId?: string }).sourceId;
+      if (isBaseSource(sourceId) || (!sourceId && !mapInstance.isStyleLoaded()))
+        setTileError(true);
     };
+    const recovered = (event: maplibregl.MapSourceDataEvent) => {
+      if (isBaseSource(event.sourceId) && event.sourceDataType === 'content' && event.isSourceLoaded)
+        setTileError(false);
+    };
+    const loaded = () => {
+      if (typeof basemapStyle === 'string') {
+        for (const id of Object.keys(mapInstance.getStyle().sources)) baseSources.add(id);
+      }
+      setTileError(false);
+    };
+    mapInstance.on('style.load', loaded);
     mapInstance.on('error', error);
     mapInstance.on('sourcedata', recovered);
     return () => {
       mapInstance.off('error', error);
       mapInstance.off('sourcedata', recovered);
+      mapInstance.off('style.load', loaded);
     };
-  }, [mapInstance, providerId, apiKey, basemapStyle]);
+  }, [mapInstance, mapMode, providerId, apiKey, basemapStyle]);
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;

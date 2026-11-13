@@ -5,6 +5,7 @@ Source: https://data.pu.go.id/sites/default/files/geojson/ast_bpjt_tol_operasi.g
 No third-party synthetic camera coordinates are used. No random marker offsets.
 """
 import json, math, re, sys
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 SOURCE = 'https://data.pu.go.id/sites/default/files/geojson/ast_bpjt_tol_operasi.geojson'
@@ -72,8 +73,252 @@ def station_range(text):
     if len(nums)!=2: return None
     return [(-1 if a.startswith('-') else 1)*(abs(int(a))*1000+int(b)) for a,b in nums]
 
+def tangerang_merak_chainage(camera, features):
+    # PU's STA describes Ciujung-Ciltim, but its geometry covers the full road.
+    km = chainage(camera['name'])
+    if km is None:
+        return None
+    lane = re.search(r'\b([AB])\b', camera['name'].upper())
+    if not lane:
+        return None
+    feature_id, anchor_id = (127, 1) if lane[1] == 'A' else (126, 139)
+    feature, anchor = features[feature_id], features[anchor_id]
+    if feature['geometry']['type'] != 'LineString':
+        return None
+    line = feature['geometry']['coordinates']
+    anchor_point = [anchor['properties']['x_end'], anchor['properties']['y_end']]
+    if distance(line[-1], anchor_point) < distance(line[0], anchor_point):
+        line = list(reversed(line))
+    if distance(line[0], anchor_point) > 50:
+        return None
+    anchor_sta = station_range(anchor['properties']['sta'])
+    if not anchor_sta:
+        return None
+    length = sum(distance(a,b) for a,b in zip(line,line[1:]))
+    offset = km - anchor_sta[1]
+    if not 0 <= offset <= length:
+        return None
+    return point_at(line, offset / length), 'chainage-estimate', {
+        'source': SOURCE, 'featureId': feature_id, 'road': 'Tangerang - Merak',
+        'cameraKm': km / 1000, 'anchorFeatureId': anchor_id,
+        'anchorKm': anchor_sta[1] / 1000,
+        'method': 'Distance along full-road geometry from adjoining Jakarta-Tangerang endpoint; reverse B geometry before measuring.',
+        'note': 'Approximate chainage calibration, not a surveyed camera position. Original road STA covers a subsegment and is not used.'
+    }
+
+def cibitung_cilincing_chainage(camera, features):
+    match = re.fullmatch(r'MR\s+STA\s+(\d{1,2})', camera['name'], re.I)
+    if not match:
+        return None
+    feature = features[31]
+    properties, geometry = feature['properties'], feature['geometry']
+    if geometry['type'] != 'LineString':
+        return None
+    line = geometry['coordinates']
+    if distance(line[0], [properties['x_star'], properties['y_star']]) > 50:
+        return None
+    # Only the initial STA applies: the metadata end describes section 1.
+    start = station_range(properties.get('sta'))
+    if not start or start[0] != -375:
+        return None
+    length = sum(distance(a,b) for a,b in zip(line,line[1:]))
+    offset = int(match[1]) * 1000 - start[0]
+    if not 33000 <= length <= 36000 or not 0 <= offset <= length:
+        return None
+    return point_at(line, offset / length), 'chainage-estimate', {
+        'source': SOURCE, 'featureId': 31, 'road': 'Cibitung - Cilincing',
+        'cameraKm': int(match[1]), 'anchorKm': -0.375,
+        'method': 'Distance along full-road A geometry from Cibitung initial STA -0+375, toward Cilincing.',
+        'note': 'MR STA integer interpreted as kilometre station. Approximate road position only; carriageway and camera pole unverified. Metadata end STA 2+650 is a section boundary, not the full geometry endpoint.'
+    }
+
+def sedyatmo_chainage(camera, features):
+    km = chainage(camera['name'])
+    if km is None:
+        return None
+    lane = re.search(r'\b([AB])\b', camera['name'].upper())
+    feature_id = 138 if lane and lane[1] == 'B' else 135
+    geometry = features[feature_id]['geometry']
+    if geometry['type'] != 'MultiLineString':
+        return None
+    parts = geometry['coordinates']
+    # Reviewed mainline pieces exclude the ring's return leg and duplicate ramp.
+    if feature_id == 135 and len(parts) == 3:
+        first, ring, airport = parts
+        junction = min(range(len(ring)), key=lambda i: distance(ring[i], airport[-1]))
+        if distance(first[-1], ring[0]) > 10 or distance(ring[junction], airport[-1]) > 10:
+            return None
+        line = first + ring[1:junction+1] + list(reversed(airport))[1:]
+    elif feature_id == 138 and len(parts) == 2:
+        first, airport = parts
+        junction = min(range(len(airport)), key=lambda i: distance(airport[i], first[-1]))
+        if distance(airport[junction], first[-1]) > 100:
+            return None
+        line = first + list(reversed(airport[:junction+1]))
+    else:
+        return None
+    gate = [106.6977487, -6.1051556]
+    best, travelled = None, 0
+    scale = math.cos(math.radians(gate[1]))
+    for a,b in zip(line,line[1:]):
+        dx,dy = (b[0]-a[0])*scale, b[1]-a[1]
+        t = max(0,min(1,(((gate[0]-a[0])*scale)*dx+(gate[1]-a[1])*dy)/(dx*dx+dy*dy))) if dx or dy else 0
+        xy = [a[j]+t*(b[j]-a[j]) for j in (0,1)]
+        length = distance(a,b)
+        candidate = (distance(gate,xy), travelled+t*length)
+        if best is None or candidate[0] < best[0]:
+            best = candidate
+        travelled += length
+    if best is None or best[0] > 150 or not 12000 < travelled < 14000:
+        return None
+    offset = best[1] + km - 31000
+    if not 0 <= offset <= travelled:
+        return None
+    return point_at(line, offset/travelled), 'chainage-estimate', {
+        'source': SOURCE, 'featureId': feature_id, 'road': 'Prof. Dr. Ir. Soedijatmo',
+        'cameraKm': km/1000, 'anchorKm': 31,
+        'anchorLatitude': gate[1], 'anchorLongitude': gate[0],
+        'anchorLocationSource': 'https://www.waze.com/live-map/directions/id/daerah-khusus-ibukota-jakarta/gerbang-tol-cengkareng-2?to=place.ChIJQbVOPecCai4RQuz78WWqO_s',
+        'anchorKmSource': 'https://ekonomi.bisnis.com/read/20250620/45/1886706/penuhi-spm-jalan-tol-dalam-kota-jasa-marga-preservasi-gerbang-tol-cengkareng',
+        'method': 'Mainline distance relative to Cengkareng 2 toll gate KM 31; joined reviewed PU geometry pieces, excluding return loops.',
+        'note': 'Approximate road position, not surveyed camera coordinates. A geometry used where camera carriageway is unspecified. Legacy local STA 0-11 is not the CCTV kilometre system.'
+    }
+
+def jakarta_cikampek_chainage(camera, features):
+    name = camera['name']
+    if not name.upper().startswith('CIKAMPEK'):
+        return None
+    km = chainage(name.replace('CIKAMPEKKM', 'CIKAMPEK KM'))
+    plaza = any(label in name.upper() for label in ['CIKATAMA', 'GT UTAMA', 'GT CIKAMPEK'])
+    if km is None and plaza:
+        km = 70000
+    if km is None or not 2000 <= km <= 72000:
+        return None
+    lane = re.search(r'\b([AB])\b', name.upper())
+    feature_id = 136 if lane and lane[1] == 'B' else 137
+    geometry = features[feature_id]['geometry']
+    if geometry['type'] != 'MultiLineString':
+        return None
+    parts = geometry['coordinates']
+    if feature_id == 137 and len(parts) == 2:
+        east, west = parts
+        join = min(range(len(west)), key=lambda i: distance(west[i], east[0]))
+        if distance(west[join], east[0]) > 10:
+            return None
+        line = west[:join+1] + east[1:]
+    elif feature_id == 136 and len(parts) == 4:
+        east, loop, _, west = parts
+        join = min(range(len(loop)), key=lambda i: distance(loop[i], west[-1]))
+        if distance(loop[join], west[-1]) > 10 or distance(loop[0], east[0]) > 10 or distance(loop[-1], east[0]) > 10:
+            return None
+        bridges = [loop[join:], list(reversed(loop[:join+1]))]
+        bridge = min(bridges, key=lambda line: sum(distance(a,b) for a,b in zip(line,line[1:])))
+        line = west + bridge[1:] + east[1:]
+    else:
+        return None
+    length = sum(distance(a,b) for a,b in zip(line,line[1:]))
+    if not 68000 < length < 72000:
+        return None
+    reference = {
+        'source': SOURCE, 'featureId': feature_id, 'road': 'Jakarta - Cikampek',
+        'sta': '2+000 - 72+000', 'cameraKm': km/1000,
+        'method': 'Interpolate reviewed continuous mainline from STA 2 to 72; trim overlapping parts and exclude duplicate loop/ramp.',
+        'note': 'Approximate road position, not surveyed camera coordinates. A geometry used when carriageway is unspecified.'
+    }
+    if plaza:
+        reference['place'] = 'Gerbang Tol Cikampek Utama'
+        reference['placeSource'] = 'https://bpjt.pu.go.id/ragam-ikon-khas-jalan-tol-trans-jawa-menemani-perjalanan-mudik/'
+        reference['note'] = 'Shared plaza reference at KM 70; individual booths, tower and satellite camera positions are not verified.'
+    return point_at(line, (km-2000)/70000), 'junction-reference' if plaza else 'chainage-estimate', reference
+
+def semarang_demak_chainage(camera, features):
+    km = chainage(camera['name'])
+    if km is None or not 449000 <= km <= 465000:
+        return None
+    lane = re.search(r'\b([AB])\b', camera['name'].upper())
+    feature_id = 73 if lane and lane[1] == 'B' else 74
+    feature = features[feature_id]
+    if feature['geometry']['type'] != 'LineString':
+        return None
+    line = feature['geometry']['coordinates']
+    p = feature['properties']
+    if distance(line[0], [p['x_star'],p['y_star']]) > 50 or line[0][0] >= line[-1][0]:
+        return None
+    length = sum(distance(a,b) for a,b in zip(line,line[1:]))
+    if not 15500 < length < 16500:
+        return None
+    return point_at(line, (km-449000)/16000), 'chainage-estimate', {
+        'source': SOURCE, 'featureId': feature_id, 'road': 'Semarang - Demak Seksi 2 (Sayung - Demak)',
+        'cameraKm': km/1000, 'anchorKm': 449, 'endKm': 465,
+        'chainageSource': 'https://www.idxchannel.com/economics/mulai-berbayar-segini-tarif-jalan-tol-semarang-demak-seksi-ii',
+        'method': 'Interpolate along Sayung-Demak mainline using operational KM 449-465, not local construction STA 10+394-26+704.',
+        'note': 'Approximate road position, not surveyed camera coordinates. Unspecified carriageway uses A as a road reference.'
+    }
+
+def semarang_abc_chainage(camera, features):
+    name = camera['name'].upper()
+    station = re.search(r'KM\s*(\d+)\s*[ABC]?\s*\+\s*(\d{3})', name)
+    section_lane = re.search(r'-\s*([ABC])/(A|B|MED)\b', name)
+    if not station or not section_lane:
+        return None
+    section, lane = section_lane.groups()
+    km = int(station[1])*1000 + int(station[2])
+    feature_id = 103 if lane == 'B' else 104
+    # Each feature contains three different sections, not consecutive road pieces.
+    parts = {104: {'A': 1, 'B': 0, 'C': 2}, 103: {'A': 1, 'B': 2, 'C': 0}}
+    feature = features[feature_id]
+    if feature['geometry']['type'] != 'MultiLineString':
+        return None
+    part = parts[feature_id][section]
+    line = feature['geometry']['coordinates'][part]
+    if feature_id == 103:
+        line = list(reversed(line))
+    length = sum(distance(a,b) for a,b in zip(line,line[1:]))
+    limits = {'A': (8300, 8700), 'B': (4700, 4900), 'C': (9300, 9600)}
+    if not limits[section][0] < length < limits[section][1]:
+        return None
+    anchor = 420400 if section == 'A' else 429600
+    offset = km-anchor
+    reference = {
+        'source': SOURCE, 'featureId': feature_id, 'geometryPart': part,
+        'road': 'Semarang Seksi A, B, C', 'section': section,
+        'cameraKm': km/1000, 'anchorKm': anchor/1000,
+        'method': 'Distance along the individual section; A starts at Krapyak, B/C at Jangli. B carriageway reversed.',
+        'note': 'Approximate calibration from PU section STA; C shares the B junction anchor. Not surveyed camera coordinates. Med uses carriageway A.'
+    }
+    if section == 'B' and 'UJUNG SRONDOL' in name and abs(offset-length) < 100:
+        reference['note'] = 'Srondol section endpoint reference; camera KM falls just outside geometry. No extrapolation.'
+        return line[-1], 'junction-reference', reference
+    if not 0 <= offset <= length:
+        return None
+    return point_at(line, offset/length), 'chainage-estimate', reference
+
 def locate(camera, features):
     road=camera['road']; name=camera['name']
+    if road == 'semarang-abc':
+        calibrated = semarang_abc_chainage(camera, features)
+        if calibrated:
+            return calibrated
+    if road in ['semarang-demak-seksi-2-sayung-demak', 'semarang-demak']:
+        calibrated = semarang_demak_chainage(camera, features)
+        if calibrated:
+            return calibrated
+    if road == 'jakarta-cikampek':
+        calibrated = jakarta_cikampek_chainage(camera, features)
+        if calibrated:
+            return calibrated
+    if road == 'sedyatmo':
+        calibrated = sedyatmo_chainage(camera, features)
+        if calibrated:
+            return calibrated
+    if road == 'cibitung-cilincing':
+        calibrated = cibitung_cilincing_chainage(camera, features)
+        if calibrated:
+            return calibrated
+    if road == 'tangerang-merak':
+        calibrated = tangerang_merak_chainage(camera, features)
+        if calibrated:
+            return calibrated
     if road not in ROAD_IDS:
         # Locality references from Photon / OpenStreetMap, NOT toll gate positions.
         place = 'Kutanegara' if road=='jakarta-cikampek-ii-selatan' else ('Kraksaan' if 'KRAKSAAN' in name else 'Paiton')
@@ -124,5 +369,5 @@ if __name__=='__main__':
     catalogue['coordinatePolicy']=policy; candidates['coordinatePolicy']=policy
     candidates['summary'].update(withApproximateCoordinates=len(candidates['cameras']),coordinatesPending=0)
     for p,d in [(candidate_path,candidates),(catalogue_path,catalogue)]: p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    Path('docs/binamarga-coordinate-coverage.json').write_text(json.dumps({'source':SOURCE,'checkedAt':'2026-11-05','cameraCount':len(catalogue['cameras']),'kinds':totals,'policy':policy},indent=2)+'\n',encoding='utf-8')
+    Path('docs/binamarga-coordinate-coverage.json').write_text(json.dumps({'source':SOURCE,'checkedAt':datetime.now(timezone(timedelta(hours=7))).date().isoformat(),'cameraCount':len(catalogue['cameras']),'kinds':totals,'policy':policy},indent=2)+'\n',encoding='utf-8')
     print(totals)

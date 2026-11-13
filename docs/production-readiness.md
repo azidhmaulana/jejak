@@ -22,7 +22,7 @@ Domain produksi: **https://jejak.kecoalabs.com**. Jalankan `npm run build` lalu 
 
 ## Batas dan pekerjaan deployment
 
-Limiter menggunakan memori satu proses, bukan perlindungan DDoS terdistribusi. Banyak pengguna di satu NAT berbagi kuota. Terapkan WAF/rate limit/CDN pada edge, limit koneksi dan bandwidth, lalu ukur kapasitas pada server produksi. Untuk banyak instance gunakan limiter terdistribusi dan strategi database/session yang sesuai; jangan membagikan SQLite secara sembarang melalui network filesystem.
+Limiter menggunakan memori satu proses, bukan perlindungan DDoS terdistribusi. Banyak pengguna di satu NAT berbagi kuota. Terapkan WAF/rate limit/CDN pada edge, limit koneksi dan bandwidth, lalu ukur kapasitas pada server produksi. Akun/sesi/statistik kini memakai PostgreSQL dengan connection pool. Untuk banyak instance tetap gunakan limiter terdistribusi dan pindahkan penyimpanan drawing/overlay berbasis file ke storage bersama yang sesuai. Lihat [konfigurasi PostgreSQL dan backup](postgresql.md).
 
 Pantau 429/503, CPU, memori, latensi API, bandwidth media, disk dan error upstream. Backup database akun secara konsisten, batasi izin direktori runtime, jangan publish `.env`, token setup, atau database. Rotasi kredensial jika pernah terpapar. Batasi log agar tidak merekam cookie/token/password.
 

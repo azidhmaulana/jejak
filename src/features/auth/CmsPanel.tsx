@@ -1,3 +1,4 @@
+import AnalyticsPanel from '../analytics/AnalyticsPanel';
 import { setLanguage } from '../../shared/i18n/runtime.js';
 import CameraSourcesPanel from './CameraSourcesPanel';
 import JejakLogo from '../../shared/components/JejakLogo';
@@ -5,6 +6,7 @@ import { toast } from '../../shared/components/Toast';
 import { useEffect, useRef, useState } from 'react';
 import {
   X,
+  BarChart3,
   Home,
   Settings,
   Video,
@@ -23,7 +25,7 @@ import {
 import { api, hasCmsAccess, useAuth, type User } from './authStore';
 import { useLanguage } from '../../shared/i18n/useLanguage';
 import './CmsPanel.css';
-type CmsTab = 'dashboard' | 'users' | 'roles' | 'sources' | 'settings';
+type CmsTab = 'analytics' | 'dashboard' | 'users' | 'roles' | 'sources' | 'settings';
 type Role = { id: string; permissions: string[] };
 export default function CmsPanel() {
   const { user, cmsOpen, refresh } = useAuth();
@@ -240,10 +242,18 @@ export default function CmsPanel() {
               <Settings size={15} />
               <span>{tx('Pengaturan', 'Settings')}</span>
             </button>
+            {user.permissions.includes('analytics.view') && (
+              <button aria-pressed={tab === 'analytics'} onClick={() => changeTab('analytics')}>
+                <BarChart3 size={15} />
+                <span>{tx('Analitik', 'Analytics')}</span>
+              </button>
+            )}
           </nav>
           <div className="cms-content">
             <div className="cms-section-heading">
-              {tab === 'sources' ? (
+              {tab === 'analytics' ? (
+                <BarChart3 />
+              ) : tab === 'sources' ? (
                 <Video />
               ) : tab === 'roles' ? (
                 <ShieldCheck />
@@ -256,46 +266,55 @@ export default function CmsPanel() {
               )}
               <div>
                 <h2>
-                  {tab === 'sources'
-                    ? 'CCTV Source'
-                    : tab === 'users'
-                      ? tx('Pengguna', 'Users')
-                      : tab === 'roles'
-                        ? tx('Role & izin', 'Roles & permissions')
-                        : tab === 'settings'
-                          ? tx('Pengaturan', 'Settings')
-                          : 'Dashboard'}
+                  {tab === 'analytics'
+                    ? tx('Analitik', 'Analytics')
+                    : tab === 'sources'
+                      ? 'CCTV Source'
+                      : tab === 'users'
+                        ? tx('Pengguna', 'Users')
+                        : tab === 'roles'
+                          ? tx('Role & izin', 'Roles & permissions')
+                          : tab === 'settings'
+                            ? tx('Pengaturan', 'Settings')
+                            : 'Dashboard'}
                 </h2>
                 <p>
-                  {tab === 'sources'
+                  {tab === 'analytics'
                     ? tx(
-                        'Daftar provider CCTV yang terhubung ke katalog.',
-                        'CCTV providers connected to the catalog.',
+                        'Statistik kunjungan dan penggunaan kamera.',
+                        'Visitor and camera usage statistics.',
                       )
-                    : tab === 'users'
+                    : tab === 'sources'
                       ? tx(
-                          'Kelola pengguna sistem, atur peran, dan status akses.',
-                          'Manage system users, roles, and access status.',
+                          'Daftar provider CCTV yang terhubung ke katalog.',
+                          'CCTV providers connected to the catalog.',
                         )
-                      : tab === 'roles'
+                      : tab === 'users'
                         ? tx(
-                            'Atur peran pengguna dan hak akses pada sistem.',
-                            'Manage user roles and system permissions.',
+                            'Kelola pengguna sistem, atur peran, dan status akses.',
+                            'Manage system users, roles, and access status.',
                           )
-                        : tab === 'settings'
+                        : tab === 'roles'
                           ? tx(
-                              'Preferensi antarmuka dan akun Anda.',
-                              'Your interface and account preferences.',
+                              'Atur peran pengguna dan hak akses pada sistem.',
+                              'Manage user roles and system permissions.',
                             )
-                          : tx(
-                              'Ringkasan pengguna dan akses sistem.',
-                              'User and system access overview.',
-                            )}
+                          : tab === 'settings'
+                            ? tx(
+                                'Preferensi antarmuka dan akun Anda.',
+                                'Your interface and account preferences.',
+                              )
+                            : tx(
+                                'Ringkasan pengguna dan akses sistem.',
+                                'User and system access overview.',
+                              )}
                 </p>
               </div>
             </div>
             {error && <p role="alert">{error}</p>}
-            {!manage ? (
+            {tab === 'analytics' ? (
+              <AnalyticsPanel admin />
+            ) : !manage ? (
               <p>
                 {tx(
                   'Role ini belum memiliki izin pengelolaan CMS.',

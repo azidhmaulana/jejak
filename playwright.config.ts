@@ -10,10 +10,12 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'npm run dev',
+    command: 'node --env-file-if-exists=.env scripts/dev.mjs',
     url: 'http://127.0.0.1:5175',
     reuseExistingServer: false,
     env: {
+      NODE_ENV: 'test',
+      JEJAK_TRUST_PROXY: '127.0.0.1,::1',
       JEJAK_DATA_DIR: '.runtime/browser-tests',
       PORT: '4176',
       JEJAK_WEB_PORT: '5175',

@@ -17,6 +17,7 @@ import { useWorkspace } from '../workspaceStore';
 import OsintCameraVideo from '../../surveillance/OsintCameraVideo';
 import { useLanguage } from '../../../shared/i18n/useLanguage';
 import { selectCamera } from './CameraDock';
+import { useCameraTracking } from '../../analytics/tracking';
 
 export default function CameraInspector() {
   const en = useLanguage() === 'en';
@@ -40,6 +41,7 @@ export default function CameraInspector() {
     return () => clearTimeout(timer);
   }, [refreshing, attempt]);
   const [status, setStatus] = useState('MEMUAT');
+  useCameraTracking(source?.id, status, monitor);
   useEffect(() => {
     setStatus('MEMUAT');
     setExpanded(false);

@@ -1,4 +1,6 @@
 import { useMapTools, type DrawMode } from './mapToolsStore';
+import { useWorkspace } from '../../features/osint/workspaceStore';
+import { isOsintMap } from '../maps/mapWorkspace';
 
 const hints: Record<Exclude<DrawMode, 'render'>, [string, string]> = {
   select: ['Pilih / edit objek', 'Klik gambar untuk edit · Geser area kosong untuk navigasi'],
@@ -11,7 +13,8 @@ const hints: Record<Exclude<DrawMode, 'render'>, [string, string]> = {
 
 export default function BmsDrawingHint() {
   const mode = useMapTools((state) => state.mode);
-  if (mode === 'render') return null;
+  const objectsOpen = useWorkspace((state) => state.panel === 'objects');
+  if (isOsintMap || mode === 'render' || objectsOpen) return null;
   const [title, instruction] = hints[mode];
   return (
     <div className="bms-drawing-hint" role="status">

@@ -3,6 +3,58 @@
   gap: 14px;
   min-width: 0;
 }
+.cms-source-check-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 11px;
+  color: #a6c3ae;
+}
+.cms-source-summary .cms-source-check-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.cms-camera-sources progress {
+  width: 100%;
+  height: 5px;
+  accent-color: #95ee60;
+}
+.cms-source-terminal {
+  height: 66px;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  background: #04100b;
+  border: 1px solid #355739;
+  border-radius: 5px;
+  color: #9bd58b;
+  font: 10px/18px monospace;
+  overflow: hidden;
+}
+.cms-source-terminal > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cms-source-terminal time {
+  color: #6e967f;
+}
+.source-check-spin {
+  animation: source-check-spin 1.2s linear infinite;
+}
+@keyframes source-check-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .source-check-spin {
+    animation: none;
+  }
+}
 .cms-camera-sources input.cms-source-active {
   width: 15px;
   height: 15px;
@@ -15,6 +67,7 @@
 }
 .cms-source-summary {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 10px 22px;
   color: #a6c3ae;

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { api, useAuth } from '../auth/authStore';
+import { track } from '../analytics/tracking';
 export type TravelMode = 'car' | 'motorcycle';
 export type Point = [number, number];
 export type RouteResult = {
@@ -57,7 +58,10 @@ export const useRoute = create<{
         tolerance,
         mode,
       });
-      if (request === revision) set({ result, filter: true });
+      if (request === revision) {
+        set({ result, filter: true });
+        track('route');
+      }
     } catch (e) {
       if (request === revision) set({ error: (e as Error).message });
     } finally {

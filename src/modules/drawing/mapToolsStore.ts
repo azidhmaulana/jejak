@@ -32,6 +32,9 @@ export interface DrawingDetails {
   zone: DrawingZone;
 }
 export interface MapToolsController {
+  finish: () => void;
+  undoPoint: () => void;
+  save: () => void;
   undo: () => void;
   redo: () => void;
   setLocked: (id: DrawingId, locked: boolean) => void;
@@ -62,6 +65,7 @@ interface MapToolsState extends DrawingStyle {
   color: string;
   width: number;
   selectedId: string | number | null;
+  completedId: DrawingId | null;
   features: Drawing[];
   preview: Drawing | null;
   notice: string;
@@ -87,6 +91,7 @@ export const useMapTools = create<MapToolsState>(() => ({
   color: '#00c8f4',
   width: 2,
   selectedId: null,
+  completedId: null,
   features: [],
   preview: null,
   notice: '',

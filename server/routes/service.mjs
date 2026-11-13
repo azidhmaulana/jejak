@@ -61,7 +61,12 @@ export function camerasAlongRoute(coordinates, cameras, tolerance) {
 }
 export function createRouteRouter(
   auth,
-  { fetcher = fetch, cameras = publicCameras, cameraEnabled = () => true } = {},
+  {
+    fetcher = fetch,
+    cameras = publicCameras,
+    cameraEnabled = () => true,
+    cameraPredicate = async () => cameraEnabled,
+  } = {},
 ) {
   const router = express.Router();
   router.use(express.json({ limit: '4mb' }));
@@ -129,7 +134,11 @@ export function createRouteRouter(
         geometry: route.geometry,
         distance: route.distance,
         duration: route.duration,
-        cameras: camerasAlongRoute(coordinates, cameras.filter(cameraEnabled), points.tolerance),
+        cameras: camerasAlongRoute(
+          coordinates,
+          cameras.filter(await cameraPredicate()),
+          points.tolerance,
+        ),
         provider:
           points.mode === 'motorcycle' ? 'Valhalla / OpenStreetMap' : 'OSRM / OpenStreetMap',
       });
@@ -141,35 +150,42 @@ export function createRouteRouter(
       pending.delete(req.user.id);
     }
   });
-  router.get('/', auth.requirePermission('routes.save'), (req, res) =>
+  router.get('/', auth.requirePermission('routes.save'), async (req, res) =>
     res.json({
-      routes: auth.db
-        .prepare('SELECT id,name,data,created FROM routes WHERE user_id=? ORDER BY created DESC')
-        .all(req.user.id)
-        .map(({ data, ...row }) => ({ ...row, ...JSON.parse(data) })),
+      routes: (
+        await auth.db
+          .prepare('SELECT id,name,data,created FROM routes WHERE user_id=? ORDER BY created DESC')
+          .all(req.user.id)
+      ).map(({ data, ...row }) => ({ ...row, ...JSON.parse(data) })),
     }),
   );
-  router.post('/', auth.requirePermission('routes.save'), (req, res) => {
+  router.post('/', auth.requirePermission('routes.save'), async (req, res) => {
     const points = validatePoints(req.body);
     const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
     if (!validText(req.body.name, 80)) throw invalid('Enter a route name (maximum 80 characters).');
-    if (
-      auth.db.prepare('SELECT COUNT(*) AS n FROM routes WHERE user_id=?').get(req.user.id).n >= 100
-    )
-      throw invalid('You can save up to 100 routes.');
     const id = randomUUID();
-    auth.db
-      .prepare('INSERT INTO routes VALUES(?,?,?,?,?)')
-      .run(id, req.user.id, name, JSON.stringify(points), Date.now());
-    auth.audit(req.user.id, 'route.save', id);
+    await auth.db.transaction(async () => {
+      await auth.db.prepare('SELECT id FROM users WHERE id=? FOR UPDATE').get(req.user.id);
+      if (
+        (await auth.db.prepare('SELECT COUNT(*) AS n FROM routes WHERE user_id=?').get(req.user.id))
+          .n >= 100
+      )
+        throw invalid('You can save up to 100 routes.');
+      await auth.db
+        .prepare('INSERT INTO routes VALUES(?,?,?,?,?)')
+        .run(id, req.user.id, name, JSON.stringify(points), Date.now());
+      await auth.audit(req.user.id, 'route.save', id);
+    });
     res.status(201).json({ id });
   });
-  router.delete('/:id', auth.requirePermission('routes.save'), (req, res) => {
-    const result = auth.db
-      .prepare('DELETE FROM routes WHERE id=? AND user_id=?')
-      .run(req.params.id, req.user.id);
-    if (!result.changes) throw invalid('Route not found.', 404);
-    auth.audit(req.user.id, 'route.delete', req.params.id);
+  router.delete('/:id', auth.requirePermission('routes.save'), async (req, res) => {
+    await auth.db.transaction(async () => {
+      const result = await auth.db
+        .prepare('DELETE FROM routes WHERE id=? AND user_id=?')
+        .run(req.params.id, req.user.id);
+      if (!result.changes) throw invalid('Route not found.', 404);
+      await auth.audit(req.user.id, 'route.delete', req.params.id);
+    });
     res.json({ ok: true });
   });
   return router;

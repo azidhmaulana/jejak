@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 const cameras = Array.from({ length: 12 }, (_, i) => ({
   id: `audit-camera-${i}`,

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test('space panel loads one player on demand, switches streams and unloads on close', async ({
   page,

@@ -1,6 +1,8 @@
 import express from 'express';
+import { createAnalytics } from './analytics.mjs';
 import { rateLimit, concurrencyLimit, securityHeaders } from './request-protection.mjs';
 import { createCameraSources } from './camera-sources.mjs';
+import { createCameraChecks } from './camera-checks.mjs';
 import { publicMapCatalog } from './public-map-catalog.mjs';
 import { createAuth } from './auth/service.mjs';
 import { createRouteRouter } from './routes/service.mjs';
@@ -50,11 +52,13 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
     next();
   });
   const drawings = createDrawingStore(directory);
-  const auth = createAuth(directory);
+  const auth = await createAuth(directory);
   const cameraSources = createCameraSources(auth.db);
+  const cameraChecks = await createCameraChecks(auth.db);
   app.use(auth.middleware);
-  app.get('/api/cctv-source-state', (_req, res) =>
-    res.set('Cache-Control', 'no-store').json({ active: cameraSources.state() }),
+  app.use('/api/analytics', createAnalytics(auth, cameraSources.predicate));
+  app.get('/api/cctv-source-state', async (_req, res) =>
+    res.set('Cache-Control', 'no-store').json({ active: await cameraSources.state() }),
   );
   app.use('/api/cctv-sources', (req, res, next) => {
     res.set('Cache-Control', 'no-store');
@@ -63,14 +67,30 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
       return res.status(403).json({ error: 'Permission denied.' });
     next();
   });
-  app.get('/api/cctv-sources', (_req, res) => res.json(cameraSources.catalog()));
-  app.patch('/api/cctv-sources', express.json({ limit: '4kb' }), (req, res) => {
-    const result = cameraSources.update(req.body?.name, req.body?.active);
-    auth.audit(req.user.id, 'camera-source.update', req.body.name);
+  app.get('/api/cctv-sources', async (_req, res) => res.json(await cameraSources.catalog()));
+  app.get('/api/cctv-sources/check', async (_req, res) =>
+    res.json({ job: await cameraChecks.latest() }),
+  );
+  app.post('/api/cctv-sources/check', express.json({ limit: '1kb' }), async (req, res) => {
+    if (
+      !req.body ||
+      typeof req.body !== 'object' ||
+      Array.isArray(req.body) ||
+      Object.keys(req.body).some((key) => key !== 'provider')
+    )
+      return res.status(400).json({ error: 'Only a catalog provider may be specified.' });
+    res.status(202).json({ job: await cameraChecks.start(req.body.provider, req.user.id) });
+  });
+  app.patch('/api/cctv-sources', express.json({ limit: '4kb' }), async (req, res) => {
+    const result = await auth.db.transaction(async () => {
+      const result = await cameraSources.update(req.body?.name, req.body?.active);
+      await auth.audit(req.user.id, 'camera-source.update', req.body.name);
+      return result;
+    });
     res.json(result);
   });
   app.use('/api/auth', auth.router);
-  app.use('/api/routes', createRouteRouter(auth, { cameraEnabled: cameraSources.enabled }));
+  app.use('/api/routes', createRouteRouter(auth, { cameraPredicate: cameraSources.predicate }));
   app.use(['/api/bms/projects', '/api/osint/map-overlays'], (req, res, next) =>
     auth.requirePermission('objects.write')(req, res, next),
   );
@@ -86,6 +106,14 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
   const overlays = createOverlayStore(directory);
   const json = express.json({ limit: '8mb' });
   app.get('/api/health', (_req, res) => res.json({ ok: true, app: 'jejak' }));
+  app.get('/api/ready', async (_req, res) => {
+    try {
+      await auth.db.query('SELECT 1');
+      res.json({ ok: true, database: 'postgresql' });
+    } catch {
+      res.status(503).json({ ok: false, error: 'Database unavailable.' });
+    }
+  });
   app.get('/api/bms/projects/osint', async (_req, res) => res.json(await drawings.read()));
   app.patch('/api/bms/projects/osint', json, async (req, res) =>
     res.json(await drawings.patch(req.body)),
@@ -140,7 +168,8 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
       .json({ error: error.status ? error.message : 'Unable to process request.' });
   });
   app.locals.close = async () => {
-    auth.close();
+    await cameraChecks.close();
+    await auth.close();
     await manager.close();
     offline.locals.close();
   };

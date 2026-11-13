@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 test('known offline camera stays idle until explicit manual retry', async ({ page }) => {
   let requests = 0;
   await page.route('https://offline-camera.test/live.m3u8', (route) => {

@@ -1,3 +1,6 @@
+import WorkspaceFullscreen from './WorkspaceFullscreen';
+import LoginRequiredPopover, { requireFeatureLogin } from '../../auth/LoginRequiredPopover';
+import { useRegion } from '../../regions/regionStore';
 import NavbarCameraSearch from './NavbarCameraSearch';
 import JejakLogo from '../../../shared/components/JejakLogo';
 import AccountMenu from '../../auth/AccountMenu';
@@ -7,19 +10,11 @@ import { Route } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
 import { useLanguage } from '../../../shared/i18n/useLanguage';
 import { useState } from 'react';
-import {
-  Bell,
-  Camera,
-  BarChart3,
-  Layers,
-  Map,
-  Search,
-  AlertTriangle,
-  MoreHorizontal,
-} from 'lucide-react';
+import { MapPinned, Camera, BarChart3, Layers, Map, Search, MoreHorizontal } from 'lucide-react';
 import { openWorkspacePanel, useWorkspace } from '../workspaceStore';
 
 export default function CommandHeader() {
+  const selectedProvince = useRegion((state) => state.selected);
   const language = useLanguage();
   const mapLabel = language === 'en' ? 'Map' : 'Peta';
   const user = useAuth((state) => state.user);
@@ -52,7 +47,7 @@ export default function CommandHeader() {
               aria-label="Analitik"
               title="Analitik"
               aria-pressed={panel === 'analytics'}
-              onClick={() => openWorkspacePanel('analytics')}
+              onClick={(event) => requireFeatureLogin(event, () => openWorkspacePanel('analytics'))}
             >
               <BarChart3 />
               <span>Analitik</span>
@@ -66,25 +61,26 @@ export default function CommandHeader() {
               aria-label="Objek"
               title="Objek"
               aria-pressed={panel === 'objects'}
-              onClick={() => openWorkspacePanel('objects')}
+              onClick={(event) => requireFeatureLogin(event, () => openWorkspacePanel('objects'))}
             >
               <Layers />
               <span>Objek</span>
             </button>
             <button
-              aria-label="Peringatan"
-              title="Peringatan"
-              aria-pressed={panel === 'alerts'}
-              onClick={() => openWorkspacePanel('alerts')}
+              aria-label={language === 'en' ? 'Regions' : 'Wilayah'}
+              title={selectedProvince || (language === 'en' ? 'Regions' : 'Wilayah')}
+              translate="no"
+              aria-pressed={panel === 'regions' || Boolean(selectedProvince)}
+              onClick={(event) => requireFeatureLogin(event, () => openWorkspacePanel('regions'))}
             >
-              <AlertTriangle />
-              <span>Peringatan</span>
+              <MapPinned />
+              <span>{language === 'en' ? 'Regions' : 'Wilayah'}</span>
             </button>
-            {user?.permissions.includes('routes.use') && (
+            {(!user || user.permissions.includes('routes.use')) && (
               <button
                 aria-label="CCTV route"
                 aria-pressed={routeOpen}
-                onClick={() => useRoute.setState({ open: !routeOpen, picking: null })}
+                onClick={(event) => requireFeatureLogin(event, () => useRoute.setState({ open: !routeOpen, picking: null }))}
               >
                 <Route />
                 <span>Route</span>
@@ -97,20 +93,20 @@ export default function CommandHeader() {
             <MoreHorizontal size={16} />
           </summary>
           <div>
-            <button onClick={() => openWorkspacePanel('analytics')}>
+            <button onClick={(event) => requireFeatureLogin(event, () => openWorkspacePanel('analytics'))}>
               <BarChart3 />
               Analitik
             </button>
-            <button onClick={() => openWorkspacePanel('objects')}>
+            <button onClick={(event) => requireFeatureLogin(event, () => openWorkspacePanel('objects'))}>
               <Layers />
               Objek
             </button>
-            <button onClick={() => openWorkspacePanel('alerts')}>
-              <AlertTriangle />
-              Peringatan
+            <button onClick={(event) => requireFeatureLogin(event, () => openWorkspacePanel('regions'))}>
+              <MapPinned />
+              {language === 'en' ? 'Regions' : 'Wilayah'}
             </button>
-            {user?.permissions.includes('routes.use') && (
-              <button onClick={() => useRoute.setState({ open: !routeOpen, picking: null })}>
+            {(!user || user.permissions.includes('routes.use')) && (
+              <button onClick={(event) => requireFeatureLogin(event, () => useRoute.setState({ open: !routeOpen, picking: null }))}>
                 <Route />
                 Route
               </button>
@@ -130,13 +126,12 @@ export default function CommandHeader() {
             >
               <Search />
             </button>
-            <button aria-label="Feed alerts" onClick={() => openWorkspacePanel('alerts')}>
-              <Bell />
-            </button>
+            <WorkspaceFullscreen />
             <AccountMenu />
           </div>
         </div>
       </header>
+      <LoginRequiredPopover />
       {search && <NavbarCameraSearch onClose={() => setSearch(false)} />}
     </>
   );

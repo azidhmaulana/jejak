@@ -298,5 +298,411 @@
       "place": "Probolinggo Barat / Muneng",
       "note": "Named interchange reference, not camera pole position."
     }
+  },
+  "candidate-binamarga-tangerang-merak-1": {
+    "latitude": -6.2055662,
+    "longitude": 106.5256223,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1103759734",
+      "place": "Cikupa",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-3": {
+    "latitude": -6.2016535,
+    "longitude": 106.4558996,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/861042431",
+      "place": "Balaraja Barat",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-6": {
+    "latitude": -6.2003495,
+    "longitude": 106.4860476,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1103672211",
+      "place": "Balaraja Timur",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-7": {
+    "latitude": -6.2016535,
+    "longitude": 106.4558996,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/861042431",
+      "place": "Balaraja Barat",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-8": {
+    "latitude": -6.2055662,
+    "longitude": 106.5256223,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1103759734",
+      "place": "Cikupa",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-9": {
+    "latitude": -6.1139406,
+    "longitude": 106.1848455,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/3692709349",
+      "place": "Serang Timur",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-10": {
+    "latitude": -6.1139406,
+    "longitude": 106.1848455,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/3692709349",
+      "place": "Serang Timur",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-11": {
+    "latitude": -6.0204596,
+    "longitude": 106.0911375,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1685185624",
+      "place": "Cilegon Timur",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-12": {
+    "latitude": -6.0204596,
+    "longitude": 106.0911375,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1685185624",
+      "place": "Cilegon Timur",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-13": {
+    "latitude": -5.9713378,
+    "longitude": 106.0075179,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1686351305",
+      "place": "Merak",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-14": {
+    "latitude": -5.9713378,
+    "longitude": 106.0075179,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1686351305",
+      "place": "Merak",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-tangerang-merak-15": {
+    "latitude": -6.2003495,
+    "longitude": 106.4860476,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1103672211",
+      "place": "Balaraja Timur",
+      "checkedAt": "2026-11-07",
+      "note": "Named motorway junction reference only; entrance and exit camera poles are not independently located."
+    }
+  },
+  "candidate-binamarga-sedyatmo-1": {
+    "latitude": -6.1051556,
+    "longitude": 106.6977487,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.waze.com/live-map/directions/id/daerah-khusus-ibukota-jakarta/gerbang-tol-cengkareng-2?to=place.ChIJQbVOPecCai4RQuz78WWqO_s",
+      "place": "Gerbang Tol Cengkareng 2",
+      "checkedAt": "2026-11-07",
+      "note": "Toll plaza reference for GT Cengkareng camera; exact lane and pole not verified."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-32": {
+    "latitude": -6.5983998526656515,
+    "longitude": 107.42820198150677,
+    "kind": "chainage-estimate",
+    "reference": {
+      "source": "https://data.pu.go.id/sites/default/files/geojson/ast_bpjt_tol_operasi.geojson",
+      "featureId": 64,
+      "road": "Cikampek - Purwakarta - Padalarang",
+      "sta": "67+400 - 121+400",
+      "cameraKm": 88.0,
+      "note": "Position on Cipularang KM 88 A mainline, not individual rest-area entrance/exit camera."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-33": {
+    "latitude": -6.5983998526656515,
+    "longitude": 107.42820198150677,
+    "kind": "chainage-estimate",
+    "reference": {
+      "source": "https://data.pu.go.id/sites/default/files/geojson/ast_bpjt_tol_operasi.geojson",
+      "featureId": 64,
+      "road": "Cikampek - Purwakarta - Padalarang",
+      "sta": "67+400 - 121+400",
+      "cameraKm": 88.0,
+      "note": "Position on Cipularang KM 88 A mainline, not individual rest-area entrance/exit camera."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-35": {
+    "latitude": -6.3121543,
+    "longitude": 107.1348651,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1782507234",
+      "place": "Cikarang Barat",
+      "note": "Named interchange reference only; individual gate number and camera pole not verified."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-36": {
+    "latitude": -6.3121543,
+    "longitude": 107.1348651,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1782507234",
+      "place": "Cikarang Barat",
+      "note": "Named interchange reference only; individual gate number and camera pole not verified."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-37": {
+    "latitude": -6.2930746,
+    "longitude": 107.079758,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/8073716252",
+      "place": "Simpang Cibitung",
+      "note": "Named interchange reference only; individual gate number and camera pole not verified."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-41": {
+    "latitude": -6.2930746,
+    "longitude": 107.079758,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/8073716252",
+      "place": "Simpang Cibitung",
+      "note": "Named interchange reference only; individual gate number and camera pole not verified."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-43": {
+    "latitude": -6.3121543,
+    "longitude": 107.1348651,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1782507234",
+      "place": "Cikarang Barat",
+      "note": "Named interchange reference only; individual gate number and camera pole not verified."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-50": {
+    "latitude": -6.7754995,
+    "longitude": 108.5627459,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/way/591208527",
+      "place": "Rest Area KM 207 A, Palimanan-Kanci",
+      "note": "Rest-area reference; entry and exit camera poles not independently located."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-51": {
+    "latitude": -6.7754995,
+    "longitude": 108.5627459,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/way/591208527",
+      "place": "Rest Area KM 207 A, Palimanan-Kanci",
+      "note": "Rest-area reference; entry and exit camera poles not independently located."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-52": {
+    "latitude": -6.4251106,
+    "longitude": 107.4306942,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1781600057",
+      "place": "Kalihurip",
+      "note": "Named interchange reference only; individual gate number and camera pole not verified."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-53": {
+    "latitude": -6.4251106,
+    "longitude": 107.4306942,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/1781600057",
+      "place": "Kalihurip",
+      "note": "Named interchange reference only; individual gate number and camera pole not verified."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-54": {
+    "latitude": -6.2545477,
+    "longitude": 106.9049093,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/196785002",
+      "place": "Pondok Gede Barat",
+      "note": "Named interchange reference only; individual gate number and camera pole not verified."
+    }
+  },
+  "candidate-binamarga-jakarta-cikampek-55": {
+    "latitude": -6.2545477,
+    "longitude": 106.9049093,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/196785002",
+      "place": "Pondok Gede Barat",
+      "note": "Named interchange reference only; individual gate number and camera pole not verified."
+    }
+  },
+  "candidate-binamarga-semarang-demak-seksi-2-sayung-demak-2": {
+    "latitude": -6.9190782,
+    "longitude": 110.6420174,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/10051763094",
+      "place": "Simpang Demak",
+      "checkedAt": "2026-11-07",
+      "note": "Shared interchange reference for gate queue/access cameras. Individual entrance, exit and pole positions are not verified."
+    }
+  },
+  "candidate-binamarga-semarang-demak-seksi-2-sayung-demak-8": {
+    "latitude": -6.9371707,
+    "longitude": 110.511555,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/9057932701",
+      "place": "Simpang Sayung",
+      "checkedAt": "2026-11-07",
+      "note": "Shared interchange reference for gate queue/access cameras. Individual entrance, exit and pole positions are not verified."
+    }
+  },
+  "candidate-binamarga-semarang-demak-seksi-2-sayung-demak-17": {
+    "latitude": -6.9371707,
+    "longitude": 110.511555,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/9057932701",
+      "place": "Simpang Sayung",
+      "checkedAt": "2026-11-07",
+      "note": "Shared interchange reference for gate queue/access cameras. Individual entrance, exit and pole positions are not verified."
+    }
+  },
+  "candidate-binamarga-semarang-demak-seksi-2-sayung-demak-23": {
+    "latitude": -6.9190782,
+    "longitude": 110.6420174,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/10051763094",
+      "place": "Simpang Demak",
+      "checkedAt": "2026-11-07",
+      "note": "Shared interchange reference for gate queue/access cameras. Individual entrance, exit and pole positions are not verified."
+    }
+  },
+  "candidate-binamarga-semarang-demak-seksi-2-sayung-demak-26": {
+    "latitude": -6.9371707,
+    "longitude": 110.511555,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/9057932701",
+      "place": "Simpang Sayung",
+      "checkedAt": "2026-11-07",
+      "note": "Shared interchange reference for gate queue/access cameras. Individual entrance, exit and pole positions are not verified."
+    }
+  },
+  "candidate-binamarga-semarang-demak-seksi-2-sayung-demak-31": {
+    "latitude": -6.9190782,
+    "longitude": 110.6420174,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/10051763094",
+      "place": "Simpang Demak",
+      "checkedAt": "2026-11-07",
+      "note": "Shared interchange reference for gate queue/access cameras. Individual entrance, exit and pole positions are not verified."
+    }
+  },
+  "candidate-binamarga-semarang-demak-seksi-2-sayung-demak-32": {
+    "latitude": -6.9190782,
+    "longitude": 110.6420174,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/10051763094",
+      "place": "Simpang Demak",
+      "checkedAt": "2026-11-07",
+      "note": "Shared interchange reference for gate queue/access cameras. Individual entrance, exit and pole positions are not verified."
+    }
+  },
+  "candidate-binamarga-semarang-abc-14": {
+    "latitude": -7.0003946,
+    "longitude": 110.453701,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/257675898",
+      "place": "Gayamsari",
+      "note": "Named motorway junction reference; entrance camera pole position is not verified."
+    }
+  },
+  "candidate-binamarga-ujung-pandang-seksi-1-3-20": {
+    "latitude": -5.075456397,
+    "longitude": 119.51630513,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.waze.com/id/live-map/directions/gerbang-tol-biringkanaya-makassar?to=place.w.78317269.783303764.1671402",
+      "place": "Gerbang Tol Biringkanaya",
+      "note": "Named gate/junction reference, not a verified camera pole position. Original provider retained; Biringkanaya belongs geographically to Makassar section IV."
+    }
+  },
+  "candidate-binamarga-ujung-pandang-seksi-1-3-1": {
+    "latitude": -5.1091002,
+    "longitude": 119.4459542,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/7698953729",
+      "place": "Tallo Timur",
+      "note": "Named gate/junction reference, not a verified camera pole position. Original provider retained; Biringkanaya belongs geographically to Makassar section IV."
+    }
+  },
+  "candidate-binamarga-ujung-pandang-seksi-1-3-4": {
+    "latitude": -5.1091002,
+    "longitude": 119.4459542,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/7698953729",
+      "place": "Tallo Timur",
+      "note": "Named gate/junction reference, not a verified camera pole position. Original provider retained; Biringkanaya belongs geographically to Makassar section IV."
+    }
+  },
+  "candidate-binamarga-ujung-pandang-seksi-1-3-5": {
+    "latitude": -5.1110835,
+    "longitude": 119.4407831,
+    "kind": "junction-reference",
+    "reference": {
+      "source": "https://www.openstreetmap.org/node/317910336",
+      "place": "Tallo Barat",
+      "note": "Named gate/junction reference, not a verified camera pole position. Original provider retained; Biringkanaya belongs geographically to Makassar section IV."
+    }
   }
 }
