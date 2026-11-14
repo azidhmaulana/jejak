@@ -1,0 +1,70 @@
+.analytics-tabs { display: flex; gap: 6px; padding: 8px 10px; border-bottom: 1px solid #29412c; }
+.command-workspace .public-analytics .analytics-tabs button { width: auto; flex: 1; padding: 5px 10px; }
+.command-workspace .public-analytics .analytics-tabs button[aria-selected="true"] { color: #a5ef75; background: #17351c; border-color: #527c42; }
+.earthquake-analytics-controls { display: flex; gap: 8px; align-items: end; }
+.earthquake-analytics-controls label { display: grid; gap: 5px; flex: 1; min-width: 0; font-size: 10px; }
+.earthquake-analytics-controls select { box-sizing: border-box; width: 100%; min-width: 0; color: #edf6ee; background: #0a160f; border: 1px solid #36593c; padding: 5px; }
+.command-workspace .earthquake-analytics button { width: auto; padding: 4px 8px; }
+.earthquake-analytics progress { width: 100%; accent-color: #93ef6c; }
+.earthquake-analytics [role="alert"] { color: #ffd18a; font-size: 11px; }
+.earthquake-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0; }
+.earthquake-summary > div { border: 1px solid #36593c; padding: 8px; display: grid; gap: 4px; font-size: 10px; }
+.earthquake-summary b { font-size: 18px; color: #a5ef75; }
+.earthquake-analytics section { border: 1px solid #36593c; border-radius: 4px; margin-top: 10px; padding-bottom: 8px; }
+.earthquake-analytics section h3 { margin: 0 0 8px; padding: 8px; border-bottom: 1px solid #29412c; font-size: 12px; }
+.quake-stat-bar { display: grid; grid-template-columns: 42px 1fr 45px; gap: 8px; align-items: center; padding: 5px 8px; font-size: 11px; }
+.quake-stat-bar b { text-align: right; }
+.quake-stat-bar meter { width: 100%; height: 16px; accent-color: #93ef6c; }
+.quake-stat-bar meter::-webkit-meter-optimum-value { background: #74cd4c; }
+.quake-stat-bar.region { grid-template-columns: minmax(100px, 1fr) 1fr 30px; }
+.quake-magnitude-groups { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 8px; }
+.quake-magnitude-groups > div { flex: 1; display: grid; gap: 5px; font-size: 10px; }
+.earthquake-analytics a { color: #a5ef75; }
+.quake-top-five { margin: 0; padding: 0 12px 0 30px; font-size: 11px; }
+.quake-top-five li { padding: 8px 0; border-bottom: 1px solid #29412c; }
+.quake-top-five li:last-child { border-bottom: 0; }
+.quake-top-five a { line-height: 1.5; overflow-wrap: anywhere; }
+.quake-top-five small { display: block; color: #a8b9ae; margin-top: 4px; line-height: 1.5; }
+.earthquake-analytics-controls select { height: 30px; }
+.command-workspace .public-analytics .quake-analytics-show { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; min-width: 80px; padding: 0 10px; background: #17351c; color: #b5ff94; border-color: #527c42; white-space: nowrap; }
+.quake-analytics-loading { margin: 10px 0; padding: 10px; border: 1px solid #36593c; border-radius: 4px; background: #07130e; }
+.quake-analytics-loading-heading, .quake-analytics-loading-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.quake-analytics-loading-heading { font-size: 11px; margin-bottom: 8px; }
+.quake-analytics-loading-heading strong { color: #a5ef75; }
+.quake-analytics-loading-footer { margin-top: 8px; }
+.quake-analytics-loading-footer small { color: #a8b9ae; }
+.command-workspace .public-analytics .quake-analytics-loading-footer button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 80px;
+  height: 28px;
+  min-height: 28px;
+  margin-left: auto;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid #63302d;
+  border-radius: 3px;
+  background: #2b100e;
+  color: #f3aaa4;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.command-workspace .public-analytics .quake-analytics-loading-footer button svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.command-workspace .public-analytics .quake-analytics-loading-footer button:hover:not(:disabled) {
+  background: #3a1714;
+  border-color: #a34c46;
+  color: #ffd0cb;
+}
+.quake-analytics-loading progress { display: block; height: 5px; appearance: none; border: 0; border-radius: 3px; overflow: hidden; background: #183021; }
+.quake-analytics-loading progress::-webkit-progress-bar { background: #183021; }
+.quake-analytics-loading progress::-webkit-progress-value { background: #85df61; transition: width 180ms ease; }
+.quake-analytics-loading progress::-moz-progress-bar { background: #85df61; }

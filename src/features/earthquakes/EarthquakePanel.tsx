@@ -1,3 +1,4 @@
+import { useRegion } from '../regions/regionStore';
 import { useLayoutEffect, useState, type CSSProperties } from 'react';
 import { Activity, Search, X } from 'lucide-react';
 import { useLanguage } from '../../shared/i18n/useLanguage';
@@ -6,8 +7,9 @@ import { quakeTime, searchEarthquakes, setEarthquakeMode, useEarthquakes, visibl
 import './Earthquakes.css';
 
 export default function EarthquakePanel() {
+  const region = useRegion();
   const en = useLanguage() === 'en', tx = (id: string, english: string) => en ? english : id;
-  const state = useEarthquakes(), items = visibleEarthquakes(state);
+  const state = useEarthquakes(), items = visibleEarthquakes(state, region);
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
   const [start, setStart] = useState(state.start || today), [end, setEnd] = useState(state.end || today);
   const currentYear = Number(today.slice(0, 4));

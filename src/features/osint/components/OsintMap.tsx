@@ -1,3 +1,4 @@
+import HotspotLayer from '../../hotspots/HotspotLayer';
 import EarthquakeLayer from '../../earthquakes/EarthquakeLayer';
 import ProvinceLayer from '../../regions/ProvinceLayer';
 import RouteLayer from '../../routes/RouteLayer';
@@ -27,6 +28,7 @@ export default function OsintMap() {
           <RouteLayer map={map} />
           <ProvinceLayer map={map} />
           <EarthquakeLayer map={map} />
+          <HotspotLayer map={map} />
           <MapHud map={map} />
         </>
       )}

@@ -1,15 +1,32 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 type Row = { day: string; views: number };
-export default function CameraOpeningChart({ rows, label }: { rows: Row[]; label: string }) {
+export default function CameraOpeningChart({
+  rows,
+  label,
+  timezone = 'WIB',
+  showValues = false,
+}: {
+  rows: Row[];
+  label: string;
+  timezone?: string;
+  showValues?: boolean;
+}) {
   const gradient = useId();
   const scroll = useRef<HTMLDivElement>(null);
+  const [viewportWidth, setViewportWidth] = useState(240);
+  useEffect(() => {
+    if (!scroll.current) return;
+    const observer = new ResizeObserver(([entry]) => setViewportWidth(entry.contentRect.width));
+    observer.observe(scroll.current);
+    return () => observer.disconnect();
+  }, [rows.length]);
   useEffect(() => {
     if (scroll.current) scroll.current.scrollLeft = scroll.current.scrollWidth;
   }, [rows]);
   if (!rows.length) return null;
   const max = Math.max(2, ...rows.map((row) => row.views));
-  const ceiling = Math.ceil(max / 2) * 2;
-  const width = Math.max(240, rows.length * 30);
+  const ceiling = Math.ceil((max * (showValues ? 1.2 : 1)) / 2) * 2;
+  const width = Math.max(viewportWidth, 240, rows.length * (showValues ? 48 : 30));
   return (
     <div className="camera-opening-plot">
       <div className="camera-opening-axis" aria-hidden="true">
@@ -36,14 +53,14 @@ export default function CameraOpeningChart({ rows, label }: { rows: Row[]; label
           ))}
           <line x1="0.5" x2="0.5" y1="8" y2="108" stroke="#689371" />
           {rows.map((row, index) => {
-            const slot = width / Math.max(8, rows.length);
-            const bar = Math.min(19, slot - 5);
+            const slot = width / Math.max(1, rows.length);
+            const bar = Math.min(32, slot - 8);
             const height = (row.views / ceiling) * 100;
-            const x = index * slot + 4;
+            const x = index * slot + (slot - bar) / 2;
             return (
               <g key={row.day}>
                 <title>
-                  {row.day.replace('T', ' ')} WIB: {row.views}
+                  {row.day.replace('T', ' ')} {timezone}: {row.views}
                 </title>
                 <rect
                   x={x}
@@ -52,6 +69,16 @@ export default function CameraOpeningChart({ rows, label }: { rows: Row[]; label
                   height={height}
                   fill={`url(#${gradient})`}
                 />
+                {showValues && (
+                  <text
+                    className="chart-bar-value"
+                    x={x + bar / 2}
+                    y={103 - height}
+                    textAnchor="middle"
+                  >
+                    {row.views.toLocaleString()}
+                  </text>
+                )}
                 <text x={x + bar / 2} y="122" textAnchor="middle">
                   {row.day.slice(11, 16) || row.day.slice(5, 10)}
                 </text>

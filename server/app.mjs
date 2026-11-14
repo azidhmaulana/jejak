@@ -1,3 +1,4 @@
+import { createHotspots } from './hotspots/service.mjs';
 import express from 'express';
 import { createEarthquakes } from './earthquakes.mjs';
 import { createAnalytics } from './analytics.mjs';
@@ -57,6 +58,9 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
   const cameraSources = createCameraSources(auth.db);
   const cameraChecks = await createCameraChecks(auth.db);
   app.use(auth.middleware);
+  const hotspots = createHotspots(auth, directory);
+  app.use('/api/hotspots', hotspots.router);
+  app.use('/api/hotspot-sources', hotspots.admin);
   const earthquakes = createEarthquakes();
   app.use('/api/earthquakes', earthquakes.router);
   app.use('/api/analytics', createAnalytics(auth, cameraSources.predicate));
@@ -171,6 +175,7 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
       .json({ error: error.status ? error.message : 'Unable to process request.' });
   });
   app.locals.close = async () => {
+    await hotspots.close();
     await earthquakes.close();
     await cameraChecks.close();
     await auth.close();

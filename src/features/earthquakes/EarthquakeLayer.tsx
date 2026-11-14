@@ -1,3 +1,4 @@
+import { useRegion } from '../regions/regionStore';
 import { useEffect } from 'react';
 import type { Map as LibreMap, GeoJSONSource, MapMouseEvent } from 'maplibre-gl';
 import EarthquakePopup from './EarthquakePopup';
@@ -9,15 +10,16 @@ const source = 'jejak-earthquakes', layer = 'jejak-earthquake-markers';
 const halo = 'jejak-earthquake-pulse', labels = 'jejak-earthquake-magnitudes';
 const selectionRing = 'jejak-earthquake-selected';
 export default function EarthquakeLayer({ map }: { map: LibreMap | null }) {
+  const region = useRegion();
   const state = useEarthquakes();
-  const items = visibleEarthquakes(state);
+  const items = visibleEarthquakes(state, region);
   const pulseUntil = Math.max(0, ...items.map(q => q.time + (q.magnitude > 5 ? 48 : 24) * 3600000));
   useEffect(() => {
     if (!map) return;
     let installed = false;
     const render = () => {
       if (installed && map.getSource(source)) return;
-      if (!map.getSource(source) && !map.isStyleLoaded()) return;
+      if (!map.getSource(source) && !map.getStyle()?.sources) return;
       installed = true;
       if (!map.getSource(source)) map.addSource(source, { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
       if (!map.getLayer(halo)) map.addLayer({ id: halo, type: 'circle', source, filter: ['>', ['get', 'pulseUntil'], Date.now()], paint: {
@@ -72,7 +74,7 @@ export default function EarthquakeLayer({ map }: { map: LibreMap | null }) {
     map.on('style.load', render); map.on('sourcedata', render); map.on('idle', render); map.on('click', select);
     render();
     return () => { map.off('style.load', render); map.off('sourcedata', render); map.off('idle', render); map.off('click', select); };
-  }, [map, state.enabled, state.mode, state.live, state.latest, state.history]);
+  }, [map, state.enabled, state.mode, state.live, state.latest, state.history, region.selected, region.provinces]);
   useEffect(() => {
     if (map?.getLayer(layer)) map.setPaintProperty(layer, 'circle-stroke-width', ['case', ['==', ['get', 'id'], state.selected?.id || ''], 3, 1.5]);
     if (map?.getLayer(selectionRing)) map.setFilter(selectionRing, ['==', ['get', 'id'], state.selected?.id || '']);
@@ -102,5 +104,5 @@ export default function EarthquakeLayer({ map }: { map: LibreMap | null }) {
     for (const id of [labels, selectionRing, layer, halo]) if (map?.getLayer(id)) map.removeLayer(id);
     if (map?.getSource(source)) map.removeSource(source);
   }, [map]);
-  return <EarthquakePopup map={map} quake={state.enabled ? state.selected : null} />;
+  return <EarthquakePopup map={map} quake={state.enabled && items.some(item => item.id === state.selected?.id) ? state.selected : null} />;
 }

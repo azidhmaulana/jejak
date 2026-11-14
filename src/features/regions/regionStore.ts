@@ -1,5 +1,5 @@
+import { readLocalToggle, persistLocalToggle } from '../../shared/stores/localToggle';
 import { create } from 'zustand';
-import { useAuth } from '../auth/authStore';
 import { containsPoint, provinceBounds, type Province } from './geometry';
 import type { SurveillanceSource } from '../surveillance/osintSurveillanceStore';
 export const useRegion = create<{
@@ -13,14 +13,11 @@ export const useRegion = create<{
   provinces: [],
   country: null,
   selected: '',
-  showBoundary: true,
+  showBoundary: readLocalToggle('jejak-boundary-enabled', true),
   loading: false,
   error: false,
 }));
 let pending: Promise<void> | null = null;
-useAuth.subscribe((state, previous) => {
-  if (previous.user && !state.user) useRegion.setState({ selected: '', showBoundary: true });
-});
 export function loadProvinces() {
   if (useRegion.getState().provinces.length) return Promise.resolve();
   if (pending) return pending;
@@ -92,4 +89,21 @@ export function matchesProvince(
   provinces: Province[],
 ) {
   return !selected || cameraProvince(camera, provinces) === selected;
+}
+
+persistLocalToggle(useRegion, 'showBoundary', 'jejak-boundary-enabled');
+
+const pointCache = new WeakMap<object, { provinces: Province[]; lat: number; lng: number; name: string }>();
+export function pointProvince(point: { lat: number; lng: number }, provinces: Province[]) {
+  const cached = pointCache.get(point);
+  if (cached?.provinces === provinces && cached.lat === point.lat && cached.lng === point.lng) return cached.name;
+  const name = provinces.find(p => {
+    const b = provinceBounds(p);
+    return point.lng >= b[0] && point.lng <= b[2] && point.lat >= b[1] && point.lat <= b[3] && containsPoint(p, point.lng, point.lat);
+  })?.properties.PROVINSI || '';
+  pointCache.set(point, { provinces, lat: point.lat, lng: point.lng, name });
+  return name;
+}
+export function filterRegionPoints<T extends { lat: number; lng: number }>(items: T[], region = useRegion.getState()): T[] {
+  return region.selected ? items.filter(item => pointProvince(item, region.provinces) === region.selected) : items;
 }

@@ -1,4 +1,5 @@
 import ImageOverlayLayer from '../overlays/ImageOverlayLayer';
+import { INDONESIA_BOUNDS, INDONESIA_PADDING } from './defaultView';
 import { useAuth } from '../../features/auth/authStore';
 import { projectCache } from '../drawing/projectCache';
 import OfflineAreaSelection from './OfflineAreaSelection';
@@ -92,21 +93,19 @@ export default function MapCanvas({
     : online.style;
   useEffect(() => {
     if (!mapInstance || (mapMode === 'online' && selectedProvider?.brand === 'google')) return;
-    const attribution = new maplibregl.AttributionControl({ compact: false });
-    const host = document.getElementById('map-provider-credits');
-    const control: maplibregl.IControl = host
-      ? {
-          onAdd(map) {
-            host.append(attribution.onAdd(map));
-            const placeholder = document.createElement('div');
-            placeholder.hidden = true;
-            return placeholder;
-          },
-          onRemove() {
-            attribution.onRemove();
-          },
-        }
-      : attribution;
+    const attribution = new maplibregl.AttributionControl({ compact: true });
+    const control: maplibregl.IControl = {
+      onAdd(map) {
+        const element = attribution.onAdd(map);
+        element.classList.add('maplibregl-compact');
+        element.classList.remove('maplibregl-compact-show');
+        element.removeAttribute('open');
+        return element;
+      },
+      onRemove() {
+        attribution.onRemove();
+      },
+    };
     mapInstance.addControl(control, 'bottom-right');
     return () => {
       if (mapInstance.hasControl(control)) mapInstance.removeControl(control);
@@ -150,8 +149,8 @@ export default function MapCanvas({
     map.current = new maplibregl.Map({
       container: mapContainer.current,
       style: EMPTY_MAP_STYLE,
-      center: [107.6191, -6.9175],
-      zoom: 8,
+      bounds: INDONESIA_BOUNDS,
+      fitBoundsOptions: { padding: INDONESIA_PADDING, duration: 0 },
       attributionControl: false,
       // Worker requests need absolute URLs for tiles and glyphs served by this host.
       transformRequest: (url) => ({

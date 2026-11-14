@@ -16,6 +16,19 @@ export type Overlay = {
   opacity: number;
   locked: boolean;
 };
+function hiddenStorageKey() {
+  const user = useAuth.getState().user;
+  return user ? `jejak-hidden-overlays:${user.id}` : null;
+}
+function readHiddenOverlays(): string[] {
+  try {
+    const key = hiddenStorageKey();
+    const value: unknown = key ? JSON.parse(localStorage.getItem(key) || '[]') : [];
+    return Array.isArray(value) ? value.filter((id): id is string => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+}
 export const useOverlays = create<{
   items: Overlay[];
   draft: Overlay | null;
@@ -24,7 +37,7 @@ export const useOverlays = create<{
   error: string;
   editable: boolean;
   viewport?: { west: number; east: number; south: number; north: number };
-}>(() => ({ items: [], draft: null, open: false, hidden: [], error: '', editable: false }));
+}>(() => ({ items: [], draft: null, open: false, hidden: readHiddenOverlays(), error: '', editable: false }));
 export async function overlayRequest(id = '', method = 'GET', body?: unknown) {
   const owner = useAuth.getState().user;
   if (!owner?.permissions.includes('objects.write')) return;
@@ -46,7 +59,7 @@ useAuth.subscribe((state, previous) => {
       items: [],
       draft: null,
       open: false,
-      hidden: [],
+      hidden: readHiddenOverlays(),
       error: '',
       editable: false,
     });
@@ -71,3 +84,13 @@ export function corners(o: Overlay): Corners {
     return [p.lng, p.lat];
   }) as Corners;
 }
+
+useOverlays.subscribe((state, previous) => {
+  const key = hiddenStorageKey();
+  if (!key || state.hidden === previous.hidden) return;
+  try {
+    localStorage.setItem(key, JSON.stringify(state.hidden));
+  } catch {
+    // Visibility still works when storage is blocked.
+  }
+});

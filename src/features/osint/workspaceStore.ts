@@ -1,9 +1,11 @@
+import { readLocalToggle, persistLocalToggle } from '../../shared/stores/localToggle';
 import { useAuth } from '../auth/authStore';
 import { create } from 'zustand';
 
 export type WorkspacePanel =
   | 'surveillance'
   | 'earthquakes'
+  | 'hotspots'
   | 'layers'
   | 'objects'
   | 'weather'
@@ -47,7 +49,7 @@ export const useWorkspace = create<{
   coordinates: [107.6191, -6.9175],
   query: '',
   cameraTab: 'all',
-  roads: true,
+  roads: readLocalToggle('jejak-roads-enabled', true),
   roadsAvailable: null,
   selectCamera: (selectedId) =>
     set((state) => {
@@ -77,11 +79,11 @@ export const useWorkspace = create<{
     }),
 }));
 export function openWorkspacePanel(panel: WorkspacePanel) {
-  if (['objects', 'regions', 'alerts', 'analytics'].includes(panel || '') && !useAuth.getState().user) return;
+  if (['objects', 'analytics'].includes(panel || '') && !useAuth.getState().user) return;
   useWorkspace.setState((state) => ({ panel: state.panel === panel ? null : panel, mapSettingsOpen: false }));
 }
 useAuth.subscribe((state) => {
-  if (!state.user && ['objects', 'regions', 'alerts', 'analytics'].includes(useWorkspace.getState().panel || ''))
+  if (!state.user && ['objects', 'analytics'].includes(useWorkspace.getState().panel || ''))
     useWorkspace.setState({ panel: null });
 });
 
@@ -90,3 +92,5 @@ export function hoverWorkspacePanel(panel: WorkspacePanel) {
   if ((!state.panel && !state.mapSettingsOpen) || state.panel === panel) return;
   openWorkspacePanel(panel);
 }
+
+persistLocalToggle(useWorkspace, 'roads', 'jejak-roads-enabled');

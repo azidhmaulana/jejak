@@ -1,3 +1,4 @@
+import { useHotspotPolling } from '../hotspots/hotspotStore';
 import { useEarthquakePolling } from '../earthquakes/earthquakeStore';
 import ToastHost from '../../shared/components/Toast';
 import { useCameraCheckNotifications } from '../auth/cameraCheckStore';
@@ -10,7 +11,6 @@ import WorkspaceTicker from './components/WorkspaceTicker';
 import TacticalRail from './components/TacticalRail';
 import MapCorner from './components/MapCorner';
 import OsintMap from './components/OsintMap';
-import OsintMapTools from './components/OsintMapTools';
 import CommandHeader from './components/CommandHeader';
 import LayerPanel from './components/LayerPanel';
 import DrawingActivity from '../objects/DrawingActivity';
@@ -41,6 +41,7 @@ import '../analytics/PublicAnalyticsPanel.css';
 export default function OsintWorkspace() {
   useCameraCheckNotifications();
   useEarthquakePolling();
+  useHotspotPolling();
   useCameraSourceSync();
   const appearance = useAppearance();
   const drawing = useMapTools((state) => state.mode !== 'render');
@@ -82,11 +83,7 @@ export default function OsintWorkspace() {
         {selectedId && <CameraInspector />}
       </main>
       {camerasOpen && <CameraDock />}
-      <div className="workspace-map-toolbar">
-        <OsintMapTools />
-        <div id="osint-map-footer" />
-        <div id="map-provider-credits" />
-      </div>
+      <div id="osint-map-footer" hidden />
 
       <MapCorner />
       <WorkspaceStatus />

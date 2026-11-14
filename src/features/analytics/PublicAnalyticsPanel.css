@@ -391,7 +391,51 @@
   fill: #b5ccbe;
   font-size: 7px;
 }
+.camera-opening-scroll .chart-bar-value {
+  fill: #edf6ee;
+  font-size: 10px;
+  font-weight: 600;
+}
 .camera-opening-scroll:focus-visible {
   outline: 1px solid #93e867;
   outline-offset: 2px;
+}
+
+.command-workspace .public-analytics.analytics-resizable {
+  transition:
+    width 220ms ease,
+    max-height 220ms ease;
+}
+.command-workspace .public-analytics.analytics-expanded {
+  width: min(820px, calc(100% - 96px));
+  max-height: calc(100dvh - 145px);
+}
+.public-analytics > .analytics-tabs {
+  flex-shrink: 0;
+}
+.command-workspace .public-analytics-heading .analytics-expand {
+  width: 25px;
+  height: 25px;
+  min-width: 25px;
+  min-height: 25px;
+  flex-shrink: 0;
+}
+.camera-opening-plot {
+  min-height: 150px;
+  flex-shrink: 0;
+}
+.camera-opening-scroll svg {
+  max-width: none;
+  height: 142px;
+}
+@media (max-width: 600px) {
+  .command-workspace .public-analytics.analytics-expanded {
+    width: calc(100% - 92px);
+    max-height: calc(100dvh - 180px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .command-workspace .public-analytics {
+    transition: none;
+  }
 }

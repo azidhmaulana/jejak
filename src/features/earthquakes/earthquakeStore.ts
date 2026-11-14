@@ -1,3 +1,5 @@
+import { filterRegionPoints, useRegion } from '../regions/regionStore';
+import { readLocalToggle, persistLocalToggle } from '../../shared/stores/localToggle';
 import { create } from 'zustand';
 import { useEffect } from 'react';
 
@@ -14,7 +16,7 @@ export const useEarthquakes = create<{
   live: Earthquake[]; latest: Earthquake | null; history: Earthquake[]; status: Result['status']; enabled: boolean;
   mode: Mode; selected: Earthquake | null; loading: boolean; error: boolean;
   loaded: number; total: number | null; liveError: boolean; partial: boolean; hasMore: boolean; start: string; end: string; page: number; minMagnitude: number;
-}>(() => ({ live: [], latest: null, history: [], status: {}, enabled: true, mode: 'recent', selected: null,
+}>(() => ({ live: [], latest: null, history: [], status: {}, enabled: readLocalToggle('jejak-earthquakes-enabled', true), mode: 'recent', selected: null,
   loaded: 0, total: null, loading: false, error: false, liveError: false, partial: false, hasMore: false, start: '', end: '', page: 0, minMagnitude: 0 }));
 let pending: AbortController | null = null;
 async function read(url: string, signal?: AbortSignal): Promise<Result> {
@@ -65,9 +67,11 @@ export async function searchEarthquakes(start: string, end: string, more = false
 export function setEarthquakeMode(mode: Mode) {
   pending?.abort(); useEarthquakes.setState({ mode, loading: false, selected: null, error: false, partial: false });
 }
-export function visibleEarthquakes(state: ReturnType<typeof useEarthquakes.getState>) {
-  return state.mode === 'history' ? state.history : state.mode === 'latest' ? (state.latest ? [state.latest] : []) : state.live;
+export function visibleEarthquakes(state: ReturnType<typeof useEarthquakes.getState>, region = useRegion.getState()) {
+  return filterRegionPoints(state.mode === 'history' ? state.history : state.mode === 'latest' ? (state.latest ? [state.latest] : []) : state.live, region);
 }
 export const quakeTime = (time: number, en: boolean) => new Intl.DateTimeFormat(en ? 'en-GB' : 'id-ID', {
   timeZone: 'Asia/Jakarta', dateStyle: 'medium', timeStyle: 'short',
 }).format(time) + ' WIB';
+
+persistLocalToggle(useEarthquakes, 'enabled', 'jejak-earthquakes-enabled');

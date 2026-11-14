@@ -1,3 +1,4 @@
+import { useHotspots } from '../../hotspots/hotspotStore';
 import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useLanguage } from '../../../shared/i18n/useLanguage';
@@ -14,6 +15,7 @@ export default function LayerSwitches() {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const cameras = useSurveillance(s => s.cameras);
+  const hotspots = useHotspots(s => s.enabled);
   const earthquakes = useEarthquakes(s => s.enabled);
   const drawings = useMapTools(s => s.drawingsVisible);
   const overlays = useOverlays();
@@ -23,6 +25,7 @@ export default function LayerSwitches() {
   const entries = [
     { id: 'cameras', label: 'CCTV', checked: cameras, toggle: () => useSurveillance.setState({ cameras: !cameras }) },
     { id: 'earthquakes', label: en ? 'Earthquakes' : 'Gempa bumi', checked: earthquakes, toggle: () => useEarthquakes.setState({ enabled: !earthquakes }) },
+    { id: 'hotspots', label: en ? 'Hotspots' : 'Titik panas', checked: hotspots, toggle: () => useHotspots.setState({ enabled: !hotspots }) },
     { id: 'drawings', label: en ? 'Drawing objects' : 'Objek gambar', checked: drawings, toggle: () => useMapTools.setState({ drawingsVisible: !drawings }) },
     { id: 'images', label: en ? 'Image overlays' : 'Overlay gambar', checked: imageVisible, disabled: !overlays.items.length, toggle: () => useOverlays.setState({ hidden: imageVisible ? overlays.items.map(item => item.id) : [] }) },
     { id: 'roads', label: en ? 'Roads' : 'Jalan', checked: Boolean(roads && roadsAvailable), disabled: !roadsAvailable, toggle: () => useWorkspace.setState({ roads: !roads }) },

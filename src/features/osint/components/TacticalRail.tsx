@@ -1,10 +1,10 @@
 import { useLanguage } from '../../../shared/i18n/useLanguage';
 import SurveillanceSettingsPopover from './SurveillanceSettingsPopover';
-import { Activity, CloudSun, SlidersHorizontal, MapPin, Satellite } from 'lucide-react';
+import { Flame, Activity, CloudSun, MapPin, Satellite } from 'lucide-react';
 import { hoverWorkspacePanel, openWorkspacePanel, useWorkspace } from '../workspaceStore';
 export default function TacticalRail() {
   const english = useLanguage() === 'en';
-  const { panel, camerasOpen, cameraTab, mapSettingsOpen } = useWorkspace();
+  const { panel, camerasOpen, cameraTab } = useWorkspace();
   return (
     <nav className="tactical-rail" aria-label="Workspace tools">
       <SurveillanceSettingsPopover />
@@ -12,6 +12,11 @@ export default function TacticalRail() {
         onPointerEnter={event => { if (event.pointerType !== 'touch') hoverWorkspacePanel('earthquakes'); }}
         onClick={() => openWorkspacePanel('earthquakes')}>
         <Activity /><span className="rail-tooltip" role="tooltip">{english ? 'Earthquakes' : 'Gempa bumi'}</span>
+      </button>
+      <button data-hotspot-trigger aria-label={english ? 'Hotspots' : 'Titik panas'} aria-pressed={panel === 'hotspots'} aria-expanded={panel === 'hotspots'}
+        onPointerEnter={event => { if (event.pointerType !== 'touch') hoverWorkspacePanel('hotspots'); }}
+        onClick={() => openWorkspacePanel('hotspots')}>
+        <Flame /><span className="rail-tooltip" role="tooltip">{english ? 'Hotspots' : 'Titik panas'}</span>
       </button>
       <button
         data-space-trigger
@@ -48,17 +53,6 @@ export default function TacticalRail() {
         <CloudSun />
         <span className="rail-tooltip" role="tooltip">
           {english ? 'Weather' : 'Cuaca'}
-        </span>
-      </button>
-      <button
-        aria-label="Map provider settings"
-        onPointerEnter={event => { if (event.pointerType !== 'touch' && panel) useWorkspace.setState({ panel: null, mapSettingsOpen: true }); }}
-        aria-pressed={mapSettingsOpen}
-        onClick={() => useWorkspace.setState((s) => ({ mapSettingsOpen: !s.mapSettingsOpen, panel: null }))}
-      >
-        <SlidersHorizontal />
-        <span className="rail-tooltip" role="tooltip">
-          {english ? 'Map provider settings' : 'Pengaturan penyedia peta'}
         </span>
       </button>
     </nav>

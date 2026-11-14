@@ -176,11 +176,8 @@ test('drawing persists and providers remain accessible', async ({ page }) => {
   await page.locator('.tactical-nav-right button').first().click();
   await expect(panel.locator('.drawing-object-row')).toHaveCount(initial + 1);
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'Map provider settings', exact: true }).click();
-  const provider = page.locator('.map-provider-select');
-  await provider.selectOption('google');
-  await expect(page.locator('.map-key-form')).toBeVisible();
-  await provider.selectOption('esri');
+  await expect(page.locator('.workspace-map-toolbar')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Map provider settings', exact: true })).toHaveCount(0);
   await page.locator('.tactical-basemap > button').nth(1).click();
   await expect(page.locator('.tactical-basemap > button').nth(1)).toHaveAttribute(
     'aria-pressed',

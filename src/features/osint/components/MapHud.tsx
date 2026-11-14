@@ -1,3 +1,4 @@
+import { INDONESIA_BOUNDS, INDONESIA_PADDING } from '../../../modules/maps/defaultView';
 import { createPortal } from 'react-dom';
 import { useEffect, useState } from 'react';
 import type { Map, MapMouseEvent } from 'maplibre-gl';
@@ -89,7 +90,7 @@ export default function MapHud({ map }: { map: Map | null }) {
           <Minus />
         </button>
         <button aria-label={en ? 'My location' : 'Lokasi saya'} title={en ? 'My location' : 'Lokasi saya'} disabled={!map || locating} aria-busy={locating} onClick={locate}><LocateFixed /></button>
-        <button aria-label={en ? 'Reset to Indonesia' : 'Reset ke Indonesia'} title={en ? 'Reset to Indonesia' : 'Reset ke Indonesia'} disabled={!map} onClick={() => map?.fitBounds([[94, -11.5], [141.5, 6.5]], { padding: 50, bearing: 0, pitch: 0, duration: duration() })}><Home /></button>
+        <button aria-label={en ? 'Reset to Indonesia' : 'Reset ke Indonesia'} title={en ? 'Reset to Indonesia' : 'Reset ke Indonesia'} disabled={!map} onClick={() => map?.fitBounds(INDONESIA_BOUNDS, { padding: INDONESIA_PADDING, bearing: 0, pitch: 0, duration: duration() })}><Home /></button>
         <button aria-label={en ? 'Measure distance' : 'Ukur jarak'} title={en ? 'Measure distance' : 'Ukur jarak'} aria-pressed={measuring} disabled={!map || drawing} onClick={() => setMeasuring(value => !value)}><Ruler /></button>
       </div>
     </div>

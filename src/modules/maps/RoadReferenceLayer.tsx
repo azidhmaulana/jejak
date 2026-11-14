@@ -33,9 +33,9 @@ export default function RoadReferenceLayer({
               false,
             ],
             paint: {
-              'line-color': '#86b985',
-              'line-opacity': 0.6,
-              'line-width': ['interpolate', ['linear'], ['zoom'], 8, 0.3, 12, 0.8, 16, 2],
+              'line-color': '#a1cf98',
+              'line-opacity': 0.78,
+              'line-width': ['interpolate', ['linear'], ['zoom'], 8, 0.45, 12, 1.1, 16, 2.5],
             },
             layout: { 'line-join': 'round', 'line-cap': 'round' },
           },

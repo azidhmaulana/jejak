@@ -71,7 +71,7 @@ export default function CommandHeader() {
               title={selectedProvince || (language === 'en' ? 'Regions' : 'Wilayah')}
               translate="no"
               aria-pressed={panel === 'regions' || Boolean(selectedProvince)}
-              onClick={(event) => requireFeatureLogin(event, () => openWorkspacePanel('regions'))}
+              onClick={() => openWorkspacePanel('regions')}
             >
               <MapPinned />
               <span>{language === 'en' ? 'Regions' : 'Wilayah'}</span>
@@ -101,7 +101,7 @@ export default function CommandHeader() {
               <Layers />
               Objek
             </button>
-            <button onClick={(event) => requireFeatureLogin(event, () => openWorkspacePanel('regions'))}>
+            <button onClick={() => openWorkspacePanel('regions')}>
               <MapPinned />
               {language === 'en' ? 'Regions' : 'Wilayah'}
             </button>

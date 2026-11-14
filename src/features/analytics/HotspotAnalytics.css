@@ -1,0 +1,57 @@
+.hotspot-analytics-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  align-items: end;
+}
+.hotspot-analytics-filters label {
+  display: grid;
+  gap: 4px;
+  font-size: 10px;
+  min-width: 0;
+}
+.hotspot-analytics-filters input,
+.hotspot-analytics-filters select {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  box-sizing: border-box;
+  padding: 4px;
+  color: #edf6ee;
+  color-scheme: dark;
+  background: #0a160f;
+  border: 1px solid #36593c;
+  border-radius: 3px;
+}
+.hotspot-analytics .earthquake-summary .hotspot-high {
+  color: #ff5252;
+}
+.hotspot-analytics [role='alert'] span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.hotspot-analytics section > p {
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.hotspot-analytics-filter-box summary {
+  cursor: pointer;
+  color: #b5e99c;
+  padding: 5px 0 9px;
+  font-size: 11px;
+}
+.hotspot-analytics-filter-box summary:focus-visible {
+  outline: 1px solid #93ef6c;
+}
+.hotspot-analytics-filter-box:not([open]) {
+  border-bottom: 1px solid #29412c;
+}
+.analytics-expanded .hotspot-analytics-filters {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 600px) {
+  .analytics-expanded .hotspot-analytics-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

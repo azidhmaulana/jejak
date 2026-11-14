@@ -26,7 +26,7 @@ test('province selection filters counts and persists until cleared', async ({ pa
   await expect(trigger).toHaveAttribute('aria-pressed', 'true');
   await trigger.click();
   await expect(select).toHaveValue('Jawa Barat');
-  await panel.getByRole('button', { name: 'Clear filter' }).click();
+  await panel.getByRole('button', { name: 'Reset to all provinces' }).click();
   await expect(select).toHaveValue('');
   await expect(panel.locator('.public-analytics-metrics b').first()).toHaveText(
     all.toLocaleString('en-US'),

@@ -1,3 +1,4 @@
+import HotspotPanel from '../../hotspots/HotspotPanel';
 import EarthquakePanel from '../../earthquakes/EarthquakePanel';
 import ProvincePanel from '../../regions/ProvincePanel';
 import PublicAnalyticsPanel from '../../analytics/PublicAnalyticsPanel';
@@ -92,6 +93,7 @@ export default function LayerPanel() {
   }, []);
   if (!panel || panel === 'surveillance') return null;
   if (panel === 'regions' || panel === 'alerts') return <ProvincePanel />;
+  if (panel === 'hotspots') return <HotspotPanel />;
   if (panel === 'earthquakes') return <EarthquakePanel />;
   if (panel === 'space') return <SpacePanel />;
   if (panel === 'analytics') return <PublicAnalyticsPanel />;

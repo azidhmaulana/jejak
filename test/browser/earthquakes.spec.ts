@@ -69,8 +69,27 @@ test('earthquake markers are available after refresh without opening the panel o
     await expect(page.locator('.quake-ticker-trigger')).toBeVisible();
     await expect(page.getByRole('complementary', { name: 'Earthquakes' })).toHaveCount(0);
     await expect(async () => {
-      const viewport = page.viewportSize()!;
-      await page.mouse.click(viewport.width / 2, viewport.height / 2);
+      const point = await page.evaluate(() => {
+        const container = document.querySelector('.maplibregl-map') as any;
+        let fiber = container?.[Object.keys(container).find(key => key.startsWith('__reactFiber'))!];
+        while (fiber) {
+          let hook = fiber.memoizedState;
+          while (hook) {
+            const map = hook.memoizedState?.current;
+            if (map?.getLayer?.('jejak-earthquake-markers')) {
+              const feature = map.queryRenderedFeatures({ layers: ['jejak-earthquake-markers'] }).find((f: any) => f.properties.id === 'refresh-quake');
+              if (!feature) return null;
+              const p = map.project(feature.geometry.coordinates), rect = map.getCanvas().getBoundingClientRect();
+              return { x: p.x + rect.left, y: p.y + rect.top };
+            }
+            hook = hook.next;
+          }
+          fiber = fiber.return;
+        }
+        return null;
+      });
+      expect(point).not.toBeNull();
+      await page.mouse.click(point!.x, point!.y);
       await expect(page.getByRole('dialog', { name: 'Earthquake details' })).toContainText('Refresh fixture', { timeout: 1000 });
     }).toPass({ timeout: 15000 });
     const details = page.getByRole('dialog', { name: 'Earthquake details' });

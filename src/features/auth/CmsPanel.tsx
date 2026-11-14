@@ -1,3 +1,4 @@
+import HotspotSourcesPanel from './HotspotSourcesPanel';
 import AnalyticsPanel from '../analytics/AnalyticsPanel';
 import { setLanguage } from '../../shared/i18n/runtime.js';
 import CameraSourcesPanel from './CameraSourcesPanel';
@@ -6,6 +7,7 @@ import { toast } from '../../shared/components/Toast';
 import { useEffect, useRef, useState } from 'react';
 import {
   X,
+  Flame,
   BarChart3,
   Home,
   Settings,
@@ -25,7 +27,7 @@ import {
 import { api, hasCmsAccess, useAuth, type User } from './authStore';
 import { useLanguage } from '../../shared/i18n/useLanguage';
 import './CmsPanel.css';
-type CmsTab = 'analytics' | 'dashboard' | 'users' | 'roles' | 'sources' | 'settings';
+type CmsTab = 'analytics' | 'dashboard' | 'users' | 'roles' | 'sources' | 'hotspot-sources' | 'settings';
 type Role = { id: string; permissions: string[] };
 export default function CmsPanel() {
   const { user, cmsOpen, refresh } = useAuth();
@@ -233,6 +235,7 @@ export default function CmsPanel() {
                 <span>CCTV Source</span>
               </button>
             )}
+            {user.role === 'superadmin' && <button aria-pressed={tab === 'hotspot-sources'} onClick={() => changeTab('hotspot-sources')}><Flame size={15} /><span>{tx('Sumber Hotspot', 'Hotspot Sources')}</span></button>}
             <button
               title={tx('Pengaturan', 'Settings')}
               aria-label={tx('Pengaturan', 'Settings')}
@@ -251,7 +254,7 @@ export default function CmsPanel() {
           </nav>
           <div className="cms-content">
             <div className="cms-section-heading">
-              {tab === 'analytics' ? (
+              {tab === 'hotspot-sources' ? <Flame /> : tab === 'analytics' ? (
                 <BarChart3 />
               ) : tab === 'sources' ? (
                 <Video />
@@ -266,7 +269,7 @@ export default function CmsPanel() {
               )}
               <div>
                 <h2>
-                  {tab === 'analytics'
+                  {tab === 'hotspot-sources' ? tx('Sumber Hotspot', 'Hotspot Sources') : tab === 'analytics'
                     ? tx('Analitik', 'Analytics')
                     : tab === 'sources'
                       ? 'CCTV Source'
@@ -279,7 +282,7 @@ export default function CmsPanel() {
                             : 'Dashboard'}
                 </h2>
                 <p>
-                  {tab === 'analytics'
+                  {tab === 'hotspot-sources' ? tx('Sumber data titik panas dan kredensial.', 'Hotspot data sources and credentials.') : tab === 'analytics'
                     ? tx(
                         'Statistik kunjungan dan penggunaan kamera.',
                         'Visitor and camera usage statistics.',
@@ -312,7 +315,9 @@ export default function CmsPanel() {
               </div>
             </div>
             {error && <p role="alert">{error}</p>}
-            {tab === 'analytics' ? (
+            {tab === 'hotspot-sources' ? (
+              <HotspotSourcesPanel />
+            ) : tab === 'analytics' ? (
               <AnalyticsPanel admin />
             ) : !manage ? (
               <p>
