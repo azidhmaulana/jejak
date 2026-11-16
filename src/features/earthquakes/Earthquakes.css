@@ -30,14 +30,28 @@
 .earthquake-popup .maplibregl-popup-content { background: #041009; color: #edf6ee; border: 1px solid #36593c; border-radius: 5px; padding: 0; overflow: hidden; box-shadow: 0 5px 18px #0006; }
 .earthquake-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: #36593c; }
 .earthquake-popup.maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: #36593c; }
-.ops-app .earthquake-popup { font-family: Arial, sans-serif; text-shadow: none; filter: none; }
+.ops-app .maplibregl-popup.earthquake-popup {
+  font-family: Arial, Helvetica, sans-serif;
+  text-shadow: none;
+  filter: none;
+  backdrop-filter: none;
+}
+.ops-app .earthquake-popup .quake-popup-card,
+.ops-app .earthquake-popup .quake-popup-card * {
+  font-family: Arial, Helvetica, sans-serif;
+  text-shadow: none;
+  filter: none;
+  backdrop-filter: none;
+  -webkit-text-stroke: 0;
+  font-synthesis: none;
+}
 .quake-popup-card { position: relative; width: 248px; font-size: 12px; line-height: 16px; }
 .quake-popup-card h3 { flex: 1; margin: 0; font-size: 12px; line-height: 16px; color: #93ef6c; font-weight: 700; }
-.quake-popup-place { margin: 0 0 4px; font-weight: 600; }
+.quake-popup-place { margin: 0 0 4px; font-weight: 400; }
 .quake-popup-card time { font-size: 11px; color: #bdccc3; }
 .quake-popup-card dl { display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; margin: 7px 0; }
 .quake-popup-card dt { color: #b5c6bb; font-size: 10px; }
-.quake-popup-card dd { margin: 3px 0 0; font-weight: 600; }
+.quake-popup-card dd { margin: 3px 0 0; font-weight: 400; }
 .quake-popup-potential { margin: 4px 0 0; font-size: 10px; }
 .quake-popup-card a { display: inline-flex; align-items: center; gap: 7px; border: 1px solid #477139; background: #07130e; border-radius: 3px; padding: 4px 8px; color: #b6f28e; text-decoration: none; font-size: 10px; }
 .command-workspace .quake-popup-card .quake-popup-close { display: grid; place-items: center; flex-shrink: 0; width: 25px; height: 25px; padding: 0; border: 1px solid #63302d; border-radius: 3px; background: #2b100e; color: #f27373; cursor: pointer; }

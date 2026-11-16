@@ -42,7 +42,7 @@ export default function SpacePanel() {
 
   const close = () => {
     useWorkspace.setState({ panel: null });
-    document.querySelector<HTMLButtonElement>('[data-space-trigger]')?.focus();
+    document.querySelector<HTMLButtonElement>(window.innerWidth <= 700 ? '.mobile-menu-trigger' : '[data-space-trigger]')?.focus();
   };
   return (
     <aside
@@ -79,6 +79,7 @@ export default function SpacePanel() {
                 ? 'Expand space panel'
                 : 'Perbesar panel antariksa'
           }
+          data-panel-expand
           aria-pressed={expanded}
           onClick={() => setExpanded(!expanded)}
         >

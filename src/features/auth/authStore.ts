@@ -18,10 +18,17 @@ export async function api<T = any>(path: string, method = 'GET', body?: unknown)
     headers: body ? { 'Content-Type': 'application/json' } : undefined,
     body: body ? JSON.stringify(body) : undefined,
   });
-  const data = await response.json();
+  if (response.status === 401 && path !== '/auth/login' && revision === sessionRevision)
+    useAuth.setState({ user: null });
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error(getLanguage() === 'id'
+      ? 'Respons server tidak valid. Silakan coba lagi.'
+      : 'Invalid server response. Please try again.');
+  }
   if (!response.ok) {
-    if (response.status === 401 && path !== '/auth/login' && revision === sessionRevision)
-      useAuth.setState({ user: null });
     const translations: Record<string, string> = {
       'Invalid email or password.': 'Email atau kata sandi salah.',
       'Email already exists.': 'Email sudah terdaftar.',

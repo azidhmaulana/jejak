@@ -1,0 +1,496 @@
+/* Touch layouts keep the map available between the navigation and layer tools. */
+@media (min-width: 701px) and (max-width: 1200px) {
+  .command-workspace .public-analytics,
+  .command-workspace .route-panel {
+    top: 106px;
+    max-height: calc(100dvh - 185px);
+  }
+  .command-workspace .navbar-more summary {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .command-workspace .navbar-more button {
+    min-height: 44px;
+  }
+  .command-workspace .camera-dock {
+    width: min(660px, calc(100% - 120px));
+  }
+}
+@media (max-width: 700px) {
+  .command-workspace {
+    --mobile-top: calc(106px + env(safe-area-inset-top, 0px));
+    --mobile-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+    --dock-bottom: var(--mobile-bottom);
+    --tactical-footer-height: 38px;
+  }
+  .command-workspace .command-header.tactical-header {
+    height: var(--mobile-top);
+    min-height: var(--mobile-top);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .command-workspace .navbar-capsule {
+    top: calc(4px + env(safe-area-inset-top, 0px));
+    width: 158px;
+  }
+  .command-workspace .tactical-brand {
+    width: 158px;
+    height: 44px;
+  }
+  .command-workspace .tactical-brand .jejak-logo-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .command-workspace .tactical-brand .jejak-brand-type strong {
+    font-size: 25px;
+  }
+  .command-workspace .navbar-more {
+    left: 8px;
+    top: calc(4px + env(safe-area-inset-top, 0px));
+  }
+  .command-workspace .navbar-more summary {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-height: 44px;
+    padding: 0 6px;
+    font-size: 11px;
+  }
+  .command-workspace .navbar-more > div {
+    top: 48px;
+    width: 200px;
+    z-index: 100;
+  }
+  .command-workspace .navbar-more button {
+    min-height: 44px;
+    font-size: 13px;
+  }
+  .command-workspace .tactical-nav-left {
+    position: fixed;
+    left: calc(79px - 50vw + 8px);
+    top: 48px;
+    width: 100px;
+    gap: 3px;
+  }
+  .command-workspace .tactical-nav-left button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 4px;
+    font-size: 10px;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .command-workspace .tactical-nav-left button svg {
+    width: 17px;
+    height: 17px;
+  }
+  .command-workspace .navbar-utilities {
+    top: calc(52px + env(safe-area-inset-top, 0px));
+    right: 8px;
+    gap: 4px;
+  }
+  .command-workspace .tactical-actions {
+    gap: 4px;
+    padding-left: 4px;
+  }
+  .command-workspace .tactical-actions > button,
+  .command-workspace .tactical-actions .account-trigger {
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+  }
+  .command-workspace .account-trigger-name {
+    display: none;
+  }
+  .command-workspace .tactical-actions .workspace-fullscreen {
+    position: absolute;
+    right: 0;
+    top: -48px;
+  }
+  .command-workspace .language-toggle {
+    min-height: 44px;
+  }
+  .command-workspace .tactical-actions svg {
+    width: 18px;
+    height: 18px;
+  }
+  .command-workspace .tactical-rail {
+    position: fixed;
+    top: auto;
+    left: 8px;
+    right: 8px;
+    bottom: calc(57px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    height: 48px;
+    max-height: none;
+    transform: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 2px;
+    border: 1px solid #36593c;
+    border-radius: 6px;
+    background: #06150ef5;
+  }
+  .command-workspace .tactical-rail button {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+  .command-workspace .tactical-rail button svg {
+    width: 19px;
+    height: 19px;
+  }
+  .command-workspace .tactical-rail .rail-tooltip {
+    display: none;
+  }
+  .command-workspace .map-hud {
+    top: calc(var(--mobile-top) + 8px);
+    right: 0;
+    transform: none;
+  }
+  .command-workspace .map-hud-buttons button {
+    width: 44px;
+    height: 44px;
+  }
+  .command-workspace .map-hud-buttons svg {
+    width: 18px;
+    height: 18px;
+  }
+  .command-workspace .public-analytics.public-analytics,
+  .command-workspace .public-analytics.analytics-expanded,
+  .command-workspace .province-panel.has-region-list,
+  .command-workspace .route-panel,
+  .command-workspace .route-panel[data-expanded='true'] {
+    position: fixed;
+    top: var(--mobile-top);
+    left: 8px;
+    right: 8px;
+    bottom: auto;
+    width: auto;
+    max-width: none;
+    height: auto;
+    max-height: calc(100dvh - var(--mobile-top) - var(--mobile-bottom) - 8px);
+    transform: none;
+  }
+  .command-workspace .province-panel.has-region-list {
+    height: calc(100dvh - var(--mobile-top) - var(--mobile-bottom) - 8px);
+  }
+  .command-workspace .public-analytics-heading {
+    padding: 4px 8px;
+    min-height: 44px;
+    gap: 6px;
+  }
+  .command-workspace .public-analytics-heading h2 {
+    font-size: 15px;
+  }
+  .command-workspace .public-analytics .public-analytics-heading button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .command-workspace .public-analytics-body {
+    overscroll-behavior: contain;
+  }
+  .command-workspace .public-analytics select {
+    min-height: 36px;
+    max-width: 100%;
+  }
+  .command-workspace .public-analytics input:not([type='checkbox']):not([type='range']) {
+    font-size: 16px;
+    min-width: 0;
+  }
+  .command-workspace .province-count-action > button {
+    min-height: 48px;
+  }
+  .command-workspace .province-event-list header {
+    flex-wrap: wrap;
+    padding: 4px 6px;
+  }
+  .command-workspace .province-event-list header h3 {
+    font-size: 12px;
+    min-width: 100px;
+  }
+  .command-workspace .province-event-list header button,
+  .command-workspace .province-event-list footer button {
+    width: 44px;
+    min-height: 44px;
+  }
+  .command-workspace .province-event-sort {
+    max-width: 118px;
+  }
+  .command-workspace .province-event-row {
+    min-height: 48px;
+  }
+  .command-workspace .province-panel .province-compact-notes {
+    font-size: 9px;
+  }
+  .command-workspace .surveillance-popover {
+    position: fixed;
+    inset: var(--mobile-top) 8px auto;
+    width: auto;
+    transform: none;
+  }
+  .command-workspace .surveillance-popover .surveillance-settings {
+    position: static;
+    width: 100%;
+  }
+  .command-workspace .surveillance-setting {
+    min-height: 44px;
+  }
+  .command-workspace .space-stream-panel {
+    position: fixed;
+    top: var(--mobile-top) !important;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-height: calc(100dvh - var(--mobile-top) - var(--mobile-bottom));
+    overflow-y: auto;
+  }
+  .command-workspace .tactical-search.navbar-camera-search {
+    position: fixed;
+    top: var(--mobile-top);
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+  }
+  .command-workspace .navbar-camera-search input {
+    font-size: 16px;
+  }
+  .command-workspace .route-panel .route-columns {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+  .command-workspace .route-panel input {
+    font-size: 16px;
+    min-width: 0;
+  }
+  .command-workspace .route-panel .place-search input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .command-workspace .route-panel .route-header-actions button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .command-workspace .drawing-activity {
+    top: var(--mobile-top);
+    left: 8px;
+    right: 8px;
+    bottom: auto;
+    width: auto;
+    transform: none;
+    padding: 8px;
+    max-height: calc(100dvh - var(--mobile-top) - var(--mobile-bottom));
+    overflow-y: auto;
+  }
+  .command-workspace .drawing-activity button {
+    min-width: 40px;
+    min-height: 40px;
+  }
+  .command-workspace[data-drawing='true'] .objects-panel {
+    display: none;
+  }
+  .command-workspace .map-online-status {
+    bottom: calc(var(--mobile-bottom) + 8px);
+    right: 8px;
+    max-width: calc(100% - 16px);
+    z-index: 20;
+  }
+  .command-workspace .route-panel button {
+    min-height: 40px;
+  }
+  .command-workspace .camera-dock {
+    left: 8px;
+    right: 8px;
+    bottom: var(--mobile-bottom);
+    width: auto;
+    transform: none;
+  }
+  .command-workspace:is(
+      [data-cameras-open='true'],
+      [data-panel-open='true'],
+      [data-camera-selected='true']
+    )
+    #map-corner-type,
+  .command-workspace:is(
+      [data-cameras-open='true'],
+      [data-panel-open='true'],
+      [data-camera-selected='true']
+    )
+    #map-corner-compass,
+  .command-workspace:is(
+      [data-cameras-open='true'],
+      [data-panel-open='true'],
+      [data-camera-selected='true']
+    )
+    #map-corner-scale {
+    visibility: hidden;
+  }
+  .command-workspace .camera-dock-heading {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 44px;
+  }
+  .command-workspace .camera-dock-heading [role='tab'] {
+    min-height: 44px;
+    padding: 0 6px;
+    font-size: 10px;
+  }
+  .command-workspace .camera-dock-body {
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    grid-template-rows: 100px 44px;
+    gap: 4px;
+  }
+  .command-workspace .camera-dock .dock-scroll {
+    width: 36px;
+    height: 44px;
+  }
+  .command-workspace .camera-pagination {
+    gap: 2px;
+  }
+  .command-workspace .camera-pagination button {
+    min-width: 28px;
+    height: 40px;
+  }
+  .command-workspace .camera-pagination > span {
+    margin-right: 2px;
+  }
+  .command-workspace[data-camera-selected='true']
+    .camera-inspector.compact-monitor:not(:fullscreen),
+  .command-workspace[data-camera-selected='true']
+    .camera-inspector.compact-monitor.inspector-expanded:not(:fullscreen) {
+    position: fixed;
+    top: var(--mobile-top);
+    bottom: auto;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-height: calc(100dvh - var(--mobile-top) - var(--mobile-bottom) - 8px);
+  }
+  .command-workspace[data-camera-selected='true'][data-cameras-open='true']
+    .camera-inspector.compact-monitor:not(:fullscreen) {
+    max-height: calc(100dvh - var(--mobile-top) - var(--mobile-bottom) - 205px);
+  }
+  .command-workspace .compact-monitor .monitor-actions button {
+    min-width: 32px;
+    min-height: 36px;
+  }
+  .command-workspace #map-corner-type,
+  .command-workspace[data-cameras-open='true'] #map-corner-type {
+    bottom: calc(var(--mobile-bottom) + 38px);
+  }
+  .command-workspace #map-corner-compass,
+  .command-workspace[data-cameras-open='true'] #map-corner-compass {
+    bottom: calc(var(--mobile-bottom) + 4px);
+  }
+  .command-workspace #map-corner-scale,
+  .command-workspace[data-cameras-open='true'] #map-corner-scale {
+    bottom: var(--mobile-bottom);
+  }
+  .command-workspace .workspace-status.tactical-status {
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    height: 36px;
+    padding: 0 8px;
+  }
+  .command-workspace .status-coordinates,
+  .command-workspace .tactical-local,
+  .command-workspace .visitor-count {
+    display: none;
+  }
+  .command-workspace .workspace-clock {
+    flex: 1;
+    min-width: 0;
+  }
+  .command-workspace .workspace-clock button {
+    min-height: 36px;
+  }
+  .command-workspace .footer-layer-trigger {
+    min-height: 36px;
+  }
+  .command-workspace .workspace-ticker {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    height: calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+  .command-workspace .account-panel {
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+  }
+  .command-workspace .account-panel input {
+    font-size: 16px;
+  }
+  .command-workspace .auth-panel header .auth-brand-tagline {
+    display: none;
+  }
+  .command-workspace .account-panel header button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .command-workspace .objects-panel .objects-draw-tools button {
+    min-height: 44px;
+  }
+  .command-workspace .hotspot-panel .hotspot-tabs button,
+  .command-workspace .earthquake-panel .quake-tabs button {
+    min-height: 44px;
+  }
+  .command-workspace .cms-panel {
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 24px);
+  }
+}
+@media (max-width: 1200px) and (max-height: 540px) {
+  .command-workspace .public-analytics.public-analytics {
+    top: 100px;
+    max-height: calc(100dvh - 160px);
+  }
+  .command-workspace .province-panel .public-analytics-body {
+    display: block;
+    overflow-y: auto;
+  }
+  .command-workspace .province-panel .province-event-list {
+    height: 220px;
+    margin-top: 8px;
+  }
+  .command-workspace .map-hud-buttons {
+    max-height: calc(100dvh - 160px);
+    overflow-y: auto;
+  }
+  .command-workspace .tactical-rail {
+    max-height: calc(100dvh - 150px);
+  }
+}
+@media (max-width: 360px) {
+  .command-workspace .navbar-utilities {
+    gap: 2px;
+  }
+  .command-workspace .tactical-actions {
+    gap: 2px;
+    padding-left: 0;
+  }
+  .command-workspace .language-toggle {
+    max-width: 60px;
+  }
+  .command-workspace .tactical-nav-left {
+    width: 88px;
+  }
+}
+@media (max-width: 700px) and (max-height: 540px) {
+  .command-workspace {
+    --mobile-top: 100px;
+    --mobile-bottom: 64px;
+  }
+  .command-workspace .tactical-rail {
+    bottom: 8px;
+    left: 8px;
+    right: 60px;
+  }
+  .command-workspace .workspace-status.tactical-status,
+  .command-workspace .workspace-ticker {
+    display: none;
+  }
+  .command-workspace .map-hud-buttons button {
+    height: 36px;
+  }
+}

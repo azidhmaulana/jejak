@@ -6,6 +6,7 @@ import { useLanguage } from '../../shared/i18n/useLanguage';
 import { quakeTime, useEarthquakes, type Earthquake } from './earthquakeStore';
 import './Earthquakes.css';
 import { dismissMarkerPopup } from '../../shared/dismissMarkerPopup';
+import { snapPopupToPixels } from '../../shared/snapPopupToPixels';
 
 export default function EarthquakePopup({ map, quake }: { map: LibreMap | null; quake: Earthquake | null }) {
   const en = useLanguage() === 'en';
@@ -16,6 +17,7 @@ export default function EarthquakePopup({ map, quake }: { map: LibreMap | null; 
     const popup = new Popup({ className: 'earthquake-popup', closeButton: false, closeOnClick: false, subpixelPositioning: false, maxWidth: '260px', offset: 22 })
       .setLngLat([quake.lng, quake.lat]).setDOMContent(content).addTo(map);
     setHost(content);
+    const stopSnapping = snapPopupToPixels(popup.getElement());
     const removeDismiss = dismissMarkerPopup(() => popup.getElement(), () => {
       if (useEarthquakes.getState().selected?.id === quake.id) useEarthquakes.setState({ selected: null });
     });
@@ -23,7 +25,7 @@ export default function EarthquakePopup({ map, quake }: { map: LibreMap | null; 
       if (event.key === 'Escape') useEarthquakes.setState({ selected: null });
     };
     window.addEventListener('keydown', escape);
-    return () => { removeDismiss(); popup.remove(); window.removeEventListener('keydown', escape); };
+    return () => { stopSnapping(); removeDismiss(); popup.remove(); window.removeEventListener('keydown', escape); };
   }, [map, quake]);
   if (!host || !quake) return null;
   return createPortal(<section className="quake-popup-card" role="dialog" aria-label={en ? 'Earthquake details' : 'Detail gempa'} translate="no">

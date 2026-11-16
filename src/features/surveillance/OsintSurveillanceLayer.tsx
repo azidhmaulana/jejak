@@ -418,6 +418,7 @@ export default function OsintSurveillanceLayer({
               <MapPin />
             </button>
             <button
+              data-panel-expand
               title="Expand stream"
               aria-label="Expand stream"
               onClick={() => setExpanded(!expanded)}

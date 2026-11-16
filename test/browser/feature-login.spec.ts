@@ -44,8 +44,7 @@ test('guests can filter regions and open inline lists on desktop and mobile', as
   }
   await panel.getByRole('button', { name: 'Close regions' }).click();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByLabel('More navigation').click();
-  await page.locator('.navbar-more').getByRole('button', { name: 'Regions', exact: true }).click();
+  await page.locator('.mobile-bottom-nav').getByRole('button', { name: 'Regions', exact: true }).click();
   await expect(panel).toBeVisible();
   await expect(panel.getByLabel('Province', { exact: true })).toHaveValue('Jawa Barat');
   await expect(page.getByRole('dialog', { name: 'Login required' })).toHaveCount(0);

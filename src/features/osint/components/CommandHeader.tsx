@@ -1,3 +1,4 @@
+import MobileNavigation from './MobileNavigation';
 import WorkspaceFullscreen from './WorkspaceFullscreen';
 import LoginRequiredPopover, { requireFeatureLogin } from '../../auth/LoginRequiredPopover';
 import { useRegion } from '../../regions/regionStore';
@@ -90,9 +91,9 @@ export default function CommandHeader() {
         </div>
         <details className="navbar-more">
           <summary aria-label="More navigation">
-            <MoreHorizontal size={16} />
+            <MoreHorizontal size={16} /><span>Menu</span>
           </summary>
-          <div>
+          <div onClick={(event) => { const button = (event.target as HTMLElement).closest('button'); if (button && (user || button.hasAttribute('data-public-navigation'))) event.currentTarget.closest('details')?.removeAttribute('open'); }}>
             <button onClick={(event) => requireFeatureLogin(event, () => openWorkspacePanel('analytics'))}>
               <BarChart3 />
               Analitik
@@ -101,7 +102,7 @@ export default function CommandHeader() {
               <Layers />
               Objek
             </button>
-            <button onClick={() => openWorkspacePanel('regions')}>
+            <button data-public-navigation onClick={() => openWorkspacePanel('regions')}>
               <MapPinned />
               {language === 'en' ? 'Regions' : 'Wilayah'}
             </button>
@@ -131,6 +132,7 @@ export default function CommandHeader() {
           </div>
         </div>
       </header>
+      <MobileNavigation onSearch={() => { setSearch(true); useWorkspace.setState({ camerasOpen: false, panel: null }); }} />
       <LoginRequiredPopover />
       {search && <NavbarCameraSearch onClose={() => setSearch(false)} />}
     </>

@@ -130,10 +130,12 @@ test('analytics handles period changes, errors, chart overflow and close on mobi
   await panel.getByRole('button', { name: 'Refresh analytics' }).click();
   await expect(chart.locator('rect')).toHaveCount(57);
   await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(async () => (await panel.boundingBox())!.height).toBeLessThanOrEqual(844 * 0.6 + 1);
+  await expect.poll(async () => (await panel.boundingBox())!.width).toBeLessThanOrEqual(350);
   const box = await panel.boundingBox();
   expect(box).not.toBeNull();
   expect(box!.height).toBeLessThanOrEqual(844 * 0.6 + 1);
-  expect(box!.x).toBeGreaterThanOrEqual(40);
+  expect(box!.x).toBeGreaterThanOrEqual(8);
   expect(box!.x + box!.width).toBeLessThanOrEqual(390);
   await panel.getByRole('button', { name: 'Close analytics' }).click();
   await expect(panel).toHaveCount(0);

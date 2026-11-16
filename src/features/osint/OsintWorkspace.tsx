@@ -37,6 +37,8 @@ import './components/CameraInspector.css';
 import './components/CameraDock.css';
 import './UiRefinement.css';
 import '../analytics/PublicAnalyticsPanel.css';
+import './ResponsiveWorkspace.css';
+import './components/MobileNavigation.css';
 
 export default function OsintWorkspace() {
   useCameraCheckNotifications();

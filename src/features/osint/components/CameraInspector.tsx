@@ -118,6 +118,7 @@ export default function CameraInspector() {
               <MapPin />
             </button>
             <button
+              data-panel-expand
               aria-label="Expand camera"
               title="Expand camera"
               aria-pressed={expanded}

@@ -1,4 +1,17 @@
-/* Scoped refinements: map markers, navbar and left toolbar only. */
+.command-workspace .tactical-status-accent {
+  position: static;
+}
+.command-workspace .tactical-status-accent i {
+  left: 50%;
+  right: auto;
+  width: 180px;
+  top: 22px;
+  bottom: auto;
+  transform: translateX(-50%);
+}
+.command-workspace .tactical-status-accent i:after {
+  transform: translateX(-50%) rotate(45deg);
+}
 .camera-map-tooltip .maplibregl-popup-content {
   background: #0b1b16;
   color: #e0eee5;
@@ -24,7 +37,7 @@
   transform: translateX(-50%);
   width: min(820px, calc(100% - 760px));
   display: grid;
-  grid-template-columns: 1fr 190px 1fr;
+  grid-template-columns: minmax(0, 1fr) 190px minmax(0, 1fr);
   grid-template-rows: 32px;
   align-content: center;
   align-items: center;
@@ -54,6 +67,7 @@
   display: none;
 }
 .command-workspace .tactical-nav {
+  min-width: 0;
   padding: 0 8px;
   gap: 4px;
   justify-content: space-evenly;
@@ -164,7 +178,7 @@
     display: none;
   }
   .command-workspace .navbar-capsule {
-    grid-template-columns: 1fr 170px 1fr;
+    grid-template-columns: minmax(0, 1fr) 170px minmax(0, 1fr);
   }
   .command-workspace .tactical-brand {
     width: 170px;

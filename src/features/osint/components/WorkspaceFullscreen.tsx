@@ -13,7 +13,7 @@ export default function WorkspaceFullscreen() {
     return () => document.removeEventListener('fullscreenchange', update);
   }, []);
   const label = active ? (en ? 'Exit fullscreen' : 'Keluar layar penuh') : (en ? 'Fullscreen workspace' : 'Layar penuh');
-  return <button aria-label={label} title={label} aria-pressed={active} onClick={async () => {
+  return <button className="workspace-fullscreen" aria-label={label} title={label} aria-pressed={active} onClick={async () => {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
       else await document.documentElement.requestFullscreen();

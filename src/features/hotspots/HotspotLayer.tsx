@@ -6,6 +6,7 @@ import { Popup, type GeoJSONSource, type Map as LibreMap, type MapMouseEvent } f
 import { X, ExternalLink } from 'lucide-react';
 import { useMapTools } from '../../modules/drawing/mapToolsStore';
 import { dismissMarkerPopup } from '../../shared/dismissMarkerPopup';
+import { snapPopupToPixels } from '../../shared/snapPopupToPixels';
 import { useLanguage } from '../../shared/i18n/useLanguage';
 import { useHotspots, visibleHotspots } from './hotspotStore';
 import '../earthquakes/Earthquakes.css';
@@ -113,6 +114,7 @@ export default function HotspotLayer({ map }: { map: LibreMap | null }) {
       .setDOMContent(content)
       .addTo(map);
     setHost(content);
+    const stopSnapping = snapPopupToPixels(popup.getElement());
     const close = () => useHotspots.setState({ selected: null });
     const dismiss = dismissMarkerPopup(() => popup.getElement(), close);
     const key = (e: KeyboardEvent) => {
@@ -122,6 +124,7 @@ export default function HotspotLayer({ map }: { map: LibreMap | null }) {
     return () => {
       dismiss();
       popup.remove();
+      stopSnapping();
       window.removeEventListener('keydown', key);
     };
   }, [map, selected]);

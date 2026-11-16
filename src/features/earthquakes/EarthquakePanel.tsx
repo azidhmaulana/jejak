@@ -22,6 +22,7 @@ export default function EarthquakePanel() {
     const trigger = document.querySelector('[data-earthquake-trigger]');
     if (!trigger) return;
     const align = () => {
+      if (window.innerWidth <= 700 || (window.innerWidth <= 1200 && window.innerHeight <= 540)) { setPosition({}); return; }
       const rect = trigger.getBoundingClientRect();
       setPosition({ position: 'fixed', top: rect.top, left: rect.right + 8,
         maxHeight: Math.min(window.innerHeight * 0.6, window.innerHeight - rect.top - 70),

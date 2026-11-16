@@ -94,7 +94,7 @@ test('click settings, preview threshold and multi-camera dropdown work together'
 }) => {
   await expect(page.locator('.osint-camera-mini')).toHaveCount(0);
   await page.getByRole('button', { name: 'Camera catalog', exact: true }).click();
-  const popover = page.locator('.surveillance-popover');
+  const popover = page.getByRole('region', {name:'Surveillance settings'});
   await expect(popover.getByRole('switch')).toHaveCount(4);
   await popover.hover();
   await expect(popover).toBeVisible();
@@ -225,12 +225,13 @@ for (const width of [390, 768, 1024, 1440]) {
         right: rect('.map-hud-buttons').width,
       };
     });
-    expect(bounds.bottom).toBeLessThanOrEqual(80);
+    if (width <= 700) expect(bounds.gap).toBeGreaterThanOrEqual(0);
+    else expect(bounds.bottom).toBeLessThanOrEqual(80);
     if (width >= 1101) expect(bounds.horizontalGap).toBeGreaterThanOrEqual(8);
     expect(bounds.top).toBeGreaterThanOrEqual(0);
     expect(bounds.headerGap >= 0 || bounds.headerVerticalGap >= 0).toBe(true);
-    expect(bounds.left).toBe(40);
-    expect(bounds.right).toBe(34);
+    expect(bounds.left).toBe(width <= 700 ? 0 : 40);
+    if (width > 700) expect(bounds.right).toBe(34);
   });
 }
 
@@ -238,11 +239,11 @@ test.describe('touch interaction', () => {
   test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
   test('surveillance popover stays open until explicitly closed on touch', async ({ page }) => {
     await page.getByRole('button', { name: 'Camera catalog', exact: true }).tap();
-    await expect(page.locator('.surveillance-popover')).toBeVisible();
+    await expect(page.getByRole('region', {name:'Surveillance settings'})).toBeVisible();
     await page.locator('.maplibregl-canvas').tap({ position: { x: 350, y: 500 } });
-    await expect(page.locator('.surveillance-popover')).toBeVisible();
+    await expect(page.getByRole('region', {name:'Surveillance settings'})).toBeVisible();
     await page.getByRole('button', { name: 'Close camera surveillance' }).tap();
-    await expect(page.locator('.surveillance-popover')).toHaveCount(0);
+    await expect(page.getByRole('region', {name:'Surveillance settings'})).toHaveCount(0);
   });
 });
 

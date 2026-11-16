@@ -367,6 +367,7 @@ export default function OsintSidebar() {
             {shownPanel !== 'cctv' && (
               <>
                 <button
+                  data-panel-expand
                   title={expanded ? 'Compact panel' : 'Expand panel'}
                   aria-label={expanded ? 'Compact panel' : 'Expand panel'}
                   onClick={() => setExpanded(!expanded)}

@@ -271,6 +271,6 @@ test('refined navbar remains centered and toolbar tooltips support keyboard', as
   expect(box!.width).toBe(36);
   expect(box!.height).toBe(36);
   await page.setViewportSize({ width: 390, height: 900 });
-  await page.getByLabel('More navigation').click();
-  await expect(page.locator('.navbar-more button').first()).toBeVisible();
+  await page.getByRole('button', {name:'More navigation', exact:true}).click();
+  await expect(page.locator('.mobile-menu-sheet button').first()).toBeVisible();
 });

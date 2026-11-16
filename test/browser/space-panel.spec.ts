@@ -53,9 +53,10 @@ test('space panel loads one player on demand, switches streams and unloads on cl
   await page.screenshot({ path: '.runtime/space-panel-mobile.png' });
   await localized.getByRole('button', { name: 'Tutup panel antariksa' }).click();
   await expect(page.locator('#space-stream-panel iframe')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Antariksa', exact: true }).click();
+  await page.getByRole('button', { name: 'Navigasi lainnya', exact: true }).click();
+  await page.getByRole('button', { name: 'Siaran antariksa', exact: true }).click();
   await page.getByRole('button', { name: 'Muat ulang siaran antariksa' }).focus();
   await page.keyboard.press('Escape');
   await expect(page.locator('#space-stream-panel')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Antariksa', exact: true })).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Navigasi lainnya', exact: true })).toBeFocused();
 });

@@ -95,7 +95,7 @@ export default function CameraDock() {
   useEffect(() => {
     if (!track.current) return;
     const observer = new ResizeObserver(([entry]) => {
-      setPageSize(Math.min(5, Math.max(1, Math.floor((entry.contentRect.width + 10) / 150))));
+      setPageSize(Math.min(5, Math.max(1, Math.floor((entry.contentRect.width + 10) / (window.innerWidth <= 700 ? 125 : 150)))));
     });
     observer.observe(track.current);
     return () => observer.disconnect();

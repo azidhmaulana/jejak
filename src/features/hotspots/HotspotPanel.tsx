@@ -42,6 +42,7 @@ export default function HotspotPanel() {
     const button = document.querySelector('[data-hotspot-trigger]');
     if (!button) return;
     const align = () => {
+      if (window.innerWidth <= 700 || (window.innerWidth <= 1200 && window.innerHeight <= 540)) { setPosition({}); return; }
       const rect = button.getBoundingClientRect();
       setPosition({
         position: 'fixed',

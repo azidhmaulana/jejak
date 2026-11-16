@@ -29,7 +29,7 @@ export default function LoginRequiredPopover() {
     const place = () => {
       const rect = anchor.getBoundingClientRect();
       const width = Math.min(340, window.innerWidth - 16);
-      setPosition({ left: Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)), top: rect.bottom + 7 });
+      setPosition({ left: Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)), top: rect.bottom + 7 + (ref.current?.offsetHeight || 180) > window.innerHeight - 8 ? Math.max(8, rect.top - (ref.current?.offsetHeight || 180) - 7) : rect.bottom + 7 });
     };
     place();
     ref.current?.focus();

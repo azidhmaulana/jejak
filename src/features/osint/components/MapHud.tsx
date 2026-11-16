@@ -1,8 +1,9 @@
+import type { MapCommand } from './mapCommands';
 import { INDONESIA_BOUNDS, INDONESIA_PADDING } from '../../../modules/maps/defaultView';
 import { createPortal } from 'react-dom';
 import { useEffect, useState } from 'react';
 import type { Map, MapMouseEvent } from 'maplibre-gl';
-import { Minus, Navigation2, Plus, LocateFixed, Home, Ruler } from 'lucide-react';
+import { Minus, Navigation2, Plus, LocateFixed, Home, Ruler, X } from 'lucide-react';
 import QuickMeasure from './QuickMeasure';
 import './MapHudActions.css';
 import { useLanguage } from '../../../shared/i18n/useLanguage';
@@ -29,6 +30,16 @@ export default function MapHud({ map }: { map: Map | null }) {
       setLocationError(error.code === 1 ? (en ? 'Location permission denied. Allow it in your browser settings.' : 'Izin lokasi ditolak. Aktifkan lewat pengaturan browser.') : (en ? 'Could not locate you. Please retry.' : 'Lokasi belum ditemukan. Silakan coba lagi.'));
     }, { timeout: 15000, maximumAge: 60000, enableHighAccuracy: true });
   };
+  useEffect(() => {
+    const command = (event: Event) => {
+      const action = (event as CustomEvent<MapCommand>).detail;
+      if (action === 'locate') locate();
+      if (action === 'reset') map?.fitBounds(INDONESIA_BOUNDS, { padding: INDONESIA_PADDING, bearing: 0, pitch: 0, duration: duration() });
+      if (action === 'measure' && map && !drawing) setMeasuring(value => !value);
+    };
+    window.addEventListener('jejak-map-command', command);
+    return () => window.removeEventListener('jejak-map-command', command);
+  }, [map, locating, drawing, en]);
   const [compassHost, setCompassHost] = useState<HTMLElement | null>(null);
   useEffect(() => setCompassHost(document.getElementById('map-corner-compass')), []);
   const [bearing, setBearing] = useState(0);
@@ -81,7 +92,7 @@ export default function MapHud({ map }: { map: Map | null }) {
           compassHost,
         )}
       {measuring && map && <QuickMeasure map={map} onClose={() => setMeasuring(false)} />}
-      {locationError && <div className="map-location-error" role="alert">{locationError}<button aria-label={en ? 'Close location message' : 'Tutup pesan lokasi'} onClick={() => setLocationError('')}>?</button></div>}
+      {locationError && <div className="map-location-error" role="alert">{locationError}<button aria-label={en ? 'Close location message' : 'Tutup pesan lokasi'} onClick={() => setLocationError('')}><X size={12} /></button></div>}
       <div className="map-hud-buttons">
         <button title={en ? "Zoom in" : "Perbesar"} aria-label="Zoom in" onClick={() => map?.zoomIn()}>
           <Plus />

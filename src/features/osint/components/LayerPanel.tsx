@@ -85,7 +85,7 @@ export default function LayerPanel() {
       const wasSpace = useWorkspace.getState().panel === 'space';
       useWorkspace.setState({ panel: null });
       if (wasSpace) {
-        document.querySelector<HTMLButtonElement>('[data-space-trigger]')?.focus();
+        document.querySelector<HTMLButtonElement>(window.innerWidth <= 700 ? '.mobile-menu-trigger' : '[data-space-trigger]')?.focus();
       }
     };
     window.addEventListener('keydown', close);

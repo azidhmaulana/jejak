@@ -61,6 +61,7 @@ export default function PublicAnalyticsPanel() {
         <Layers size={22} />
         <h2>{tx('Analitik', 'Analytics')}</h2>
         <button
+          data-panel-expand
           className="analytics-expand"
           aria-label={
             expanded

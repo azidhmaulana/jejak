@@ -34,6 +34,6 @@ test('province selection filters counts and persists until cleared', async ({ pa
   await page.setViewportSize({ width: 390, height: 844 });
   const box = await panel.boundingBox();
   expect(box!.height).toBeLessThanOrEqual(844 * 0.6 + 1);
-  expect(box!.x).toBeGreaterThanOrEqual(40);
+  expect(box!.x).toBeGreaterThanOrEqual(8);
   await page.screenshot({ path: '.runtime/regions-mobile.png' });
 });

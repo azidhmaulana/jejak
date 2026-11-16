@@ -30,6 +30,15 @@ export default function RoutePanel() {
   useEffect(() => {
     setExpanded(Boolean(s.result));
   }, [s.result]);
+  useEffect(() => {
+    const mobile = matchMedia('(max-width: 700px)');
+    const revealResults = () => {
+      if (mobile.matches && s.result) setExpanded(true);
+    };
+    revealResults();
+    mobile.addEventListener('change', revealResults);
+    return () => mobile.removeEventListener('change', revealResults);
+  }, [s.result]);
   const canSave = user?.permissions.includes('routes.save');
   const routeCameras =
     s.result?.cameras.filter((camera) => cameras.some((source) => source.id === camera.id)) || [];
@@ -66,6 +75,7 @@ export default function RoutePanel() {
         <div className="route-header-actions">
           {s.result && (
             <button
+              data-panel-expand
               aria-label={expanded ? 'Not expand' : 'Expand'}
               aria-expanded={expanded}
               onClick={() => setExpanded(!expanded)}
