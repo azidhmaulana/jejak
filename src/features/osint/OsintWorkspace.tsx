@@ -1,26 +1,35 @@
+import { useRoute } from '../routes/routeStore';
+import { lazy, Suspense, useEffect } from 'react';
+import { useAuth } from '../auth/authStore';
 import { useHotspotPolling } from '../hotspots/hotspotStore';
 import { useEarthquakePolling } from '../earthquakes/earthquakeStore';
 import ToastHost from '../../shared/components/Toast';
 import { useCameraCheckNotifications } from '../auth/cameraCheckStore';
 import { useCameraSourceSync } from '../surveillance/cameraSourceState';
-import CmsPanel from '../auth/CmsPanel';
-import AccountPanel from '../auth/AccountPanel';
 import AccountCameraPreferences from '../auth/AccountCameraPreferences';
-import RoutePanel from '../routes/RoutePanel';
 import WorkspaceTicker from './components/WorkspaceTicker';
 import TacticalRail from './components/TacticalRail';
 import MapCorner from './components/MapCorner';
 import OsintMap from './components/OsintMap';
 import CommandHeader from './components/CommandHeader';
 import LayerPanel from './components/LayerPanel';
-import DrawingActivity from '../objects/DrawingActivity';
 import CameraDock from './components/CameraDock';
-import CameraInspector from './components/CameraInspector';
 import WorkspaceStatus from './components/WorkspaceStatus';
 import type { CSSProperties } from 'react';
 import { useAppearance } from './appearanceStore';
 import { useMapTools } from '../../modules/drawing/mapToolsStore';
 import { useWorkspace } from './workspaceStore';
+import '../auth/AccountPanel.css';
+import '../auth/AuthForm.css';
+import '../auth/ProfileForm.css';
+import '../auth/CameraSourcesPanel.css';
+import '../auth/HotspotSourcesPanel.css';
+import '../analytics/AnalyticsPanel.css';
+import '../analytics/EarthquakeAnalytics.css';
+import '../analytics/HotspotAnalytics.css';
+import '../objects/ObjectsPanel.css';
+import '../routes/RoutePanel.css';
+import '../weather/Himawari.css';
 import '../../shared/styles/Operations.css';
 import '../../shared/styles/ReferenceTheme.css';
 import '../../shared/styles/CommandTheme.css';
@@ -40,7 +49,22 @@ import '../analytics/PublicAnalyticsPanel.css';
 import './ResponsiveWorkspace.css';
 import './components/MobileNavigation.css';
 
+const CmsPanel = lazy(() => import('../auth/CmsPanel'));
+const AccountPanel = lazy(() => import('../auth/AccountPanel'));
+const RoutePanel = lazy(() => import('../routes/RoutePanel'));
+const DrawingActivity = lazy(() => import('../objects/DrawingActivity'));
+const CameraInspector = lazy(() => import('./components/CameraInspector'));
+
 export default function OsintWorkspace() {
+  const routeOpen = useRoute((state) => state.open);
+  const accountOpen = useAuth((state) => state.open);
+  const cmsOpen = useAuth((state) => state.cmsOpen);
+  const refresh = useAuth((state) => state.refresh);
+  useEffect(() => {
+    void refresh();
+    const timer = setInterval(() => void refresh(), 60000);
+    return () => clearInterval(timer);
+  }, [refresh]);
   useCameraCheckNotifications();
   useEarthquakePolling();
   useHotspotPolling();
@@ -70,19 +94,39 @@ export default function OsintWorkspace() {
       }
     >
       <CommandHeader />
-      <DrawingActivity />
+      {drawing && (
+        <Suspense fallback={null}>
+          <DrawingActivity />
+        </Suspense>
+      )}
       <ToastHost />
-      <AccountPanel />
-      <CmsPanel />
+      {accountOpen && (
+        <Suspense fallback={null}>
+          <AccountPanel />
+        </Suspense>
+      )}
+      {cmsOpen && (
+        <Suspense fallback={null}>
+          <CmsPanel />
+        </Suspense>
+      )}
       <AccountCameraPreferences />
-      <RoutePanel />
+      {routeOpen && (
+        <Suspense fallback={null}>
+          <RoutePanel />
+        </Suspense>
+      )}
       <main className="osint-map-workspace" aria-label="OSINT map workspace">
         <TacticalRail />
         <LayerPanel />
         <section className="osint-map-stage corner-frame" aria-label="OSINT map">
           <OsintMap />
         </section>
-        {selectedId && <CameraInspector />}
+        {selectedId && (
+          <Suspense fallback={null}>
+            <CameraInspector />
+          </Suspense>
+        )}
       </main>
       {camerasOpen && <CameraDock />}
       <div id="osint-map-footer" hidden />

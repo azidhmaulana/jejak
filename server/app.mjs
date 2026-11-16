@@ -1,3 +1,6 @@
+import { createCyclones } from './cyclones.mjs';
+import { createHimawari } from './himawari.mjs';
+import { createWind } from './wind.mjs';
 import { createHotspots } from './hotspots/service.mjs';
 import express from 'express';
 import { createEarthquakes } from './earthquakes.mjs';
@@ -31,7 +34,9 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
   const mediaLimit = rateLimit({ limit: 1800 });
   const apiLimit = rateLimit({ limit: 300 });
   app.use('/api', (req, res, next) =>
-    (req.path.startsWith('/osint/camera-media/') ? mediaLimit : apiLimit)(req, res, next),
+    (req.path.startsWith('/osint/camera-media/') || req.path.startsWith('/weather/himawari/tiles/')
+      ? mediaLimit
+      : apiLimit)(req, res, next),
   );
   app.use('/api', concurrencyLimit(128));
   app.use((req, res, next) => {
@@ -63,6 +68,9 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
   app.use('/api/hotspot-sources', hotspots.admin);
   const earthquakes = createEarthquakes();
   app.use('/api/earthquakes', earthquakes.router);
+  app.use('/api/weather/himawari', createHimawari().router);
+  app.use('/api/weather/cyclones', createCyclones().router);
+  app.use('/api/weather/wind', createWind().router);
   app.use('/api/analytics', createAnalytics(auth, cameraSources.predicate));
   app.get('/api/cctv-source-state', async (_req, res) =>
     res.set('Cache-Control', 'no-store').json({ active: await cameraSources.state() }),

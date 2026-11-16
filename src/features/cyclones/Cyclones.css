@@ -1,0 +1,52 @@
+﻿.cyclone-marker {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  color: #ffe3ba;
+  font-size: 11px;
+  cursor: pointer;
+  text-shadow: 0 1px 2px #000;
+  padding: 3px;
+}
+.cyclone-marker-symbol {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  border: 2px solid #ffad57;
+  background: #522518;
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+}
+.cyclone-marker[data-selected='true'] .cyclone-marker-symbol {
+  outline: 2px solid #ffd7a5;
+  outline-offset: 4px;
+}
+.cyclone-list {
+  display: grid;
+  gap: 5px;
+  max-height: 180px;
+  overflow: auto;
+}
+.cyclone-list button {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+}
+.cyclone-detail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  border-top: 1px solid #32563b;
+  padding-top: 8px;
+}
+.cyclone-detail span {
+  display: grid;
+  gap: 3px;
+  font-size: 11px;
+}

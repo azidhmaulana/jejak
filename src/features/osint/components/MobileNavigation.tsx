@@ -6,6 +6,8 @@ import {
   BarChart3,
   Cctv,
   CloudSun,
+  Wind,
+  Tornado,
   Flame,
   Layers,
   Map,
@@ -34,12 +36,13 @@ export default function MobileNavigation({ onSearch }: { onSearch: () => void })
   const user = useAuth((state) => state.user);
   const quakes = useEarthquakes((state) => state.enabled);
   const hotspots = useHotspots((state) => state.enabled);
-  const selectedQuake = useEarthquakes(state => state.selected?.id);
-  const selectedHotspot = useHotspots(state => state.selected?.id);
+  const selectedQuake = useEarthquakes((state) => state.selected?.id);
+  const selectedHotspot = useHotspots((state) => state.selected?.id);
   useEffect(() => {
     if (window.innerWidth <= 700 && (selectedQuake || selectedHotspot)) {
       const active = useWorkspace.getState().panel;
-      if (active === 'earthquakes' || active === 'hotspots' || active === 'regions') useWorkspace.setState({panel:null});
+      if (active === 'earthquakes' || active === 'hotspots' || active === 'regions')
+        useWorkspace.setState({ panel: null });
     }
   }, [selectedQuake, selectedHotspot]);
   const cameras = useSurveillance((state) => state.cameras);
@@ -47,8 +50,8 @@ export default function MobileNavigation({ onSearch }: { onSearch: () => void })
   const host = useRef<HTMLDivElement>(null);
   const menuTrigger = useRef<HTMLButtonElement>(null);
   const open = (next: WorkspacePanel) => {
-    useEarthquakes.setState({selected:null});
-    useHotspots.setState({selected:null});
+    useEarthquakes.setState({ selected: null });
+    useHotspots.setState({ selected: null });
     useRoute.setState({ open: false, picking: null });
     useWorkspace.setState({
       panel: panel === next ? null : next,
@@ -179,6 +182,14 @@ export default function MobileNavigation({ onSearch }: { onSearch: () => void })
             <button onClick={() => open('space')}>
               <Satellite />
               {en ? 'Live from space' : 'Siaran antariksa'}
+            </button>
+            <button onClick={() => open('cyclones')}>
+              <Tornado />
+              {en ? 'Tropical cyclones' : 'Siklon tropis'}
+            </button>
+            <button onClick={() => open('wind')}>
+              <Wind />
+              {en ? 'Wind' : 'Angin'}
             </button>
             <button onClick={() => open('weather')}>
               <CloudSun />

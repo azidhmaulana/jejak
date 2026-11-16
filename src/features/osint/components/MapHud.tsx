@@ -40,6 +40,8 @@ export default function MapHud({ map }: { map: Map | null }) {
     window.addEventListener('jejak-map-command', command);
     return () => window.removeEventListener('jejak-map-command', command);
   }, [map, locating, drawing, en]);
+  const [controlsHost, setControlsHost] = useState<HTMLElement | null>(null);
+  useEffect(() => setControlsHost(document.getElementById('left-map-controls')), []);
   const [compassHost, setCompassHost] = useState<HTMLElement | null>(null);
   useEffect(() => setCompassHost(document.getElementById('map-corner-compass')), []);
   const [bearing, setBearing] = useState(0);
@@ -93,7 +95,7 @@ export default function MapHud({ map }: { map: Map | null }) {
         )}
       {measuring && map && <QuickMeasure map={map} onClose={() => setMeasuring(false)} />}
       {locationError && <div className="map-location-error" role="alert">{locationError}<button aria-label={en ? 'Close location message' : 'Tutup pesan lokasi'} onClick={() => setLocationError('')}><X size={12} /></button></div>}
-      <div className="map-hud-buttons">
+      {controlsHost && createPortal(<div className="map-hud-buttons">
         <button title={en ? "Zoom in" : "Perbesar"} aria-label="Zoom in" onClick={() => map?.zoomIn()}>
           <Plus />
         </button>
@@ -103,7 +105,7 @@ export default function MapHud({ map }: { map: Map | null }) {
         <button aria-label={en ? 'My location' : 'Lokasi saya'} title={en ? 'My location' : 'Lokasi saya'} disabled={!map || locating} aria-busy={locating} onClick={locate}><LocateFixed /></button>
         <button aria-label={en ? 'Reset to Indonesia' : 'Reset ke Indonesia'} title={en ? 'Reset to Indonesia' : 'Reset ke Indonesia'} disabled={!map} onClick={() => map?.fitBounds(INDONESIA_BOUNDS, { padding: INDONESIA_PADDING, bearing: 0, pitch: 0, duration: duration() })}><Home /></button>
         <button aria-label={en ? 'Measure distance' : 'Ukur jarak'} title={en ? 'Measure distance' : 'Ukur jarak'} aria-pressed={measuring} disabled={!map || drawing} onClick={() => setMeasuring(value => !value)}><Ruler /></button>
-      </div>
+      </div>, controlsHost)}
     </div>
   );
 }

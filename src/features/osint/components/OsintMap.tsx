@@ -1,3 +1,9 @@
+import WeatherRail from '../../weather/components/WeatherRail';
+import WeatherDock from '../../weather/components/WeatherDock';
+import CycloneLayer from '../../cyclones/CycloneLayer';
+import HimawariLayer from '../../weather/HimawariLayer';
+import WindLegend from '../../weather/components/WindLegend';
+import WindLayer from '../../weather/WindLayer';
 import HotspotLayer from '../../hotspots/HotspotLayer';
 import EarthquakeLayer from '../../earthquakes/EarthquakeLayer';
 import ProvinceLayer from '../../regions/ProvinceLayer';
@@ -18,6 +24,12 @@ export default function OsintMap() {
       {(map) => (
         <>
           <OsintWeatherLayer map={map} />
+          <WindLayer map={map} />
+          <CycloneLayer map={map} />
+          <WindLegend />
+          <WeatherDock />
+          <WeatherRail />
+          <HimawariLayer map={map} />
           <RoadReferenceLayer map={map} enabled={roads} onAvailability={roadAvailability} />
           <OsintSurveillanceLayer
             map={map}

@@ -9,6 +9,8 @@ export type WorkspacePanel =
   | 'layers'
   | 'objects'
   | 'weather'
+  | 'wind'
+  | 'cyclones'
   | 'sources'
   | 'settings'
   | 'analytics'
@@ -80,7 +82,10 @@ export const useWorkspace = create<{
 }));
 export function openWorkspacePanel(panel: WorkspacePanel) {
   if (['objects', 'analytics'].includes(panel || '') && !useAuth.getState().user) return;
-  useWorkspace.setState((state) => ({ panel: state.panel === panel ? null : panel, mapSettingsOpen: false }));
+  useWorkspace.setState((state) => ({
+    panel: state.panel === panel ? null : panel,
+    mapSettingsOpen: false,
+  }));
 }
 useAuth.subscribe((state) => {
   if (!state.user && ['objects', 'analytics'].includes(useWorkspace.getState().panel || ''))

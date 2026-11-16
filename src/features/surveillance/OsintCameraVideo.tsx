@@ -1,3 +1,5 @@
+import { useLanguage } from '../../shared/i18n/useLanguage';
+import { useStreamActivity } from './useStreamActivity';
 import { cameraPlaybackUrl, startCameraPlayback } from './cameraPlayback';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -16,11 +18,15 @@ export default function OsintCameraVideo({
   requestToken?: string;
   onStatus?: (status: string) => void;
 }) {
+  const en = useLanguage() === 'en';
   const video = useRef<HTMLVideoElement>(null),
     [status, setStatus] = useState(
       source.streamUrl || source.previewUrl ? 'MEMUAT' : 'BELUM TERVERIFIKASI',
     ),
     [retry, setRetry] = useState(0);
+  const host = useRef<HTMLDivElement>(null);
+  const active = useStreamActivity(host, source.id, compact);
+  const consumedRequest = useRef<string>();
   const [hasFrame, setHasFrame] = useState(false);
   const offline = useSurveillance((state) => state.health[source.id]?.status === 'offline');
   const manualAttempt = useRef(false);
@@ -35,10 +41,18 @@ export default function OsintCameraVideo({
     onStatus?.(status);
   }, [status, onStatus]);
   useEffect(() => {
+    if (!active) {
+      setHasFrame(false);
+      setStatus('PAUSED');
+      return;
+    }
     const element = video.current;
     setHasFrame(false);
     setStatus(source.streamUrl || source.previewUrl ? 'MEMUAT' : 'BELUM TERVERIFIKASI');
-    const requested = manualAttempt.current || requestToken !== undefined;
+    const requestKey = requestToken === undefined ? undefined : `${source.id}:${requestToken}`;
+    const requested =
+      manualAttempt.current || (requestKey !== undefined && requestKey !== consumedRequest.current);
+    if (requested) consumedRequest.current = requestKey;
     manualAttempt.current = false;
     if (requested) {
       blocked.current = null;
@@ -79,12 +93,17 @@ export default function OsintCameraVideo({
         },
       },
     );
-  }, [source.streamUrl, source.previewUrl, source.id, retry, requestToken]);
+  }, [source.streamUrl, source.previewUrl, source.id, retry, requestToken, active]);
   const pending = status === 'MEMUAT' || status === 'BUFFERING' || status === 'MENGHUBUNGKAN ULANG';
   const unavailable = status === 'STREAM TIDAK TERSEDIA' || status === 'PREVIEW TIDAK TERSEDIA';
   const showPlaceholder = !hasFrame && status !== 'LIVE' && status !== 'SNAPSHOT';
   return (
-    <div className="osint-camera-video" data-compact={compact}>
+    <div
+      ref={host}
+      className="osint-camera-video"
+      data-compact={compact}
+      data-stream-active={active}
+    >
       {source.streamUrl ? (
         <video
           ref={video}
@@ -94,7 +113,7 @@ export default function OsintCameraVideo({
           controlsList="nodownload"
           aria-label={source.name}
         />
-      ) : source.previewUrl && (!offline || retry > 0 || requestToken !== undefined) ? (
+      ) : active && source.previewUrl && (!offline || retry > 0 || requestToken !== undefined) ? (
         <img
           key={`${requestToken}-${retry}`}
           src={source.previewUrl}
@@ -146,13 +165,17 @@ export default function OsintCameraVideo({
             </div>
             <strong>{source.name}</strong>
             <small>
-              {unavailable
-                ? 'Sumber belum dapat diakses'
-                : pending
-                  ? 'Menunggu gambar dari sumber'
-                  : !source.streamUrl && !source.previewUrl
-                    ? 'URL stream belum terverifikasi'
-                    : 'Periksa dukungan pemutaran browser'}
+              {status === 'PAUSED'
+                ? en
+                  ? 'Playback paused to save bandwidth'
+                  : 'Pemutaran dijeda untuk menghemat koneksi'
+                : unavailable
+                  ? 'Sumber belum dapat diakses'
+                  : pending
+                    ? 'Menunggu gambar dari sumber'
+                    : !source.streamUrl && !source.previewUrl
+                      ? 'URL stream belum terverifikasi'
+                      : 'Periksa dukungan pemutaran browser'}
             </small>
             {!compact && source.streamUrl && (
               <button className="osint-placeholder-retry" onClick={retryManually}>

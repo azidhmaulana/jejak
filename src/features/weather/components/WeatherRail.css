@@ -1,0 +1,64 @@
+﻿.command-workspace #left-map-controls .map-hud-buttons{position:static;border:0;background:none;border-radius:0;margin:0;padding:0;width:32px;box-shadow:none}.command-workspace .rail-divider{width:24px;border:0;border-top:1px solid #315b3d;margin:6px auto}.command-workspace .tactical-rail{max-height:calc(100dvh - 170px);overflow-y:auto;overflow-x:visible}
+.weather-rail-shell{position:absolute;right:0;top:110px;z-index:35;color:#dce8df}.weather-rail{width:34px;border:1px solid #315b3d;border-right:0;border-radius:6px 0 0 6px;background:#071b14;padding:3px 0;display:flex;flex-direction:column}.weather-rail button{width:33px;height:35px;display:grid;place-items:center;background:none;border:0;color:#c2d6cc;cursor:pointer}.weather-rail button[aria-pressed=true]{color:#a3ed65;background:#224329;box-shadow:inset 2px 0 #a3ed65}.weather-rail button[aria-expanded=true]{outline:1px solid #527e58;outline-offset:-3px}.weather-layer-drawer{position:absolute;right:42px;top:0;width:260px;max-height:calc(100dvh - 200px);overflow:auto;background-color:#071b14;background-image:linear-gradient(#5399690d 1px,transparent 1px),linear-gradient(90deg,#5399690d 1px,transparent 1px);background-size:24px 24px;border:1px solid #315b3d;border-radius:5px;font-size:11px;animation:weather-drawer-enter .18s ease-out}.weather-layer-drawer header{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid #315b3d}.weather-layer-drawer header button{margin-left:auto;color:#f37474;border-color:#793f3f}.weather-layer-drawer button{font:inherit;cursor:pointer;background:#0b2116;color:inherit;border:1px solid #315b3d;border-radius:3px;padding:6px;display:flex;align-items:center;gap:6px}.weather-layer-choices{padding:9px}.weather-layer-card{width:100%;min-height:57px;margin-bottom:7px;text-align:left}.weather-layer-card>svg{width:26px;margin:0 6px;color:#95caab}.weather-layer-card span{display:grid;gap:4px}.weather-layer-card small{font-size:9px;color:#a4b7ab}.weather-layer-drawer button[aria-pressed=true]{border-color:#94da60;background:#203d25;color:#bcf59a}.weather-layer-drawer p{font-size:10px;color:#a4b7ab;line-height:1.5}.weather-layer-drawer footer{display:flex;justify-content:space-between;gap:8px}.weather-rail-shell button:focus-visible{outline:2px solid #b7f589;outline-offset:1px}@keyframes weather-drawer-enter{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}@media(prefers-reduced-motion:reduce){.weather-layer-drawer{animation:none}}@media(max-width:700px){.weather-rail-shell{top:175px}.weather-layer-drawer{width:min(260px,calc(100vw - 54px));max-height:calc(100dvh - 280px)}}
+
+/* Attached layer drawer: the rail moves with the panel edge. */
+.weather-rail-shell{width:34px;bottom:76px;transition:width .2s ease;pointer-events:none}
+.weather-rail-shell.is-expanded{width:294px}
+.weather-rail{position:absolute;left:0;top:0;pointer-events:auto;box-sizing:border-box}
+.weather-rail-shell.is-expanded .weather-rail{border-right:0}
+.weather-layer-drawer{right:0;top:0;bottom:0;width:260px;max-height:none;box-sizing:border-box;border-radius:0;border-right:0;pointer-events:auto;animation:weather-attached-enter .2s ease-out}
+.weather-layer-drawer header{min-height:48px;box-sizing:border-box;padding:12px;font-size:15px;background:#071b14;position:sticky;top:0;z-index:1}
+.weather-layer-choices{padding:12px}
+.weather-layer-card{min-height:72px;margin-bottom:10px;padding:12px!important;border-radius:5px!important}
+.weather-layer-card strong{font-size:12px}
+.weather-layer-drawer button[aria-pressed=true]{box-shadow:inset 3px 0 #94da60}
+.weather-layer-drawer footer{margin-top:18px;padding-top:12px;border-top:1px solid #315b3d}
+@keyframes weather-attached-enter{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@media(max-width:700px){.weather-rail-shell{bottom:112px}.weather-rail-shell.is-expanded{width:min(294px,calc(100vw - 12px))}.weather-layer-drawer{width:calc(100% - 34px);max-height:none}}
+@media(prefers-reduced-motion:reduce){.weather-rail-shell{transition:none}.weather-layer-drawer{animation:none}}
+
+.command-workspace .tactical-rail{overflow:visible;max-height:none}
+.command-workspace #left-map-controls,.command-workspace .surveillance-popover-anchor{width:32px;min-width:0}
+.command-workspace .tactical-rail button,.command-workspace #left-map-controls .map-hud-buttons button{width:32px;height:35px;min-height:35px;flex-shrink:0;padding:0;box-sizing:border-box}
+.command-workspace .tactical-rail button svg,.command-workspace #left-map-controls .map-hud-buttons button svg{width:15px;height:15px;min-width:15px;stroke-width:1.7}
+.weather-rail-shell{position:fixed;top:0;bottom:0;height:100dvh;width:294px;transform:translateX(260px);transition:transform .28s cubic-bezier(.22,.8,.25,1);z-index:65}
+.weather-rail-shell.is-expanded{transform:translateX(0);width:294px}
+.weather-rail{top:110px}
+.weather-layer-drawer{width:260px;animation:none;opacity:0;transition:opacity .22s ease;pointer-events:none}
+.weather-rail-shell.is-expanded .weather-layer-drawer{opacity:1;pointer-events:auto}
+@media(max-width:700px){.weather-rail-shell,.weather-rail-shell.is-expanded{top:0;bottom:0;width:min(294px,calc(100vw - 12px));height:100dvh}.weather-rail-shell{transform:translateX(calc(100% - 34px))}.weather-rail-shell.is-expanded{transform:translateX(0)}.weather-rail{top:175px}.weather-layer-drawer{width:calc(100% - 34px)}}
+@media(prefers-reduced-motion:reduce){.weather-rail-shell,.weather-layer-drawer{transition:none}}
+.weather-rail-shell,.weather-rail-shell.is-expanded{top:52px;bottom:calc(var(--tactical-footer-height, 40px) + var(--ticker-height, 24px));height:auto}
+.weather-rail{top:58px}
+.weather-layer-drawer{background:rgb(2 12 10 / 70%);backdrop-filter:blur(5px)}
+.weather-layer-drawer header{background:transparent}
+@media(max-width:700px){.weather-rail-shell,.weather-rail-shell.is-expanded{top:var(--mobile-top, 154px);bottom:var(--mobile-nav-height, 66px);height:auto}.weather-rail{top:12px}.weather-layer-drawer{background:#04140ef5}}
+.weather-layer-drawer{border:0}
+.weather-layer-drawer header,.weather-layer-drawer footer{border:0}
+/* Rail and drawer travel as one surface, including the closing transition. */
+.weather-layer-drawer,.weather-rail-shell.is-expanded .weather-layer-drawer{opacity:1;transition:none}
+.command-workspace .tactical-rail,.weather-rail{background:rgb(2 12 10 / 70%);backdrop-filter:blur(5px)}
+.command-workspace .tactical-rail{height:auto;min-height:0;overflow:visible}
+.command-workspace .tactical-rail > *{flex-shrink:0}
+.command-workspace #left-map-controls{height:auto;overflow:visible;align-self:stretch}
+.command-workspace #left-map-controls .map-hud-buttons{display:flex;flex-direction:column;gap:0;height:auto;max-height:none;overflow:visible;clip-path:none}
+.command-workspace #left-map-controls .map-hud-buttons button{margin:0;border-radius:0;border:0;flex:0 0 35px;overflow:visible;clip-path:none}
+@media(max-width:700px){.weather-rail{background:#04140ef5}}
+.weather-catalog-group{margin-bottom:18px}.weather-catalog-group h3{display:flex;align-items:center;gap:6px;font-size:11px;color:#adc4b4;margin:4px 0 9px}.weather-catalog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.weather-catalog-grid .weather-layer-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-height:88px;margin:0;padding:9px!important}.weather-catalog-grid .weather-layer-card>svg{width:24px;height:24px;margin:0}.weather-catalog-grid .weather-layer-card strong{font-size:10px}.weather-group-settings{margin-top:6px;font-size:9px!important}
+.command-workspace #left-map-controls .map-hud-buttons button[aria-pressed=true]{color:#a3e66f;background:#183523;border-left:2px solid #9bd56b}
+.command-workspace .camera-inspector{transition:right .28s cubic-bezier(.22,.8,.25,1)}
+@media(min-width:701px){.command-workspace.weather-catalog-open .camera-inspector:not(:fullscreen){right:304px;max-width:calc(100vw - 355px)}}
+@media(prefers-reduced-motion:reduce){.command-workspace .camera-inspector{transition:none}}
+.command-workspace #left-map-controls .map-hud-buttons button{border:1px solid transparent;border-radius:3px}
+.command-workspace #left-map-controls .map-hud-buttons button:hover:not(:disabled),
+.command-workspace #left-map-controls .map-hud-buttons button:focus-visible{background:#21392b;border-color:#49694d}
+.command-workspace #left-map-controls .map-hud-buttons button[aria-pressed=true]{color:#a3e66f;background:#183523;border-left:2px solid #9bd56b}
+.command-workspace .maplibregl-ctrl-bottom-right{right:0}
+.command-workspace .maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib{margin-right:0}
+@media(min-width:701px){
+  .command-workspace[data-camera-selected] .camera-inspector.compact-monitor:not(:fullscreen){
+    transition:right 280ms cubic-bezier(.22,.8,.25,1),width 280ms cubic-bezier(.22,.8,.25,1),max-width 280ms cubic-bezier(.22,.8,.25,1);
+  }
+  .command-workspace.weather-catalog-open[data-camera-selected] .camera-inspector.compact-monitor:not(:fullscreen){right:304px;max-width:calc(100vw - 355px)}
+}
+@media(prefers-reduced-motion:reduce){.command-workspace[data-camera-selected] .camera-inspector.compact-monitor:not(:fullscreen){transition:none}}

@@ -14,7 +14,7 @@ import { useOnlineMap, useGoogleCopyright } from './useOnlineMap';
 import { t } from '../../shared/i18n/runtime.js';
 import { useLanguage } from '../../shared/i18n/useLanguage';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { createDrawingController } from '../drawing/drawingController';
+import type { createDrawingController } from '../drawing/drawingController';
 import { useMapTools } from '../drawing/mapToolsStore';
 import BmsDrawingHint from '../drawing/BmsDrawingHint';
 import MapNavbar from './MapNavbar';
@@ -93,11 +93,11 @@ export default function MapCanvas({
     : online.style;
   useEffect(() => {
     if (!mapInstance || (mapMode === 'online' && selectedProvider?.brand === 'google')) return;
-    const attribution = new maplibregl.AttributionControl({ compact: true });
+    const attribution = new maplibregl.AttributionControl({ compact: false });
     const control: maplibregl.IControl = {
       onAdd(map) {
         const element = attribution.onAdd(map);
-        element.classList.add('maplibregl-compact');
+        element.classList.remove('maplibregl-compact');
         element.classList.remove('maplibregl-compact-show');
         element.removeAttribute('open');
         return element;
@@ -120,11 +120,14 @@ export default function MapCanvas({
     const isBaseSource = (id?: string) => Boolean(id && baseSources.has(id));
     const error = (event: maplibregl.ErrorEvent) => {
       const sourceId = (event as maplibregl.ErrorEvent & { sourceId?: string }).sourceId;
-      if (isBaseSource(sourceId) || (!sourceId && !mapInstance.isStyleLoaded()))
-        setTileError(true);
+      if (isBaseSource(sourceId) || (!sourceId && !mapInstance.isStyleLoaded())) setTileError(true);
     };
     const recovered = (event: maplibregl.MapSourceDataEvent) => {
-      if (isBaseSource(event.sourceId) && event.sourceDataType === 'content' && event.isSourceLoaded)
+      if (
+        isBaseSource(event.sourceId) &&
+        event.sourceDataType === 'content' &&
+        event.isSourceLoaded
+      )
         setTileError(false);
     };
     const loaded = () => {
@@ -159,8 +162,20 @@ export default function MapCanvas({
     });
 
     const instance = map.current;
+    const limitZoomOut = () => {
+      instance.setMinZoom(0);
+      const indonesia = instance.cameraForBounds(INDONESIA_BOUNDS, {
+        padding: INDONESIA_PADDING,
+        bearing: 0,
+      });
+      if (typeof indonesia?.zoom === 'number')
+        instance.setMinZoom(Math.max(0, indonesia.zoom - 2));
+    };
+    limitZoomOut();
+    instance.on('resize', limitZoomOut);
     setMapInstance(instance);
     return () => {
+      instance.off('resize', limitZoomOut);
       drawing.current?.destroy();
       drawing.current = null;
 
@@ -183,12 +198,19 @@ export default function MapCanvas({
 
   useEffect(() => {
     if (!mapInstance || !drawingOwner) return;
+    let cancelled = false;
     const install = () => {
-      if (!drawing.current) drawing.current = createDrawingController(mapInstance);
+      void import('../drawing/drawingController')
+        .then(({ createDrawingController }) => {
+          if (!cancelled && !drawing.current && mapInstance.getStyle()?.layers)
+            drawing.current = createDrawingController(mapInstance);
+        })
+        .catch((error) => console.error('Unable to load drawing tools', error));
     };
     mapInstance.on('style.load', install);
     if (mapInstance.getStyle()?.layers) install();
     return () => {
+      cancelled = true;
       mapInstance.off('style.load', install);
       drawing.current?.destroy();
       drawing.current = null;

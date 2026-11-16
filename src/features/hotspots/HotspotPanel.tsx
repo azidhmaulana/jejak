@@ -1,3 +1,4 @@
+import Toggle from '../../shared/components/Toggle';
 import { useRegion } from '../regions/regionStore';
 import { useEffect, useLayoutEffect, useState, type CSSProperties } from 'react';
 import { Flame, X, Search, Play, Pause, ExternalLink } from 'lucide-react';
@@ -114,9 +115,7 @@ export default function HotspotPanel() {
       <div className="public-analytics-body">
         <label className="hotspot-toggle">
           {tx('Marker titik panas', 'Hotspot markers')}
-          <input
-            role="switch"
-            type="checkbox"
+          <Toggle
             checked={state.enabled}
             onChange={(e) => useHotspots.setState({ enabled: e.target.checked, selected: null })}
           />
@@ -276,8 +275,7 @@ export default function HotspotPanel() {
               }
             />
             <label>
-              <input
-                type="checkbox"
+              <Toggle
                 checked={state.cumulative}
                 onChange={(e) =>
                   useHotspots.setState({ cumulative: e.target.checked, selected: null })

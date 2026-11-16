@@ -1,0 +1,55 @@
+﻿.command-workspace input.jejak-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  min-width: 28px;
+  height: 15px;
+  min-height: 15px;
+  padding: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
+  border: 1px solid #45604d;
+  border-radius: 999px;
+  background: #0b1a13;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+}
+.command-workspace input.jejak-toggle::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #8ba395;
+  transition:
+    transform 150ms ease,
+    background 150ms ease;
+}
+.command-workspace input.jejak-toggle:checked {
+  background: #18391f;
+  border-color: #86db66;
+}
+.command-workspace input.jejak-toggle:checked::before {
+  transform: translateX(13px);
+  background: #9bef73;
+}
+.command-workspace input.jejak-toggle:focus-visible {
+  outline: 2px solid #afff7b;
+  outline-offset: 3px;
+}
+.command-workspace input.jejak-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+@media (prefers-reduced-motion: reduce) {
+  .command-workspace input.jejak-toggle,
+  .command-workspace input.jejak-toggle::before {
+    transition: none;
+  }
+}

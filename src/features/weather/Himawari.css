@@ -1,0 +1,169 @@
+.command-workspace .public-analytics.himawari-panel {
+  width: 350px;
+}
+.himawari-panel .public-analytics-heading h2 {
+  font-size: 13px;
+}
+.himawari-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.himawari-body > * {
+  flex-shrink: 0;
+}
+.himawari-history {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+.himawari-history label {
+  display: grid;
+  gap: 5px;
+  font-size: 11px;
+}
+.himawari-history input {
+  min-width: 0;
+  width: 100%;
+  color-scheme: dark;
+  background: #07130e;
+  color: #d7e7dc;
+  border: 1px solid #324336;
+  border-radius: 3px;
+  padding: 5px;
+}
+.command-workspace .public-analytics.himawari-panel .himawari-history button {
+  width: auto;
+  padding: 4px 9px;
+}
+.himawari-history p {
+  grid-column: 1 / -1;
+}
+.himawari-toggle,
+.himawari-actions,
+.himawari-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.himawari-toggle {
+  justify-content: space-between;
+  font-weight: 600;
+}
+.himawari-controls label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+}
+.himawari-controls select {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+}
+.himawari-note {
+  margin: 0;
+  color: #9cb4a4;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.himawari-observation {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #324336;
+  background: #07130e;
+  border-radius: 3px;
+  padding: 8px;
+}
+.himawari-observation small {
+  color: #9cb4a4;
+  font-size: 10px;
+}
+.himawari-observation strong {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.himawari-slider {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+}
+.himawari-slider output {
+  text-align: right;
+  color: #b6cdbe;
+  font-size: 10px;
+}
+.himawari-slider input {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: #92ec66;
+}
+.command-workspace .public-analytics.himawari-panel .himawari-actions button {
+  width: auto;
+  display: inline-flex;
+  gap: 5px;
+  padding: 4px 9px;
+}
+.command-workspace .public-analytics.himawari-panel .himawari-actions button[aria-pressed='true'] {
+  border-color: #79b75d;
+  color: #a5f377;
+  background: #203f20;
+  box-shadow: inset 0 -2px 0 #92ec66;
+}
+.himawari-actions small {
+  margin-left: auto;
+  color: #9cb4a4;
+  font-size: 10px;
+}
+.himawari-status {
+  font-size: 10px;
+  color: #a5f377;
+}
+.himawari-status[data-error='true'] {
+  color: #f28c80;
+}
+.himawari-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: #a5f377;
+}
+.himawari-extra {
+  border-top: 1px solid #29412c;
+  padding-top: 8px;
+}
+.himawari-extra summary {
+  cursor: pointer;
+  font-size: 11px;
+  color: #b6cdbe;
+}
+.himawari-loading {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #92ec66, transparent);
+  background-size: 200% 100%;
+  animation: himawari-loading 1.3s linear infinite;
+}
+.himawari-refreshing {
+  animation: himawari-spin 1.2s linear infinite;
+}
+@keyframes himawari-loading {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes himawari-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .himawari-loading,
+  .himawari-refreshing {
+    animation: none;
+  }
+}

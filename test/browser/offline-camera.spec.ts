@@ -51,8 +51,23 @@ test('known offline camera stays idle until explicit manual retry', async ({ pag
     useWorkspace.getState().selectCamera('offline-test');
   });
   await expect.poll(() => requests).toBeGreaterThan(0);
-  await expect(monitor.locator('.osint-stream-placeholder')).toHaveAttribute('data-offline', 'true', { timeout: 20000 });
+  await expect(monitor.locator('.osint-stream-placeholder')).toHaveAttribute(
+    'data-offline',
+    'true',
+    { timeout: 20000 },
+  );
   const afterFailure = requests;
+  for (const hidden of [true, false]) {
+    await page.evaluate((hidden) => {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: hidden });
+      document.dispatchEvent(new Event('visibilitychange'));
+    }, hidden);
+    await expect(monitor.locator('.osint-camera-video')).toHaveAttribute(
+      'data-stream-active',
+      String(!hidden),
+    );
+  }
+
   await page.waitForTimeout(1200);
   expect(requests).toBe(afterFailure);
   // Selecting the same camera again must issue exactly one new selection action.
@@ -61,6 +76,4 @@ test('known offline camera stays idle until explicit manual retry', async ({ pag
     useWorkspace.getState().selectCamera('offline-test');
   });
   await expect.poll(() => requests).toBeGreaterThan(afterFailure);
-
 });
-

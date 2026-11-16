@@ -1,7 +1,6 @@
 import HotspotPanel from '../../hotspots/HotspotPanel';
 import EarthquakePanel from '../../earthquakes/EarthquakePanel';
 import ProvincePanel from '../../regions/ProvincePanel';
-import PublicAnalyticsPanel from '../../analytics/PublicAnalyticsPanel';
 import {
   Camera,
   ChevronUp,
@@ -18,19 +17,23 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { useSurveillance } from '../../surveillance/osintSurveillanceStore';
 import { useOsintWeather, toggleWeather } from '../../weather/osintWeatherStore';
 import { useMapTools } from '../../../modules/drawing/mapToolsStore';
 import { useOverlays } from '../../../modules/overlays/imageOverlayStore';
-import ObjectsPanel from '../../objects/ObjectsPanel';
-import OsintWeatherPanel from '../../weather/components/OsintWeatherPanel';
 import SurveillanceSettings from './SurveillanceSettings';
 import DrawingStyleFields from '../../../modules/drawing/DrawingStyleFields';
 import { useWorkspace } from '../workspaceStore';
 import { useCameraCatalog } from '../hooks/useCameraCatalog';
 import WorkspaceAppearance from './WorkspaceAppearance';
 import SpacePanel from '../../space/SpacePanel';
+
+const CyclonePanel = lazy(() => import('../../cyclones/CyclonePanel'));
+const WindPanel = lazy(() => import('../../weather/components/WindPanel'));
+const WeatherPanel = lazy(() => import('../../weather/components/WeatherPanel'));
+const PublicAnalyticsPanel = lazy(() => import('../../analytics/PublicAnalyticsPanel'));
+const ObjectsPanel = lazy(() => import('../../objects/ObjectsPanel'));
 
 function LayerToggle({
   icon: Icon,
@@ -85,7 +88,11 @@ export default function LayerPanel() {
       const wasSpace = useWorkspace.getState().panel === 'space';
       useWorkspace.setState({ panel: null });
       if (wasSpace) {
-        document.querySelector<HTMLButtonElement>(window.innerWidth <= 700 ? '.mobile-menu-trigger' : '[data-space-trigger]')?.focus();
+        document
+          .querySelector<HTMLButtonElement>(
+            window.innerWidth <= 700 ? '.mobile-menu-trigger' : '[data-space-trigger]',
+          )
+          ?.focus();
       }
     };
     window.addEventListener('keydown', close);
@@ -96,8 +103,36 @@ export default function LayerPanel() {
   if (panel === 'hotspots') return <HotspotPanel />;
   if (panel === 'earthquakes') return <EarthquakePanel />;
   if (panel === 'space') return <SpacePanel />;
-  if (panel === 'analytics') return <PublicAnalyticsPanel />;
-  if (panel === 'objects') return <ObjectsPanel />;
+  if (panel === 'cyclones')
+    return (
+      <Suspense fallback={null}>
+        <CyclonePanel />
+      </Suspense>
+    );
+  if (panel === 'wind')
+    return (
+      <Suspense fallback={null}>
+        <WindPanel />
+      </Suspense>
+    );
+  if (panel === 'weather')
+    return (
+      <Suspense fallback={null}>
+        <WeatherPanel />
+      </Suspense>
+    );
+  if (panel === 'analytics')
+    return (
+      <Suspense fallback={null}>
+        <PublicAnalyticsPanel />
+      </Suspense>
+    );
+  if (panel === 'objects')
+    return (
+      <Suspense fallback={null}>
+        <ObjectsPanel />
+      </Suspense>
+    );
   return (
     <aside className="command-panel layer-panel" data-panel={panel} aria-label={titles[panel]}>
       {panel !== 'sources' && (
@@ -200,7 +235,7 @@ export default function LayerPanel() {
             )}
           </>
         )}
-        {panel === 'weather' && <OsintWeatherPanel />}
+
         {panel === 'sources' && <SurveillanceSettings />}
         {panel === 'settings' && (
           <>
