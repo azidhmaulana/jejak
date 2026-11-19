@@ -81,7 +81,7 @@ export default function WindLayer({ map }: { map: MapLibreMap | null }) {
       }
       compositeContext.clearRect(0, 0, composite.width, composite.height);
       compositeContext.globalAlpha = useOsintWeather.getState().windOpacity;
-      compositeContext.drawImage(background, 0, 0, composite.width, composite.height);
+      if (!useOsintWeather.getState().scalarField) compositeContext.drawImage(background, 0, 0, composite.width, composite.height);
       compositeContext.drawImage(canvas, 0, 0);
       if (!map.getLayer(sourceId)) install();
       map.triggerRepaint();
@@ -212,7 +212,7 @@ export default function WindLayer({ map }: { map: MapLibreMap | null }) {
         hour = state.windTime ? state.windHour : 0;
       grid = null;
       project();
-      useOsintWeather.setState({ windValidTime: null, windReferenceTime: null });
+      useOsintWeather.setState({ windLoading: true, windValidTime: null, windReferenceTime: null });
       weatherStatus('wind', 'Loading NOAA GFS grid…');
       const timeout = setTimeout(() => request.abort(), 120000);
       try {
@@ -233,6 +233,7 @@ export default function WindLayer({ map }: { map: MapLibreMap | null }) {
           weatherStatus('wind', 'NOAA GFS unavailable. Toggle wind to retry.');
       } finally {
         clearTimeout(timeout);
+        if (!disposed && controller === request) useOsintWeather.setState({ windLoading: false });
       }
     };
     const sample = (x: number, y: number): [number, number] => {
@@ -371,14 +372,20 @@ export default function WindLayer({ map }: { map: MapLibreMap | null }) {
     map.on('move', onMove);
     map.on('styledata', install);
     map.on('resize', project);
+    let requestTimer: ReturnType<typeof setTimeout> | undefined;
     const unsubscribe = useOsintWeather.subscribe((s, p) => {
-      if (s.windHour !== p.windHour || s.windTime !== p.windTime) void load();
+      if (s.windHour !== p.windHour || s.windTime !== p.windTime) {
+        clearTimeout(requestTimer);
+        requestTimer = setTimeout(() => void load(), 250);
+      }
     });
     const timer = setInterval(() => {
       if (!document.hidden) void load();
     }, 20 * 60000);
     return () => {
       disposed = true;
+      clearTimeout(requestTimer);
+      useOsintWeather.setState({ windLoading: false });
       controller?.abort();
       clearInterval(timer);
       cancelAnimationFrame(animation);

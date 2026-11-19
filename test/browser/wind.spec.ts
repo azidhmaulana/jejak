@@ -25,6 +25,7 @@ test('wind particles draw transparent trails and clean up when disabled', async 
   });
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Wind', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings Wind', exact: true }).click();
   const wind = page.getByRole('switch', { name: 'Wind layer', exact: true });
   await page.evaluate(async () => {
     const url = performance
@@ -42,14 +43,14 @@ test('wind particles draw transparent trails and clean up when disabled', async 
   await expect(page.getByRole('complementary', { name: 'Wind speed legend' })).toBeVisible();
   await expect(page.locator('.wind-legend')).toContainText('mph');
   const legendBox = await page.locator('.wind-legend').boundingBox();
-  const basemapBox = await page.locator('#map-corner-type').boundingBox();
-  expect(legendBox!.width).toBe(250);
-  expect(legendBox!.height).toBe(76);
+  const basemapBox = await page.locator('.tactical-basemap').boundingBox();
+  expect(legendBox!.width).toBe(260);
+  expect(legendBox!.height).toBe(16);
   expect(Math.abs(legendBox!.x - basemapBox!.x)).toBeLessThanOrEqual(1);
   expect(basemapBox!.y - legendBox!.y - legendBox!.height).toBeGreaterThanOrEqual(4);
   await page.getByRole('button', { name: 'Close wind', exact: true }).click();
   await page.locator('.wind-legend').screenshot({ path: '.runtime/wind-legend-compact.png' });
-  await page.getByRole('button', { name: 'Wind', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings Wind', exact: true }).click();
   expect(
     await page.evaluate(async () => {
       const { windColor } = await import('/src/features/weather/windColors.ts' as string);

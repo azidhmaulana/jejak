@@ -264,7 +264,7 @@ test('refined navbar remains centered and toolbar tooltips support keyboard', as
     await expect(page.locator('.workspace-status')).toBeVisible();
   }
   await page.setViewportSize({ width: 1440, height: 900 });
-  const button = page.locator('.tactical-rail button').first();
+  const button = page.locator('.tactical-rail [data-earthquake-trigger]');
   await button.focus();
   await expect(button.locator('[role="tooltip"]')).toBeVisible();
   const box = await button.boundingBox();

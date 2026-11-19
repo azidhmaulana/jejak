@@ -1,7 +1,10 @@
+import ScalarWeatherLayer from '../../weather/ScalarWeatherLayer';
+import ScalarWeatherPanel from '../../weather/components/ScalarWeatherPanel';
 import WeatherRail from '../../weather/components/WeatherRail';
 import WeatherDock from '../../weather/components/WeatherDock';
 import CycloneLayer from '../../cyclones/CycloneLayer';
 import HimawariLayer from '../../weather/HimawariLayer';
+import InfraLegend from '../../weather/components/InfraLegend';
 import WindLegend from '../../weather/components/WindLegend';
 import WindLayer from '../../weather/WindLayer';
 import HotspotLayer from '../../hotspots/HotspotLayer';
@@ -24,9 +27,12 @@ export default function OsintMap() {
       {(map) => (
         <>
           <OsintWeatherLayer map={map} />
+          <ScalarWeatherLayer map={map} />
+          <ScalarWeatherPanel />
           <WindLayer map={map} />
           <CycloneLayer map={map} />
           <WindLegend />
+          <InfraLegend />
           <WeatherDock />
           <WeatherRail />
           <HimawariLayer map={map} />

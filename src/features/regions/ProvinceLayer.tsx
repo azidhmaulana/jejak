@@ -32,8 +32,11 @@ export default function ProvinceLayer({ map }: { map: Map | null }) {
   useEffect(() => {
     if (!map || !boundary || !showBoundary) return;
     const source = 'jejak-province';
+    let drawing = false;
     const draw = () => {
-      if (!map.isStyleLoaded()) return;
+      if (drawing || !map.getStyle()?.layers) return;
+      drawing = true;
+      try {
       if (!map.getSource(source)) map.addSource(source, { type: 'geojson', data: boundary });
       const before = map.getLayer('jejak-cameras-points') ? 'jejak-cameras-points' : undefined;
       if (selected && !map.getLayer(source + '-fill'))
@@ -46,6 +49,17 @@ export default function ProvinceLayer({ map }: { map: Map | null }) {
           },
           before,
         );
+      if (!map.getLayer(source + '-shadow'))
+        map.addLayer(
+          {
+            id: source + '-shadow',
+            type: 'line',
+            source,
+            layout: { 'line-cap': 'round', 'line-join': 'round' },
+            paint: { 'line-color': '#000000', 'line-width': 5, 'line-opacity': 0.8, 'line-blur': 1 },
+          },
+          map.getLayer(source + '-line') ? source + '-line' : before,
+        );
       if (!map.getLayer(source + '-line'))
         map.addLayer(
           {
@@ -56,14 +70,17 @@ export default function ProvinceLayer({ map }: { map: Map | null }) {
           },
           before,
         );
+      } finally { drawing = false; }
     };
     draw();
+    map.on('style.load', draw);
     map.on('styledata', draw);
     map.on('idle', draw);
     return () => {
+      map.off('style.load', draw);
       map.off('styledata', draw);
       map.off('idle', draw);
-      for (const id of [source + '-line', source + '-fill'])
+      for (const id of [source + '-line', source + '-shadow', source + '-fill'])
         if (map.getLayer(id)) map.removeLayer(id);
       if (map.getSource(source)) map.removeSource(source);
     };

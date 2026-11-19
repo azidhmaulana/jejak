@@ -27,7 +27,7 @@ export function daylightWeight(time, longitude, latitude) {
   const t = Math.max(0, Math.min(1, sine / Math.sin(8 * radians)));
   return t * t * (3 - 2 * t);
 }
-export async function blendSatellite(visible, infrared, time, z, x, y) {
+export async function blendSatellite(visible, infrared, time, z, x, y, blue = false) {
   const decode = async (buffer) => {
     const result = await sharp(buffer, { limitInputPixels: 256 * 256 })
       .removeAlpha()
@@ -50,7 +50,8 @@ export async function blendSatellite(visible, infrared, time, z, x, y) {
         offset = (row * 256 + col) * 3;
       for (let channel = 0; channel < 3; channel++)
         pixels[offset + channel] = Math.round(
-          vis[offset + channel] * weight + ir[offset + channel] * (1 - weight),
+          vis[offset + channel] * weight +
+            ir[offset + channel] * (blue ? [0.78, 0.9, 1][channel] : 1) * (1 - weight),
         );
     }
   }

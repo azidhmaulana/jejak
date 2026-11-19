@@ -82,7 +82,7 @@ export default function AnalyticsPanel({ admin = false }: { admin?: boolean }) {
           aria-label={tx('Muat ulang statistik', 'Refresh analytics')}
           onClick={() => setRevision((v) => v + 1)}
         >
-          <RefreshCw size={14} />
+          <RefreshCw size={14} className={!data && !error ? 'refresh-icon-spinning' : ''} />
         </button>
       </header>
       {error ? (

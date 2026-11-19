@@ -1,0 +1,10 @@
+CREATE TABLE cyclone_observations (
+ storm_id TEXT NOT NULL,
+ time BIGINT NOT NULL,
+ lat DOUBLE PRECISION NOT NULL CHECK(lat BETWEEN -90 AND 90),
+ lng DOUBLE PRECISION NOT NULL CHECK(lng BETWEEN -180 AND 180),
+ wind_knots DOUBLE PRECISION,
+ pressure_hpa DOUBLE PRECISION,
+ source TEXT NOT NULL,
+ PRIMARY KEY(storm_id,time,source)
+);

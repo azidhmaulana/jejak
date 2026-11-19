@@ -162,7 +162,7 @@ function SourceEditor({ source, saved }: { source: Source; saved: (s: Source) =>
           {tx('Cek', 'Check')}
         </button>
         <button disabled={busy || checking || !dirty} onClick={() => void save()}>
-          {busy ? <RefreshCw size={12} /> : <Save size={12} />}
+          {busy ? <RefreshCw size={12} className="refresh-icon-spinning" /> : <Save size={12} />}
           {tx('Simpan', 'Save')}
         </button>
       </footer>

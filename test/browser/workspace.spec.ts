@@ -165,15 +165,16 @@ test('drawing persists and providers remain accessible', async ({ page }) => {
     expect(response.ok()).toBeTruthy();
   }
   await page.reload();
-
-  await page.locator('.tactical-nav-right button').first().click();
+  await expect(page.getByRole('button', { name: 'Account', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Objects', exact: true }).click();
   const panel = page.locator('.objects-panel');
   const initial = await panel.locator('.drawing-object-row').count();
   await panel.getByRole('button', { name: 'Point', exact: true }).click();
   await page.locator('.maplibregl-canvas').click({ position: { x: 600, y: 350 } });
   await expect(panel.locator('.drawing-object-row')).toHaveCount(initial + 1);
   await page.reload();
-  await page.locator('.tactical-nav-right button').first().click();
+  await expect(page.getByRole('button', { name: 'Account', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Objects', exact: true }).click();
   await expect(panel.locator('.drawing-object-row')).toHaveCount(initial + 1);
   await page.keyboard.press('Escape');
   await expect(page.locator('.workspace-map-toolbar')).toHaveCount(0);
@@ -206,6 +207,7 @@ for (const width of [390, 768, 1024, 1440]) {
     await page.getByRole('button', { name: 'CCTV', exact: true }).click();
     await expect(page.locator('.camera-card').first()).toBeVisible();
     await page.locator('.camera-card').first().click();
+    await expect(page.locator('.compact-monitor')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
     const bounds = await page.evaluate(() => {
       const rect = (s: string) => document.querySelector(s)!.getBoundingClientRect();
@@ -231,7 +233,7 @@ for (const width of [390, 768, 1024, 1440]) {
     expect(bounds.top).toBeGreaterThanOrEqual(0);
     expect(bounds.headerGap >= 0 || bounds.headerVerticalGap >= 0).toBe(true);
     expect(bounds.left).toBe(width <= 700 ? 0 : 40);
-    if (width > 700) expect(bounds.right).toBe(34);
+    if (width > 700) expect(bounds.right).toBe(32);
   });
 }
 

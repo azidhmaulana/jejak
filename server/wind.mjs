@@ -27,7 +27,7 @@ export function windRanges(index) {
     return [start, end];
   });
 }
-export function decodeWind(bytes) {
+export function decodeWind(bytes, script = 'decode-wind.py') {
   const local = fileURLToPath(
     new URL(
       process.platform === 'win32'
@@ -42,7 +42,7 @@ export function decodeWind(bytes) {
   return new Promise((resolve, reject) => {
     const child = spawn(
       python,
-      [fileURLToPath(new URL('../scripts/decode-wind.py', import.meta.url))],
+      [fileURLToPath(new URL(`../scripts/${script}`, import.meta.url))],
       { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] },
     );
     let output = '',
@@ -74,7 +74,7 @@ export function decodeWind(bytes) {
     child.stdin.end(bytes);
   });
 }
-async function boundedFetch(url, fetcher, range) {
+export async function boundedFetch(url, fetcher, range) {
   const response = await fetcher(url, {
     signal: AbortSignal.timeout(20000),
     redirect: 'error',

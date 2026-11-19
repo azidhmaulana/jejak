@@ -29,7 +29,7 @@ test('layer switches restore both on and off preferences before panels open', as
         return module[name].getState()[field];
       }));
     }, stores);
-    expect(restored).toEqual(stores.map(() => enabled));
+    expect(restored).toEqual(stores.map(([, name, field]) => enabled && !(name === 'useOsintWeather' && ['wind', 'rain'].includes(field))));
     await expect(page.locator('.hotspot-panel')).toHaveCount(0);
     if (!enabled) {
       const before = requests;

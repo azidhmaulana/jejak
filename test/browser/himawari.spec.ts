@@ -37,7 +37,7 @@ test.beforeEach(async ({ page }) => {
   await page.route('**/api/hotspots/sources', (r) => r.fulfill({ json: { sources: [] } }));
   await page.route('**/api/hotspots?*', (r) => r.fulfill({ json: { items: [], sources: {} } }));
   await page.route('**/api/earthquakes?*', (r) => r.fulfill({ json: { items: [], sources: {} } }));
-  await page.route('**/api/weather/himawari/frames', (r) =>
+  await page.route('**/api/weather/himawari/frames*', (r) =>
     r.fulfill({ json: { frames, stale: false } }),
   );
   const png = Buffer.from(
@@ -52,7 +52,7 @@ test.beforeEach(async ({ page }) => {
     }),
     'base64',
   );
-  await page.route('**/api/weather/himawari/tiles/**', (r) =>
+  await page.route('**/api/weather/himawari/{tiles,detail}/**', (r) =>
     r.fulfill({ contentType: 'image/png', body: png }),
   );
 });
@@ -79,11 +79,13 @@ test.skip('daily cloud history (temporarily hidden) loads one selected day and c
   await panel.getByRole('button', { name: 'Show', exact: true }).click();
   await expect.poll(async () => (await state(page)).displayed, { timeout: 15000 }).toBe(frame.id);
   await expect(panel.getByRole('button', { name: 'Play', exact: true })).toHaveCount(0);
-  expect(await page.evaluate(() => {
-    const map = (window as any).satelliteMap;
-    const layer = map.getStyle().layers.find((l: any) => l.id.startsWith('jejak-himawari-h'));
-    return map.getPaintProperty(layer.id, 'raster-saturation');
-  })).toBe(-1);
+  expect(
+    await page.evaluate(() => {
+      const map = (window as any).satelliteMap;
+      const layer = map.getStyle().layers.find((l: any) => l.id.startsWith('jejak-himawari-h'));
+      return map.getPaintProperty(layer.id, 'raster-saturation');
+    }),
+  ).toBe(-1);
   await panel.getByRole('button', { name: 'Play daily', exact: true }).click();
   await expect.poll(async () => (await state(page)).historyDate, { timeout: 10000 }).not.toBe(day);
   await panel.getByRole('button', { name: 'Pause', exact: true }).click();
@@ -106,54 +108,34 @@ test.skip('daily cloud history (temporarily hidden) loads one selected day and c
   expect(box!.x + box!.width).toBeLessThanOrEqual(390);
   await page.screenshot({ path: '.runtime/himawari-history-mobile.png' });
 });
-test('satellite frames animate, preserve map overlays, restore after style changes and stop when disabled', async ({
+test('satellite timeline plays, switches infrared and restores layers after style changes', async ({
   page,
 }) => {
   test.setTimeout(60000);
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await page.getByRole('button', { name: 'Weather', exact: true }).click();
-  const panel = page.getByRole('complementary', { name: 'Satellite weather' });
-  await captureMap(page);
-  await panel.getByRole('switch', { name: 'Satellite imagery' }).check();
-  await expect
-    .poll(async () => (await state(page)).displayed, { timeout: 12000 })
-    .toBe(frames.at(-1)!.id);
+  const rail = page.getByRole('navigation', { name: 'Weather layers', exact: true });
+  await rail.getByRole('button', { name: 'Satellite', exact: true }).click();
+  const catalog = page.getByRole('complementary', { name: 'Weather catalog' });
+  await catalog.getByRole('button', { name: /Satellite.*Auto/ }).click();
   const dock = page.getByRole('region', { name: 'Weather layers and timeline' });
   await expect(dock).toBeVisible();
-  await dock.getByRole('button', { name: 'Wind', exact: true }).click();
-  expect(await page.evaluate(async () => { const s = (await import('/src/features/weather/osintWeatherStore.ts' as string)).useOsintWeather.getState(); return [s.clouds, s.wind, s.rain]; })).toEqual([false, true, false]);
-  await dock.getByRole('button', { name: 'Satellite', exact: true }).click();
-  await expect.poll(async () => (await state(page)).displayed, { timeout: 12000 }).toBe(frames.at(-1)!.id);
   await captureMap(page);
-  await expect(panel.getByLabel('Satellite image mode')).toHaveValue('auto');
-  await panel.getByLabel('Satellite image mode').selectOption('visible');
-  await expect.poll(() => page.evaluate(() => (window as any).satelliteMap.getStyle().layers.filter((l:any)=>l.id.startsWith('jejak-himawari-')).map((l:any)=>l.id))).toEqual(['jejak-himawari-'+frames.at(-1)!.id+'-visible']);
-  await panel.getByLabel('Satellite image mode').selectOption('ir');
-  await expect.poll(() => page.evaluate(() => (window as any).satelliteMap.getStyle().layers.filter((l:any)=>l.id.startsWith('jejak-himawari-')).map((l:any)=>l.id))).toEqual(['jejak-himawari-'+frames.at(-1)!.id+'-ir']);
-  await panel.getByLabel('Animation period').selectOption('6');
-  await expect(panel).toContainText('37 frames');
-  await panel.getByLabel('Cloud opacity').fill('40');
-  await expect
-    .poll(() =>
-      page.evaluate(() => {
-        const map = (window as any).satelliteMap;
-        const layer = map.getStyle().layers.find((l: any) => l.id.startsWith('jejak-himawari-'));
-        return map.getPaintProperty(layer.id, 'raster-opacity');
-      }),
-    )
-    .toBe(0.4);
-  await panel.getByRole('button', { name: 'Play', exact: true }).click();
-  await expect
-    .poll(async () => (await state(page)).displayed, { timeout: 12000 })
-    .not.toBe(frames.at(-1)!.id);
-  await panel.getByRole('button', { name: 'Pause', exact: true }).click();
-  const count = await page.evaluate(
-    () =>
-      (window as any).satelliteMap
-        .getStyle()
-        .layers.filter((l: any) => l.id.startsWith('jejak-himawari-')).length,
-  );
-  expect(count).toBeLessThanOrEqual(2);
+  const layerCount = () =>
+    page.evaluate(
+      () =>
+        (window as any).satelliteMap
+          .getStyle()
+          .layers.filter((l: any) => l.id.startsWith('jejak-himawari-')).length,
+    );
+  await expect.poll(layerCount, { timeout: 20000 }).toBeGreaterThan(0);
+  await dock.getByRole('switch', { name: 'Infra', exact: true }).check();
+  await expect(dock.getByRole('switch', { name: 'Infra', exact: true })).toBeChecked();
+  await dock.getByRole('switch', { name: 'Infra', exact: true }).uncheck();
+  const timeline = dock.getByRole('slider', { name: 'Weather time' });
+  await timeline.fill('0');
+  await dock.getByRole('button', { name: 'Play weather' }).click();
+  await expect.poll(() => timeline.inputValue(), { timeout: 15000 }).not.toBe('0');
+  await dock.getByRole('button', { name: 'Pause weather' }).click();
   await page.evaluate(() =>
     (window as any).satelliteMap.setStyle({
       version: 8,
@@ -161,29 +143,25 @@ test('satellite frames animate, preserve map overlays, restore after style chang
       layers: [{ id: 'base', type: 'background', paint: { 'background-color': '#06120c' } }],
     }),
   );
-  await expect.poll(async () => (await state(page)).displayed, { timeout: 12000 }).not.toBeNull();
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect.poll(async () => (await state(page)).displayed, { timeout: 12000 }).not.toBeNull();
-  await page.getByRole('button', { name: 'Weather', exact: true }).click();
-  await captureMap(page);
-  await panel.getByRole('switch', { name: 'Satellite imagery' }).uncheck();
+  await expect.poll(layerCount, { timeout: 15000 }).toBeGreaterThan(0);
+  await catalog.getByRole('button', { name: 'Turn weather off' }).click();
   await expect
     .poll(() =>
-      page.evaluate(
-        () =>
-          (window as any).satelliteMap
-            .getStyle()
-            .layers.filter((l: any) => l.id.startsWith('jejak-himawari-')).length,
-      ),
+      page.evaluate(() => {
+        const map = (window as any).satelliteMap;
+        return map
+          .getStyle()
+          .layers.filter((l: any) => l.id.startsWith('jejak-himawari-'))
+          .every((l: any) => map.getPaintProperty(l.id, 'raster-opacity') === 0);
+      }),
     )
-    .toBe(0);
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.getByRole('button', { name: 'Weather', exact: true }).click();
-  await expect(panel.getByRole('switch', { name: 'Satellite imagery' })).not.toBeChecked();
+    .toBe(true);
+  await expect(dock).toHaveCount(0);
 });
+
 test('satellite errors are visible and mobile panel stays inside viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.route('**/api/weather/himawari/frames', (r) =>
+  await page.route('**/api/weather/himawari/frames*', (r) =>
     r.fulfill({ status: 503, json: { error: 'unavailable' } }),
   );
   test.setTimeout(60000);

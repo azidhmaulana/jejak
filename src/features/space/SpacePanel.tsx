@@ -67,7 +67,7 @@ export default function SpacePanel() {
             setAttempt((value) => value + 1);
           }}
         >
-          <RefreshCw size={13} />
+          <RefreshCw size={13} className={!loaded ? 'refresh-icon-spinning' : ''} />
         </button>
         <button
           aria-label={

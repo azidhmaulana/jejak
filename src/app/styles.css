@@ -202,3 +202,22 @@ button:has(svg.lucide-circle-x):hover:not(:disabled) {
   background: #ff65751a !important;
   border-color: #ff6575 !important;
 }
+
+@keyframes jejak-refresh-spin { to { transform: rotate(360deg); } }
+.refresh-icon-spinning,
+button[aria-busy='true'] .lucide-refresh-cw,
+.lucide-refresh-cw.is-loading,
+.lucide-refresh-cw.cyclone-refresh-spin,
+.lucide-refresh-cw.himawari-refreshing,
+.lucide-refresh-cw.source-check-spin,
+.lucide-refresh-cw.hotspot-spin {
+  transform-origin: center;
+  animation: jejak-refresh-spin .8s linear infinite;
+}
+button:active .lucide-refresh-cw,
+button:active .lucide-rotate-cw { animation: jejak-refresh-spin .8s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .refresh-icon-spinning,
+  button .lucide-refresh-cw,
+  button .lucide-rotate-cw { animation: none !important; }
+}

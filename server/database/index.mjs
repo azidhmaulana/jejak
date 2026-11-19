@@ -120,7 +120,7 @@ export async function createDatabase(
   try {
     if (config.test) await pool.query(`CREATE SCHEMA IF NOT EXISTS "${config.schema}"`);
     if (migrate) await migrateDatabase(db);
-    else if (!(await query("SELECT version FROM schema_migrations WHERE version='003'")).rowCount)
+    else if (!(await query("SELECT version FROM schema_migrations WHERE version='004'")).rowCount)
       throw new Error('Database migration is required before production startup.');
     return db;
   } catch (error) {
@@ -149,6 +149,10 @@ export async function migrateDatabase(db) {
     if (!(await db.prepare('SELECT version FROM schema_migrations WHERE version=?').get('003'))) {
       await db.exec(readFileSync(new URL('./migrations/003_hotspot_sources.sql', import.meta.url), 'utf8'));
       await db.prepare('INSERT INTO schema_migrations(version) VALUES(?)').run('003');
+    }
+    if (!(await db.prepare('SELECT version FROM schema_migrations WHERE version=?').get('004'))) {
+      await db.exec(readFileSync(new URL('./migrations/004_cyclone_observations.sql', import.meta.url), 'utf8'));
+      await db.prepare('INSERT INTO schema_migrations(version) VALUES(?)').run('004');
     }
   });
 }

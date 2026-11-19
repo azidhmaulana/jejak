@@ -7,8 +7,13 @@ test('weather rail expands left, highlights selection and moves map navigation l
   await rail.getByRole('button',{name:'Satellite',exact:true}).click();
   const drawer=page.getByRole('complementary',{name:'Weather catalog',exact:true});
   await expect(drawer).toBeVisible();
-  await drawer.getByRole('button',{name:/Day \/ Night/}).click();
+  await drawer.getByRole('button',{name:/Satellite .* Auto/}).click();
   await expect(rail.getByRole('button',{name:'Satellite',exact:true})).toHaveAttribute('aria-pressed','true');
+  await expect(page.getByRole('button',{name:'Settings Satellite',exact:true})).toHaveCount(0);
+  const player = page.getByRole('region',{name:'Weather layers and timeline'});
+  await player.getByRole('switch',{name:'Radar overlay',exact:true}).check();
+  expect(await page.evaluate(async () => { const s=(await import('/src/features/weather/osintWeatherStore.ts' as string)).useOsintWeather.getState();return [s.clouds,s.radarOverlay,s.wind]; })).toEqual([true,true,false]);
+  await expect(player.getByRole('switch',{name:'Lightning (unavailable)'})).toBeDisabled();
   await rail.getByRole('button',{name:'Wind',exact:true}).click();
   await page.getByRole('button',{name:/Surface wind/}).click();
   await expect(rail.getByRole('button',{name:'Satellite',exact:true})).toHaveAttribute('aria-pressed','false');
@@ -24,6 +29,10 @@ test('weather rail expands left, highlights selection and moves map navigation l
   expect(box.y).toBe(header.y + header.height);
   expect(Math.abs(box.y + box.height - footer.y)).toBeLessThanOrEqual(1);
   expect(await page.locator('.tactical-rail').evaluate(el => getComputedStyle(el).overflowX === 'visible')).toBe(true);
+  await page.getByRole('button', {name:'Settings Wind',exact:true}).click();
+  const settings = page.getByRole('complementary', {name:'Wind settings'});
+  await expect(settings).toBeVisible();
+  await expect.poll(async () => { const b = (await settings.boundingBox())!; return b.x + b.width; }).toBeLessThan(box.x);
   await page.screenshot({path:'.runtime/weather-rail.png'});
   await page.keyboard.press('Escape');
   await expect(page.locator('#weather-layer-drawer')).toHaveCount(0);

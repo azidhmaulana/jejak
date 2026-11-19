@@ -1,3 +1,5 @@
+import { createSurfaceWeather } from './surface-weather.mjs';
+import { createWeatherFields } from './weather-fields.mjs';
 import { createCyclones } from './cyclones.mjs';
 import { createHimawari } from './himawari.mjs';
 import { createWind } from './wind.mjs';
@@ -69,8 +71,11 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
   const earthquakes = createEarthquakes();
   app.use('/api/earthquakes', earthquakes.router);
   app.use('/api/weather/himawari', createHimawari().router);
-  app.use('/api/weather/cyclones', createCyclones().router);
+  const cyclones = createCyclones({db:auth.db});
+  app.use('/api/weather/cyclones', cyclones.router);
   app.use('/api/weather/wind', createWind().router);
+  app.use('/api/weather/fields', createWeatherFields().router);
+  app.use('/api/weather/surface', createSurfaceWeather().router);
   app.use('/api/analytics', createAnalytics(auth, cameraSources.predicate));
   app.get('/api/cctv-source-state', async (_req, res) =>
     res.set('Cache-Control', 'no-store').json({ active: await cameraSources.state() }),
@@ -186,6 +191,7 @@ export async function createApp({ directory = '.runtime', serveDist = false } = 
     await hotspots.close();
     await earthquakes.close();
     await cameraChecks.close();
+    await cyclones.close();
     await auth.close();
     await manager.close();
     offline.locals.close();

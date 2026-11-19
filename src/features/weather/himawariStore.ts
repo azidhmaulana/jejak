@@ -5,7 +5,7 @@ export type SatelliteFrame = { id: string; time: number };
 export const HIMAWARI_HISTORY_ENABLED = false;
 type State = {
   mode: 'recent' | 'history';
-  product: 'auto' | 'visible' | 'ir';
+  product: 'auto' | 'visible' | 'ir' | 'blue' | 'enhanced';
   historyDate: string;
   historyFrame: SatelliteFrame | null;
   unavailable: boolean;
@@ -22,16 +22,30 @@ type State = {
   stale: boolean;
   displayed: string | null;
 };
+function cachedSatellite(): {frame: SatelliteFrame; product: 'blue' | 'enhanced'} | null {
+  try {
+    const data = JSON.parse(sessionStorage.getItem('jejak-satellite-preview-v6') || 'null');
+    if (!data || !/^\d{14}$/.test(data.frame?.id) || !Number.isFinite(data.frame.time)
+      || data.frame.time > Date.now() || Date.now() - data.frame.time > 24 * 3600000
+      || !['blue','enhanced'].includes(data.product)) return null;
+    return data;
+  } catch {return null;}
+}
+const cached = cachedSatellite();
+export function rememberSatellite(frame: SatelliteFrame, product: string) {
+  if (product !== 'blue' && product !== 'enhanced') return;
+  try {sessionStorage.setItem('jejak-satellite-preview-v6', JSON.stringify({frame,product}));} catch { /* Storage may be disabled. */ }
+}
 export const useHimawari = create<State>(() => ({
   mode: 'recent',
-  product: 'auto',
+  product: cached?.product ?? 'auto',
   historyDate: new Date(Date.now() - 86400000).toISOString().slice(0, 10),
   historyFrame: null,
   unavailable: false,
-  frames: [],
+  frames: cached ? [cached.frame] : [],
   index: -1,
-  hours: 3,
-  opacity: 0.9,
+  hours: 12,
+  opacity: 1,
   playing: false,
   revision: 0,
   fetching: false,
@@ -53,7 +67,7 @@ export function satelliteFrame(state = useHimawari.getState()) {
 const requests = new Map<string, Promise<void>>();
 export function loadHimawari() {
   const { mode, historyDate } = useHimawari.getState();
-  const key = mode === 'recent' ? '/frames' : `/history?date=${encodeURIComponent(historyDate)}`;
+  const key = mode === 'recent' ? '/frames?detail=1' : `/history?date=${encodeURIComponent(historyDate)}`;
   if (requests.has(key)) return requests.get(key)!;
   const current = () => {
     const state = useHimawari.getState();
@@ -104,6 +118,7 @@ export function loadHimawari() {
 }
 export function useHimawariTimeline() {
   const enabled = useOsintWeather((state) => state.clouds);
+  const warm = useOsintWeather((state) => state.clouds || state.rain);
   const { playing, loading, fetching, index, frames, hours, mode, historyDate } = useHimawari();
   useEffect(() => {
     if (!HIMAWARI_HISTORY_ENABLED && mode !== 'recent') {
@@ -118,7 +133,7 @@ export function useHimawariTimeline() {
     }
   }, [mode]);
   useEffect(() => {
-    if (!enabled) {
+    if (!warm) {
       useHimawari.setState({ playing: false });
       return;
     }
@@ -136,7 +151,7 @@ export function useHimawariTimeline() {
       clearInterval(timer);
       document.removeEventListener('visibilitychange', visibility);
     };
-  }, [enabled, mode, historyDate]);
+  }, [warm, mode, historyDate]);
   useEffect(() => {
     if (!enabled || !playing || loading || fetching || document.hidden) return;
     if (mode === 'history') {

@@ -1,3 +1,6 @@
+import { createTemperatureRenderer } from './himawari-temperature.mjs';
+import { createSatellitePrewarm } from './satellite-prewarm.mjs';
+import { createSatelliteDetail } from './himawari-detail.mjs';
 import { blendSatellite } from './satellite-composite.mjs';
 import express from 'express';
 import {
@@ -58,7 +61,7 @@ async function download(url, maxBytes, fetcher) {
   }
   return { body: Buffer.concat(chunks), type: response.headers.get('content-type') || '' };
 }
-export function createHimawari({ fetcher = fetch, now = Date.now } = {}) {
+export function createHimawari({ fetcher = fetch, now = Date.now, prewarm = true } = {}) {
   const router = express.Router();
   const history = createHistory({ download, fetcher, now });
   let frames = [],
@@ -135,9 +138,71 @@ export function createHimawari({ fetcher = fetch, now = Date.now } = {}) {
       res.status(503).json({ error: 'Archive unavailable.' });
     }
   });
+  let detailManifest = null,
+    detailManifestAt = 0,
+    detailManifestRequest = null;
+  const rawAvailability = new Map();
+  async function rawFrameAvailable(frame) {
+    const cached = rawAvailability.get(frame);
+    if (cached && cached.until > now()) return cached.ready;
+    const day = frame.slice(0, 8),
+      hhmm = frame.slice(8, 12);
+    const prefix = `AHI-L1b-FLDK/${day.slice(0, 4)}/${day.slice(4, 6)}/${day.slice(6, 8)}/${hhmm}/HS_H09_${day}_${hhmm}_B13_`;
+    const result = await download(
+      `https://noaa-himawari9.s3.amazonaws.com/?list-type=2&prefix=${encodeURIComponent(prefix)}`,
+      64000,
+      fetcher,
+    );
+    const keys = new Set(
+      [...result.body.toString().matchAll(/<Key>([^<]+)<\/Key>/g)].map((match) => match[1]),
+    );
+    const ready = Array.from(
+      { length: 10 },
+      (_, i) => `${prefix}FLDK_R20_S${String(i + 1).padStart(2, '0')}10.DAT.bz2`,
+    ).every((key) => keys.has(key));
+    rawAvailability.set(frame, { ready, until: now() + 60000 });
+    while (rawAvailability.size > 10) rawAvailability.delete(rawAvailability.keys().next().value);
+    return ready;
+  }
+  async function detailFrames(items) {
+    if (!detailManifest || now() - detailManifestAt > 60000) {
+      if (!detailManifestRequest)
+        detailManifestRequest = Promise.all(
+          ['band_13', 'geocolor'].map(async (product) => {
+            const response = await download(
+              `https://slider.cira.colostate.edu/data/json/himawari/full_disk/${product}/latest_times.json`,
+              256000,
+              fetcher,
+            );
+            const data = JSON.parse(response.body.toString());
+            if (!Array.isArray(data.timestamps_int)) throw new Error('Invalid detail timeline');
+            return new Set(
+              data.timestamps_int.map(String).filter((id) => Number.isFinite(timestamp(id))),
+            );
+          }),
+        )
+          .then((sets) => {
+            detailManifest = sets;
+            detailManifestAt = now();
+          })
+          .finally(() => {
+            detailManifestRequest = null;
+          });
+      await detailManifestRequest;
+    }
+    const available = items.filter((item) => detailManifest.every((set) => set.has(item.id)));
+    if (!available.length) throw new Error('No shared satellite frames');
+    for (const candidate of available.slice(-3).reverse()) {
+      if (await rawFrameAvailable(candidate.id))
+        return available.filter((item) => item.time <= candidate.time);
+    }
+    throw new Error('Raw satellite observation not ready');
+  }
   router.get('/frames', async (_req, res) => {
     try {
-      const items = await timeline();
+      const recent = await timeline();
+      const items = _req.query.detail === '1' ? await detailFrames(recent) : recent;
+      if (prewarm && _req.query.detail === '1') setImmediate(() => warmDetail(items.at(-1).id));
       res.set('Cache-Control', 'public, max-age=30').json({
         frames: items.map(({ id, time }) => ({ id, time })),
         source: HIMAWARI_SOURCE,
@@ -153,11 +218,70 @@ export function createHimawari({ fetcher = fetch, now = Date.now } = {}) {
         .json({ error: 'Satellite timeline unavailable. Try again shortly.' });
     }
   });
+  const renderDetail = createSatelliteDetail({ download, fetcher, withTileSlot, now });
+  const renderTemperature = createTemperatureRenderer({ download, fetcher, withTileSlot, now });
+  async function getDetail(frame, z, x, y, product) {
+    const tile = `${y}.png`;
+    const key = `detail-v6/${product}/${frame}/${z}/${x}/${tile}`;
+    let item = cache.get(key);
+    if (!item || item.until < now()) {
+      let request = pending.get(key);
+      if (!request) {
+        if (pending.size >= 48) throw new Error('Tile renderer busy');
+        request = (
+          product === 'blue'
+            ? renderDetail(frame, +z, +x, y, 'geocolor')
+            : renderTemperature(frame, +z, +x, y)
+        )
+          .then((body) => {
+            const value = { body, until: now() + 1800000 };
+            put(key, value);
+            return value;
+          })
+          .catch(() => {
+            const value = { until: now() + 30000 };
+            put(key, value);
+            return value;
+          })
+          .finally(() => pending.delete(key));
+        pending.set(key, request);
+      }
+      item = await request;
+    }
+    return item;
+  }
+  const warmDetail = createSatellitePrewarm({ render: getDetail, busy: () => pending.size >= 8 });
+  router.get('/detail/:frame/:z/:x/:tile', async (req, res) => {
+    const product = req.query.product ?? 'enhanced';
+    if (!['blue', 'enhanced'].includes(product)) return res.status(400).end();
+    const { frame, z, x, tile } = req.params;
+    const match = /^(\d{1,3})\.png$/.exec(tile);
+    if (
+      !/^\d{14}$/.test(frame) ||
+      !/^[3-8]$/.test(z) ||
+      !/^\d{1,3}$/.test(x) ||
+      !match ||
+      +x >= 2 ** +z ||
+      +match[1] >= 2 ** +z
+    )
+      return res.status(400).end();
+    try {
+      if (!(await timeline()).some((item) => item.id === frame)) return res.status(404).end();
+      const item = await getDetail(frame, +z, +x, +match[1], product);
+      if (!item.body) return res.set('Cache-Control', 'no-store').status(502).end();
+      res.set('Cache-Control', 'public, max-age=1800').type('image/png').send(item.body);
+    } catch {
+      res.set('Cache-Control', 'no-store').status(503).end();
+    }
+  });
   router.get('/tiles/:frame/:z/:x/:tile', async (req, res) => {
     const { frame, z, x, tile } = req.params;
     const archive = frame.startsWith('h');
     const product = req.query.product ?? 'ir';
-    if (!['ir', 'visible', 'auto'].includes(product) || (archive && product !== 'ir'))
+    if (
+      !['ir', 'visible', 'auto', 'blue', 'enhanced'].includes(product) ||
+      (archive && product !== 'ir')
+    )
       return res.status(400).json({ error: 'Invalid satellite product.' });
     const match = /^(\d{1,2})\.jpg$/.exec(tile);
     if (
@@ -185,7 +309,7 @@ export function createHimawari({ fetcher = fetch, now = Date.now } = {}) {
                 download(
                   archive
                     ? `${ARCHIVE_ROOT}/${ARCHIVE_LAYER}/default/${new Date(items.find((item) => item.id === frame).time).toISOString().replace('.000Z', 'Z')}/GoogleMapsCompatible_Level6/${z}/${match[1]}/${x}.png`
-                    : `${ROOT}/${frame}/fd/${frame}/${product === 'visible' ? 'B03/ALBD' : 'B13/TBB'}/${z}/${x}/${tile}`,
+                    : `${ROOT}/${frame}/fd/${frame}/${product === 'enhanced' ? 'SND/ETC' : product === 'visible' ? 'B03/ALBD' : 'B13/TBB'}/${z}/${x}/${tile}`,
                   512000,
                   fetcher,
                 ),
@@ -199,10 +323,10 @@ export function createHimawari({ fetcher = fetch, now = Date.now } = {}) {
                     result.body[1] !== 0xd8
               )
                 throw new Error('Invalid satellite image');
-              if (product === 'auto') {
+              if (product === 'auto' || product === 'blue') {
                 const visible = await withTileSlot(() =>
                   download(
-                    `${ROOT}/${frame}/fd/${frame}/B03/ALBD/${z}/${x}/${tile}`,
+                    `${ROOT}/${frame}/fd/${frame}/${product === 'blue' ? 'REP/ETC' : 'B03/ALBD'}/${z}/${x}/${tile}`,
                     512000,
                     fetcher,
                   ),
@@ -216,7 +340,15 @@ export function createHimawari({ fetcher = fetch, now = Date.now } = {}) {
                 result = {
                   ...result,
                   body: await withTileSlot(() =>
-                    blendSatellite(visible.body, result.body, timestamp(frame), +z, +x, +match[1]),
+                    blendSatellite(
+                      visible.body,
+                      result.body,
+                      timestamp(frame),
+                      +z,
+                      +x,
+                      +match[1],
+                      product === 'blue',
+                    ),
                   ),
                 };
               }

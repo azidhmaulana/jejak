@@ -1,3 +1,5 @@
+import { scalarFields } from '../../weather/scalarWeather';
+import { useRegion } from '../../regions/regionStore';
 import { useHotspots } from '../../hotspots/hotspotStore';
 import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
@@ -22,7 +24,11 @@ export default function LayerSwitches() {
   const weather = useOsintWeather();
   const roads = useWorkspace(s => s.roads), roadsAvailable = useWorkspace(s => s.roadsAvailable);
   const imageVisible = overlays.items.some(item => !overlays.hidden.includes(item.id));
+  const boundary = useRegion(s => s.showBoundary);
+  const province = useRegion(s => s.selected);
   const entries = [
+    ...(weather.scalarField ? [{ id: 'weather-field', label: en ? scalarFields[weather.scalarField].en : scalarFields[weather.scalarField].id, checked: true, toggle: () => useOsintWeather.setState({ scalarField: null, wind: false }) }] : []),
+    { id: 'boundary', label: province ? (en ? 'Province boundary' : 'Batas provinsi') : (en ? 'Indonesia boundary' : 'Batas Indonesia'), checked: boundary, toggle: () => useRegion.setState({ showBoundary: !boundary }) },
     { id: 'cameras', label: 'CCTV', checked: cameras, toggle: () => useSurveillance.setState({ cameras: !cameras }) },
     { id: 'earthquakes', label: en ? 'Earthquakes' : 'Gempa bumi', checked: earthquakes, toggle: () => useEarthquakes.setState({ enabled: !earthquakes }) },
     { id: 'hotspots', label: en ? 'Hotspots' : 'Titik panas', checked: hotspots, toggle: () => useHotspots.setState({ enabled: !hotspots }) },

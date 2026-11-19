@@ -3,3 +3,52 @@
 .weather-dock button[aria-pressed=true]{background:#244521;border-color:#84d74f;color:#bbfa8b}.weather-dock button:disabled{opacity:.45;cursor:default}.weather-dock button:focus-visible,.weather-dock select:focus-visible,.weather-dock input:focus-visible{outline:2px solid #a1ef70;outline-offset:2px}
 .weather-dock-tabs,.weather-dock-options{display:flex;gap:5px;align-items:center}.weather-dock-close{margin-left:auto;color:#fa6969!important}.weather-dock-time{display:flex;gap:8px;align-items:center;margin:8px 0}.weather-dock-track{flex:1;min-width:0}.weather-dock-track output{display:block;text-align:center;font-size:10px}.weather-dock-track input{width:100%;margin:4px 0;accent-color:#8be353}.weather-dock-labels{display:flex;justify-content:space-between;color:#a5b9ab;font-size:9px}.weather-dock-options select{margin-left:auto}.weather-dock small{display:block;font-size:9px;color:#9db1a3;margin-top:6px}
 @keyframes weather-dock-enter{from{opacity:0}to{opacity:1}}@media(prefers-reduced-motion:reduce){.weather-dock{animation:none}}@media(max-width:700px){.weather-dock{bottom:112px;width:calc(100vw - 24px);font-size:10px;padding:6px}.weather-dock button{min-height:30px}.weather-dock small{font-size:8px}}
+.weather-dock{width:min(620px,calc(100vw - 160px));padding:14px 16px 10px;border-radius:12px;background:rgb(3 23 16 / 92%);border-color:#416f4b}
+.weather-dock-time{gap:16px;margin:0 0 12px}.weather-dock .weather-player-play{width:40px;height:40px;border-radius:50%;justify-content:center;flex-shrink:0;border-color:#91dba0;background:#123c27}
+.weather-dock-track output{display:table;margin:0 auto 6px;padding:3px 9px;border-radius:6px;background:#a65a0b;color:#fff;font-weight:600}
+.weather-player-controls{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:10px;border-top:1px solid #315b3d;font-size:11px}
+.weather-player-controls label{display:flex;align-items:center;gap:6px}.weather-player-colors{display:flex;gap:4px;padding:0 10px;border-inline:1px solid #315b3d}.weather-player-controls .jejak-toggle{flex-shrink:0}
+.weather-dock .weather-player-colors button{border:0;border-radius:12px;background:none}.weather-dock .weather-player-colors button[aria-pressed=true]{background:#275536;color:#c8f89e}
+@media(max-width:700px){.weather-dock{width:calc(100vw - 24px);padding:10px}.weather-player-controls{gap:6px;font-size:9px;flex-wrap:wrap}.weather-player-colors{padding:0 6px}.weather-dock .weather-player-play{width:34px;height:34px}}
+.weather-dock{width:min(760px,calc(100vw - 160px));padding:28px 18px 12px}
+.weather-dock-time{gap:22px;align-items:center;margin:0 0 16px}
+.weather-dock .weather-player-play{width:48px;height:48px;border:2px solid #9af6bd;box-shadow:0 0 8px #62dc8a38;background:radial-gradient(circle at 50% 30%,#195b39,#082418);color:#f1fff5}
+.weather-dock-track{position:relative;padding-top:9px}
+.weather-dock-track output{position:absolute;bottom:calc(100% + 4px);left:clamp(72px,var(--weather-progress),calc(100% - 72px));transform:translateX(-50%);white-space:nowrap;margin:0;background:#ae620c;border:1px solid #ffb94d;color:#fff;font-size:10px;line-height:18px}
+.weather-dock-track output:after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#ffb94d}
+.weather-dock-track input[type=range]{appearance:none;-webkit-appearance:none;display:block;height:7px;border-radius:5px;padding:0;border:0;margin:0 0 13px;background:linear-gradient(to right,#afffd1 0%,#afffd1 var(--weather-progress),#47745d var(--weather-progress),#47745d 100%);position:relative;z-index:2;cursor:pointer}
+.weather-dock-track input[type=range]::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border-radius:50%;background:#ec982b;border:2px solid #fff;box-shadow:0 0 0 2px #cf7d24}
+.weather-dock-track input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:#ec982b;border:2px solid #fff;box-shadow:0 0 0 2px #cf7d24}
+.weather-timeline-ticks{position:absolute;left:0;right:0;top:12px;pointer-events:none;z-index:3}
+.weather-timeline-ticks i{position:absolute;transform:translate(-50%,-50%);height:9px;width:9px;background:#b7fbd3;border-radius:50%}
+.weather-dock-labels{font-size:11px;gap:6px;justify-content:space-between}.weather-dock-labels span{white-space:nowrap}
+@media(max-width:700px){.weather-dock{width:calc(100vw - 24px);padding:27px 12px 10px}.weather-dock-time{gap:8px}.weather-dock .weather-player-play{height:36px;width:36px}.weather-dock-labels{font-size:8px;gap:2px}.weather-dock-track output{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.weather-dock .weather-player-play{box-shadow:none}}
+@media(min-width:701px){.weather-dock{width:min(560px,calc(100vw - 160px))}}
+.weather-dock{padding:20px 12px 7px;border-radius:8px}
+.weather-dock-time{gap:12px;margin:0 0 7px}
+.weather-dock .weather-player-play{width:34px;height:34px;min-height:34px}
+.weather-dock .weather-player-play svg{width:16px;height:16px}
+.weather-dock-track{padding-top:5px}
+.weather-dock-track output{font-size:9px;line-height:14px;padding:1px 6px;bottom:calc(100% + 2px)}
+.weather-dock-track input[type=range]{height:5px;margin-bottom:8px}
+.weather-timeline-ticks{top:7px}
+.weather-timeline-ticks i{width:7px;height:7px}
+.weather-dock-labels{font-size:9px}
+.weather-player-controls{padding-top:6px;font-size:10px;gap:7px}
+.weather-dock .weather-player-colors button{padding:3px 7px;min-height:24px}
+@media(max-width:700px){.weather-dock{padding:20px 10px 7px}.weather-dock-time{gap:10px}.weather-dock-labels{font-size:8px}.weather-player-controls{font-size:9px}}
+
+.weather-dock-loading{position:absolute;bottom:calc(100% + 14px);left:50%;transform:translateX(-50%);pointer-events:none;background:none;border:0;line-height:0}
+.weather-dock-loading img{display:block;width:100px;height:22px;animation:weather-loading-breathe 1s ease-in-out infinite alternate}
+@keyframes weather-loading-breathe{from{opacity:.55}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.weather-dock-loading img{animation:none}}
+
+.weather-dock{overflow:visible}
+.weather-dock-loading{z-index:5}
+.weather-dock .weather-loading-caption{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);white-space:nowrap;color:#d9ffe5;text-shadow:0 1px 3px #000;margin:0;font-size:9px}
+
+.weather-dock-loading{display:flex;align-items:center;justify-content:center;width:100px;height:22px;gap:8px}
+.weather-loading-dot{width:9px;height:9px;flex:none;border-radius:50%;background:#53fa83;box-shadow:0 0 5px #53fa8399;animation:weather-dot-blink 1.2s steps(1,end) infinite;animation-delay:calc(var(--dot-index) * 0.14s)}
+@keyframes weather-dot-blink{0%,65%,100%{opacity:1}30%,50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.weather-loading-dot{animation:none}}

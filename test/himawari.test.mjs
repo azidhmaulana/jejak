@@ -57,7 +57,7 @@ test('archive endpoint selects actual observations, caches metadata and proxies 
 });
 async function service(t, fetcher, now = () => time) {
   const app = express();
-  app.use('/sat', createHimawari({ fetcher, now }).router);
+  app.use('/sat', createHimawari({ fetcher, now, prewarm: false }).router);
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
   t.after(() => {
@@ -162,4 +162,39 @@ test('satellite tile queue bounds upstream concurrency without dropping a normal
   assert.ok(results.every((response) => response.status === 200));
   assert.ok(peak <= 8);
   assert.ok(peak > 1);
+});
+
+test('detail timeline only exposes frames available in both products and caches manifests', async (t) => {
+  const older = { basetime: '20261116064000', validtime: '20261116064000' };
+  const calls = [];
+  const base = await service(t, async (url) => {
+    calls.push(url);
+    if (url.includes('list-type=2')) {
+      const prefix = new URL(url).searchParams.get('prefix');
+      return new Response(
+        Array.from(
+          { length: 10 },
+          (_, i) => `<Key>${prefix}FLDK_R20_S${String(i + 1).padStart(2, '0')}10.DAT.bz2</Key>`,
+        ).join(''),
+      );
+    }
+    if (url.includes('targetTimes')) return Response.json([older, row]);
+    return Response.json({
+      timestamps_int: url.includes('/geocolor/')
+        ? [20261116064000]
+        : [20261116065000, 20261116064000],
+    });
+  });
+  const result = await fetch(base + '/frames?detail=1').then((r) => r.json());
+  assert.deepEqual(
+    result.frames.map((f) => f.id),
+    ['20261116064000'],
+  );
+  await fetch(base + '/frames?detail=1');
+  assert.equal(calls.length, 4);
+  assert.equal(
+    (await fetch(base + '/detail/20261116064000/4/12/8.png?product=invalid')).status,
+    400,
+  );
+  assert.equal(calls.length, 4);
 });

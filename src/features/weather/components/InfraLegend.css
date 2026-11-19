@@ -1,0 +1,25 @@
+.command-workspace .infra-legend {
+  position: fixed;
+  left: 9px;
+  bottom: calc(var(--tactical-footer-height, 34px) + var(--ticker-height, 24px) + 80px);
+  z-index: 5;
+  width: min(260px, calc(100vw - 32px));
+  height: 16px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: center;
+  border-radius: 9px;
+  background: linear-gradient(to right, rgb(0 151 252) 0%, rgb(0 151 252) 25%, rgb(0 215 125) 36.4167%, rgb(255 235 0) 53.0833%, rgb(255 65 0) 69.7500%, rgb(185 0 0) 86.4167%, rgb(116 0 24) 100%);
+  box-shadow: 0 1px 3px #0008;
+  color: white;
+  font: 600 9px/16px sans-serif;
+  text-align: center;
+  text-shadow: 0 1px 2px #000;
+  pointer-events: auto;
+}
+@media(max-width:700px) {
+  .command-workspace .infra-legend {
+    bottom: calc(var(--mobile-nav-height, 56px) + 126px);
+    width: min(220px, calc(100vw - 32px));
+  }
+}

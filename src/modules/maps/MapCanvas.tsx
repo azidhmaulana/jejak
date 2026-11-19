@@ -169,7 +169,7 @@ export default function MapCanvas({
         bearing: 0,
       });
       if (typeof indonesia?.zoom === 'number')
-        instance.setMinZoom(Math.max(0, indonesia.zoom - 2));
+        instance.setMinZoom(Math.max(0, indonesia.zoom - 1));
     };
     limitZoomOut();
     instance.on('resize', limitZoomOut);
